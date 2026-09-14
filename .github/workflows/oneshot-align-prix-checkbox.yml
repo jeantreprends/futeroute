@@ -1,0 +1,52 @@
+name: One-shot alignement coche prix carburant
+
+on:
+  push:
+    branches:
+      - feature/prix-carburant-personnalise
+    paths:
+      - .github/workflows/oneshot-align-prix-checkbox.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/prix-carburant-personnalise
+      - name: Aligne la coche prix sur celle de l'optimisation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old_css = '''    /* Prix personnalisé : option secondaire sous le prix moyen.\n       La roulette elle-même réutilise exactement le composant consommation. */\n    .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }\n    .prix-perso-toggle {\n      display: flex; align-items: center; gap: 9px; width: 100%;\n      border: 0; background: none; padding: 0; cursor: pointer;\n      font: inherit; color: #607080; text-align: left;\n    }\n    .prix-perso-toggle .prix-perso-title { font-size: 12.5px; font-weight: 600; }\n    .prix-perso-checkbox {\n      width: 18px; height: 18px; flex: 0 0 18px; border-radius: 5px;\n      border: 1.5px solid #b8c5d3; background: #fff; position: relative;\n      transition: border-color .15s, background .15s;\n    }\n    .prix-perso-toggle.on .prix-perso-checkbox { border-color: #e2971a; background: #e2971a; }\n    .prix-perso-toggle.on .prix-perso-checkbox::after {\n      content: ''; position: absolute; left: 5px; top: 2px; width: 5px; height: 9px;\n      border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);\n    }\n    .prix-perso-panel { display: none; margin-top: 10px; }\n    .prix-perso-panel.open { display: block; }\n'''
+          new_css = '''    /* Prix personnalisé : la case et son libellé réutilisent exactement le\n       même composant que « Optimiser mes pleins » pour garder taille,\n       espacement, alignement et état coché strictement identiques. */\n    .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }\n    .prix-perso-panel { display: none; margin-top: 10px; }\n    .prix-perso-panel.open { display: block; }\n'''
+          if old_css not in s:
+              raise SystemExit('Bloc CSS prix perso attendu introuvable')
+          s = s.replace(old_css, new_css, 1)
+
+          old_html = '''          <button type="button" class="prix-perso-toggle" id="prixPersoToggle" role="checkbox" aria-checked="false" onclick="setPrixPersoActive(!prixPersoActive)">\n            <span class="prix-perso-checkbox" aria-hidden="true"></span>\n            <span class="prix-perso-title">Je connais le prix de mon carburant</span>\n          </button>'''
+          new_html = '''          <button type="button" class="optim-switch-row prix-perso-toggle" id="prixPersoToggle" role="checkbox" aria-checked="false" onclick="setPrixPersoActive(!prixPersoActive)">\n            <span class="optim-checkbox prix-perso-checkbox" aria-hidden="true"></span>\n            <span class="optim-title prix-perso-title">Je connais le prix de mon carburant</span>\n          </button>'''
+          if old_html not in s:
+              raise SystemExit('Bloc HTML prix perso attendu introuvable')
+          s = s.replace(old_html, new_html, 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Aucun changement"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Aligne la coche du prix sur l’option d’optimisation"
+          git push
