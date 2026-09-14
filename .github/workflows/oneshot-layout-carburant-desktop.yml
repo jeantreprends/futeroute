@@ -1,0 +1,32 @@
+name: One-shot layout carburant desktop
+
+on:
+  push:
+    branches:
+      - fix/align-prix-perso-desktop
+    paths:
+      - .github/workflows/oneshot-layout-carburant-desktop.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/align-prix-perso-desktop
+      - name: Repositionne le titre et centre les carburants
+        run: python .github/patch_layout_carburant_desktop.py
+      - name: Commit
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Aucun changement"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Repositionne le titre Carburant sur desktop"
+          git push
