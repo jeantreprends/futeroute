@@ -357,13 +357,29 @@
        même composant que « Optimiser mes pleins » pour garder taille,
        espacement, alignement et état coché strictement identiques. */
     .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }
-    /* Desktop : aligne « Je connais le prix… » sur « Optimiser mes pleins ».
-       Le bloc est imbriqué dans .param-input : on compense les 94 px du
-       libellé + les 10 px de gap de .param-row. Mobile inchangé. */
+    /* Desktop : le titre Carburant devient un vrai titre au-dessus des choix,
+       et les boutons carburant sont centrés dans le bloc. L'option de prix
+       personnalisé reste alignée avec « Optimiser mes pleins ». */
     @media (min-width: 481px) {
+      .carburant-row {
+        display: block;
+      }
+      .carburant-row .param-label {
+        width: min(820px, 100%);
+        margin: 0 auto 10px;
+      }
+      .carburant-row .param-input {
+        width: 100%;
+      }
+      .carburant-row .carb-choices,
+      .carburant-row .prix-actuel {
+        width: min(820px, 100%);
+        margin-left: auto;
+        margin-right: auto;
+      }
       .carburant-row .prix-perso-wrap {
-        margin-left: -104px;
-        width: calc(100% + 104px);
+        margin-left: 0;
+        width: 100%;
       }
     }
     .prix-perso-panel { display: none; margin-top: 10px; }
