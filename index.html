@@ -353,7 +353,8 @@
       box-shadow: 0 0 0 3px rgba(226,151,26,0.18);
     }
 
-    /* Prix personnalisé : option secondaire sous le prix moyen. */
+    /* Prix personnalisé : option secondaire sous le prix moyen.
+       La roulette elle-même réutilise exactement le composant consommation. */
     .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }
     .prix-perso-toggle {
       display: flex; align-items: center; gap: 9px; width: 100%;
@@ -373,42 +374,6 @@
     }
     .prix-perso-panel { display: none; margin-top: 10px; }
     .prix-perso-panel.open { display: block; }
-    .prix-perso-line { width: 100%; }
-    .prix-perso-roulette {
-      position: relative; width: 100%; height: 54px; overflow: hidden;
-      border-radius: 10px; background: rgba(255,255,255,.72);
-      border: 1px solid #ead7ae; touch-action: none; user-select: none;
-    }
-    .prix-perso-track { position: absolute; height: 100%; left: 0; top: 0; will-change: transform; }
-    .prix-perso-major { position: absolute; top: 11px; width: 1px; height: 15px; background: #c7b27f; }
-    .prix-perso-major span {
-      position: absolute; top: 20px; left: 0; transform: translateX(-50%);
-      font-size: 9px; font-weight: 600; color: #8e7a4f; white-space: nowrap;
-    }
-    .prix-perso-center {
-      position: absolute; left: 50%; top: 7px; bottom: 7px; width: 2px;
-      transform: translateX(-1px); background: #e2971a; border-radius: 2px;
-      pointer-events: none;
-    }
-    .prix-perso-value { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 6px; }
-    .prix-perso-val-input {
-      width: 58px; border: 0; background: transparent; text-align: right;
-      font: inherit; font-size: 14px; font-weight: 800; color: #1a2433; outline: none;
-    }
-    .prix-perso-unit { font-size: 12px; font-weight: 700; color: #607080; white-space: nowrap; }
-    .prix-perso-arrow {
-      display: none; align-items: center; justify-content: center;
-      width: 32px; height: 32px; border-radius: 50%; border: 0;
-      background: #eef2f6; color: #1976d2; font-size: 20px; font-weight: 700;
-      cursor: pointer; line-height: 1;
-    }
-    @media (min-width: 481px) {
-      .prix-perso-line { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
-      .prix-perso-roulette { display: none; }
-      .prix-perso-arrow { display: inline-flex; }
-      .prix-perso-value { margin-top: 0; min-width: 92px; }
-      .prix-perso-val-input { cursor: text; }
-    }
 
     /* Prix moyen actuel : une ligne, alignée avec le champ Carburant */
     .prix-actuel {
@@ -491,7 +456,8 @@
     .conso-value .roulette-unit { font-size: 10px; font-weight: 600; color: #607080; }
     /* Sur ordinateur, la valeur devient un champ éditable au clic (pas d'encadré
        visible, juste un très léger fond au focus pour indiquer qu'on peut taper). */
-    #consoVal.conso-val-input {
+    #consoVal.conso-val-input,
+    #prixPersoVal.conso-val-input {
       width: 4ch;
       padding: 1px 2px;
       border: none;
@@ -506,11 +472,12 @@
       box-shadow: none;
       cursor: text;
     }
-    #consoVal.conso-val-input:focus {
+    #consoVal.conso-val-input:focus,
+    #prixPersoVal.conso-val-input:focus {
       background: rgba(226,151,26,0.1);
       box-shadow: none;
     }
-    #consoVal.conso-val-input[readonly] { cursor: default; }
+    #consoVal.conso-val-input[readonly], #prixPersoVal.conso-val-input[readonly] { cursor: default; }
 
     /* Desktop : flèches +/- de part et d'autre de la valeur, au lieu de la règle */
     .conso-arrow {
@@ -1927,14 +1894,14 @@
           </button>
           <div class="prix-perso-panel" id="prixPersoPanel">
             <input type="hidden" id="prixPerso" value="1.50">
-            <div class="prix-perso-line">
-              <div class="prix-perso-roulette" id="prixPersoRoulette" role="slider" aria-label="Prix du carburant" aria-valuemin="0.10" aria-valuemax="5.00" tabindex="0">
-                <div class="prix-perso-track" id="prixPersoTrack"></div>
-                <div class="prix-perso-center"></div>
+            <div class="conso-line">
+              <div class="conso-roulette" id="prixPersoRoulette" role="slider" aria-label="Prix du carburant" aria-valuemin="0.10" aria-valuemax="5.00" tabindex="0">
+                <div class="roulette-viewport"><div class="roulette-track" id="prixPersoTrack"></div></div>
+                <div class="roulette-center"></div>
               </div>
-              <button type="button" class="prix-perso-arrow" id="prixPersoMinus" aria-label="Diminuer le prix du carburant">−</button>
-              <div class="prix-perso-value"><input type="text" id="prixPersoVal" class="prix-perso-val-input" value="1,50" inputmode="decimal" readonly aria-label="Prix personnalisé du carburant"> <span class="prix-perso-unit" id="prixPersoUnit">€/L</span></div>
-              <button type="button" class="prix-perso-arrow" id="prixPersoPlus" aria-label="Augmenter le prix du carburant">+</button>
+              <button type="button" class="conso-arrow" id="prixPersoMinus" aria-label="Diminuer le prix du carburant">−</button>
+              <div class="conso-value"><input type="text" id="prixPersoVal" class="conso-val-input" value="1,50" inputmode="decimal" readonly aria-label="Prix personnalisé du carburant"> <span class="roulette-unit" id="prixPersoUnit">€/L</span></div>
+              <button type="button" class="conso-arrow" id="prixPersoPlus" aria-label="Augmenter le prix du carburant">+</button>
             </div>
           </div>
         </div>
@@ -3129,7 +3096,7 @@ let prixActuel = null;
 // peut utiliser la valeur connue par l'utilisateur. Pas de 0,01 €/L.
 let prixPersoActive = false;
 let prixPersoInitialise = false;
-const PRIX_PERSO_MIN = 0.10, PRIX_PERSO_MAX = 5.00, PRIX_PERSO_PX_PAR_CENTIME = 4;
+const PRIX_PERSO_MIN = 0.10, PRIX_PERSO_MAX = 5.00, PRIX_PERSO_PX_PAR_CENTIME = 6;
 function prixPersoValeur() {
   const el = document.getElementById('prixPerso');
   const v = el ? parseFloat(el.value) : NaN;
@@ -3180,53 +3147,94 @@ function prixPersoInit() {
   const track = document.getElementById('prixPersoTrack');
   const box = document.getElementById('prixPersoRoulette');
   if (!track || !box) return;
+
+  // Même densité visuelle que la conso : 60 px entre deux valeurs légendées.
+  // Ici une valeur légendée tous les 0,10 €, avec un cran fin chaque centime.
   let html = '';
   for (let cents = 10; cents <= 500; cents += 10) {
-    const left = (cents - 10) * PRIX_PERSO_PX_PAR_CENTIME;
-    html += `<div class="prix-perso-major" style="left:${left}px"><span>${(cents / 100).toFixed(1).replace('.', ',')}</span></div>`;
+    html += `<div class="rt-major" style="left:${(cents - 10) * PRIX_PERSO_PX_PAR_CENTIME}px"><span>${(cents / 100).toFixed(1).replace('.', ',')}</span></div>`;
   }
-  track.style.width = ((PRIX_PERSO_MAX - PRIX_PERSO_MIN) * 100 * PRIX_PERSO_PX_PAR_CENTIME + 1) + 'px';
   track.innerHTML = html;
 
   let dragging = false, startX = 0, startVal = 1.50;
+  let lastX = 0, lastT = 0, velocity = 0, momentumFrame = null;
+  function stopMomentum() {
+    if (momentumFrame) { cancelAnimationFrame(momentumFrame); momentumFrame = null; }
+  }
   box.addEventListener('pointerdown', e => {
+    stopMomentum();
     dragging = true; startX = e.clientX; startVal = prixPersoValeur() || 1.50;
-    box.setPointerCapture(e.pointerId); e.preventDefault();
+    lastX = e.clientX; lastT = performance.now(); velocity = 0;
+    track.style.transition = 'none';
+    box.setPointerCapture(e.pointerId);
+    e.preventDefault();
   });
   box.addEventListener('pointermove', e => {
     if (!dragging) return;
-    const delta = (e.clientX - startX) / (PRIX_PERSO_PX_PAR_CENTIME * 100);
-    prixPersoSet(startVal - delta, true);
+    const now = performance.now();
+    const dt = now - lastT;
+    if (dt >= 8) {
+      const instVel = -(e.clientX - lastX) / (PRIX_PERSO_PX_PAR_CENTIME * 100) / dt;
+      const MAX_VEL = 0.004;
+      velocity = velocity * 0.7 + Math.max(-MAX_VEL, Math.min(MAX_VEL, instVel)) * 0.3;
+      lastX = e.clientX; lastT = now;
+    }
+    prixPersoSet(startVal - (e.clientX - startX) / (PRIX_PERSO_PX_PAR_CENTIME * 100), true);
   });
-  const end = () => { dragging = false; };
+  function startMomentum() {
+    if (Math.abs(velocity) < 0.0008) { track.style.transition = 'transform 0.15s ease-out'; return; }
+    let v = velocity;
+    let lastTime = performance.now();
+    const step = (now) => {
+      const dt = now - lastTime;
+      lastTime = now;
+      v *= Math.pow(0.08, dt / 1000);
+      prixPersoSet((prixPersoValeur() || 1.50) + v * dt, true);
+      const val = prixPersoValeur() || 1.50;
+      const atBound = val <= PRIX_PERSO_MIN || val >= PRIX_PERSO_MAX;
+      if (Math.abs(v) > 0.00008 && !atBound) {
+        momentumFrame = requestAnimationFrame(step);
+      } else {
+        momentumFrame = null;
+        track.style.transition = 'transform 0.15s ease-out';
+      }
+    };
+    momentumFrame = requestAnimationFrame(step);
+  }
+  const end = () => {
+    if (!dragging) return;
+    dragging = false;
+    startMomentum();
+  };
   box.addEventListener('pointerup', end);
   box.addEventListener('pointercancel', end);
   box.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft') { prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true); e.preventDefault(); }
+    if (e.key === 'ArrowLeft')  { prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true); e.preventDefault(); }
     if (e.key === 'ArrowRight') { prixPersoSet((prixPersoValeur() || 1.50) + 0.01, true); e.preventDefault(); }
   });
   window.addEventListener('resize', () => { if (prixPersoActive) prixPersoSet(prixPersoValeur() || 1.50, false); });
+  prixPersoSet(prixPersoValeur() || 1.50, false);
 
-  const minus = document.getElementById('prixPersoMinus');
-  const plus = document.getElementById('prixPersoPlus');
-  holdRepeat(minus, () => prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true));
-  holdRepeat(plus, () => prixPersoSet((prixPersoValeur() || 1.50) + 0.01, true));
+  const minusBtn = document.getElementById('prixPersoMinus');
+  const plusBtn = document.getElementById('prixPersoPlus');
+  holdRepeat(minusBtn, () => prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true));
+  holdRepeat(plusBtn, () => prixPersoSet((prixPersoValeur() || 1.50) + 0.01, true));
 
-  const input = document.getElementById('prixPersoVal');
-  const syncEditable = () => { if (input) input.readOnly = !window.matchMedia('(min-width: 481px)').matches; };
+  const valInput = document.getElementById('prixPersoVal');
+  const isDesktop = () => window.matchMedia('(min-width: 481px)').matches;
+  const syncEditable = () => { if (valInput) valInput.readOnly = !isDesktop(); };
   syncEditable();
   window.addEventListener('resize', syncEditable);
-  if (input) {
-    input.addEventListener('focus', () => { if (!input.readOnly) input.select(); });
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
-    input.addEventListener('blur', () => {
-      if (input.readOnly) return;
-      const parsed = parseFloat(input.value.replace(',', '.'));
+  if (valInput) {
+    valInput.addEventListener('focus', () => { if (!valInput.readOnly) valInput.select(); });
+    valInput.addEventListener('keydown', e => { if (e.key === 'Enter') valInput.blur(); });
+    valInput.addEventListener('blur', () => {
+      if (valInput.readOnly) return;
+      const parsed = parseFloat(valInput.value.replace(',', '.'));
       prixPersoSet(isNaN(parsed) ? (prixPersoValeur() || 1.50) : parsed, true);
     });
   }
   majUnitePrixPerso();
-  prixPersoSet(prixPersoValeur() || 1.50, false);
 }
 prixPersoInit();
 
@@ -6245,7 +6253,7 @@ async function analyserTronconsSansPeage(coords, lieux, apiKey, conso) {
       if (!peage || typeof peage.cost !== 'number' || peage.cost <= 0) continue;
       unPeageDetecte = true;
       // Économie nette : péage évité moins le carburant du détour.
-      const surcoutCarb = (zero.distanceKm - rapide.distanceKm) * conso / 100 * (prixActuel || 0);
+      const surcoutCarb = (zero.distanceKm - rapide.distanceKm) * conso / 100 * (prixCarburantUtilise() || 0);
       const economie = peage.cost - surcoutCarb;
       if (economie <= 0.5) continue;
       const detourSec = Math.max(0, zero.dureeSec - rapide.dureeSec);
@@ -6317,7 +6325,7 @@ function afficherRentabiliteSimple(routeRapide, routeZero, coutPeage, conso, dep
     bloc.style.display = 'none';
     return;
   }
-  const surcoutCarb = (routeZero.distanceKm - routeRapide.distanceKm) * conso / 100 * (prixActuel || 0);
+  const surcoutCarb = (routeZero.distanceKm - routeRapide.distanceKm) * conso / 100 * (prixCarburantUtilise() || 0);
   const economie = coutPeage - surcoutCarb;
   const detourSec = Math.max(0, routeZero.dureeSec - routeRapide.dureeSec);
   const eurParH = detourSec >= 60 ? economie / (detourSec / 3600) : Infinity;
