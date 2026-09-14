@@ -1,0 +1,161 @@
+name: One-shot roulette prix identique conso
+
+on:
+  push:
+    branches:
+      - feature/prix-carburant-personnalise
+    paths:
+      - .github/workflows/oneshot-roulette-prix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/prix-carburant-personnalise
+      - name: Aligne la roulette prix sur celle de la consommation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # 1) Garde seulement le style propre au toggle/panneau : la roulette
+          # réutilise désormais EXACTEMENT les classes CSS de la consommation.
+          css_pattern = re.compile(r"    /\* Prix personnalisé : option secondaire sous le prix moyen\. \*/.*?(?=    /\* Prix moyen actuel : une ligne, alignée avec le champ Carburant \*/)", re.S)
+          css_repl = '''    /* Prix personnalisé : option secondaire sous le prix moyen.\n       La roulette réutilise volontairement les classes de la consommation\n       (.conso-line, .conso-roulette, .roulette-track, etc.) pour avoir le\n       même rendu mobile et les mêmes boutons +/- sur ordinateur. */\n    .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }\n    .prix-perso-toggle {\n      display: flex; align-items: center; gap: 9px; width: 100%;\n      border: 0; background: none; padding: 0; cursor: pointer;\n      font: inherit; color: #607080; text-align: left;\n    }\n    .prix-perso-toggle .prix-perso-title { font-size: 12.5px; font-weight: 600; }\n    .prix-perso-checkbox {\n      width: 18px; height: 18px; flex: 0 0 18px; border-radius: 5px;\n      border: 1.5px solid #b8c5d3; background: #fff; position: relative;\n      transition: border-color .15s, background .15s;\n    }\n    .prix-perso-toggle.on .prix-perso-checkbox { border-color: #e2971a; background: #e2971a; }\n    .prix-perso-toggle.on .prix-perso-checkbox::after {\n      content: ''; position: absolute; left: 5px; top: 2px; width: 5px; height: 9px;\n      border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);\n    }\n    .prix-perso-panel { display: none; margin-top: 10px; }\n    .prix-perso-panel.open { display: block; }\n\n'''
+          s, n = css_pattern.subn(css_repl, s, count=1)
+          if n != 1:
+              raise SystemExit(f'Bloc CSS prix perso introuvable: {n}')
+
+          # 2) Même structure HTML que la roulette conso, avec seulement des IDs distincts.
+          html_pattern = re.compile(r'''            <div class="prix-perso-line">\n              <div class="prix-perso-roulette" id="prixPersoRoulette".*?\n            </div>''', re.S)
+          html_repl = '''            <div class="conso-line">\n              <div class="conso-roulette" id="prixPersoRoulette" role="slider" aria-label="Prix du carburant" aria-valuemin="0.10" aria-valuemax="5.00" tabindex="0">\n                <div class="roulette-viewport"><div class="roulette-track" id="prixPersoTrack"></div></div>\n                <div class="roulette-center"></div>\n              </div>\n              <button type="button" class="conso-arrow" id="prixPersoMinus" aria-label="Diminuer le prix du carburant">−</button>\n              <div class="conso-value"><input type="text" id="prixPersoVal" class="conso-val-input" value="1,50" inputmode="decimal" readonly aria-label="Prix personnalisé du carburant"> <span class="roulette-unit" id="prixPersoUnit">€/L</span></div>\n              <button type="button" class="conso-arrow" id="prixPersoPlus" aria-label="Augmenter le prix du carburant">+</button>\n            </div>'''
+          s, n = html_pattern.subn(html_repl, s, count=1)
+          if n != 1:
+              raise SystemExit(f'Bloc HTML roulette prix introuvable: {n}')
+
+          # 3) Même densité que la conso : 60 px entre deux graduations majeures.
+          s = s.replace('PRIX_PERSO_PX_PAR_CENTIME = 4', 'PRIX_PERSO_PX_PAR_CENTIME = 6', 1)
+
+          # 4) Même comportement tactile que la conso, inertie comprise.
+          js_pattern = re.compile(r'function prixPersoInit\(\) \{.*?\n\}\nprixPersoInit\(\);', re.S)
+          js_repl = r'''function prixPersoInit() {
+  const track = document.getElementById('prixPersoTrack');
+  const box = document.getElementById('prixPersoRoulette');
+  if (!track || !box) return;
+
+  // Même logique graphique que la consommation : une graduation majeure tous
+  // les 0,10 €, espacée de 60 px. Le pas de réglage reste bien 0,01 €.
+  let html = '';
+  for (let cents = 10; cents <= 500; cents += 10) {
+    const left = (cents - 10) * PRIX_PERSO_PX_PAR_CENTIME;
+    html += `<div class="rt-major" style="left:${left}px"><span>${(cents / 100).toFixed(1).replace('.', ',')}</span></div>`;
+  }
+  track.innerHTML = html;
+
+  let dragging = false, startX = 0, startVal = 1.50;
+  let lastX = 0, lastT = 0, velocity = 0, momentumFrame = null;
+  function stopMomentum() {
+    if (momentumFrame) { cancelAnimationFrame(momentumFrame); momentumFrame = null; }
+  }
+
+  box.addEventListener('pointerdown', e => {
+    stopMomentum();
+    dragging = true; startX = e.clientX; startVal = prixPersoValeur() || 1.50;
+    lastX = e.clientX; lastT = performance.now(); velocity = 0;
+    track.style.transition = 'none';
+    box.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  box.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const now = performance.now();
+    const dt = now - lastT;
+    if (dt >= 8) {
+      const instVel = -(e.clientX - lastX) / (PRIX_PERSO_PX_PAR_CENTIME * 100) / dt;
+      const MAX_VEL = 0.004;
+      velocity = velocity * 0.7 + Math.max(-MAX_VEL, Math.min(MAX_VEL, instVel)) * 0.3;
+      lastX = e.clientX; lastT = now;
+    }
+    prixPersoSet(startVal - (e.clientX - startX) / (PRIX_PERSO_PX_PAR_CENTIME * 100), true);
+  });
+  function startMomentum() {
+    if (Math.abs(velocity) < 0.0008) { track.style.transition = 'transform 0.15s ease-out'; return; }
+    let v = velocity;
+    let lastTime = performance.now();
+    const step = (now) => {
+      const dt = now - lastTime;
+      lastTime = now;
+      v *= Math.pow(0.08, dt / 1000);
+      prixPersoSet((prixPersoValeur() || 1.50) + v * dt, true);
+      const val = prixPersoValeur() || 1.50;
+      const atBound = val <= PRIX_PERSO_MIN || val >= PRIX_PERSO_MAX;
+      if (Math.abs(v) > 0.00008 && !atBound) {
+        momentumFrame = requestAnimationFrame(step);
+      } else {
+        momentumFrame = null;
+        track.style.transition = 'transform 0.15s ease-out';
+      }
+    };
+    momentumFrame = requestAnimationFrame(step);
+  }
+  const end = () => {
+    if (!dragging) return;
+    dragging = false;
+    startMomentum();
+  };
+  box.addEventListener('pointerup', end);
+  box.addEventListener('pointercancel', end);
+  box.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { prixPersoSet((prixPersoValeur() || 1.50) + 0.01, true); e.preventDefault(); }
+  });
+  window.addEventListener('resize', () => { if (prixPersoActive) prixPersoSet(prixPersoValeur() || 1.50, false); });
+  prixPersoSet(prixPersoValeur() || 1.50, false);
+
+  const minus = document.getElementById('prixPersoMinus');
+  const plus = document.getElementById('prixPersoPlus');
+  holdRepeat(minus, () => prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true));
+  holdRepeat(plus, () => prixPersoSet((prixPersoValeur() || 1.50) + 0.01, true));
+
+  const input = document.getElementById('prixPersoVal');
+  const isDesktop = () => window.matchMedia('(min-width: 481px)').matches;
+  const syncEditable = () => { if (input) input.readOnly = !isDesktop(); };
+  syncEditable();
+  window.addEventListener('resize', syncEditable);
+  if (input) {
+    input.addEventListener('focus', () => { if (!input.readOnly) input.select(); });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+    input.addEventListener('blur', () => {
+      if (input.readOnly) return;
+      const parsed = parseFloat(input.value.replace(',', '.'));
+      prixPersoSet(isNaN(parsed) ? (prixPersoValeur() || 1.50) : parsed, true);
+    });
+  }
+  majUnitePrixPerso();
+}
+prixPersoInit();'''
+          s, n = js_pattern.subn(js_repl, s, count=1)
+          if n != 1:
+              raise SystemExit(f'Bloc JS roulette prix introuvable: {n}')
+
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Aucun changement"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Aligne la roulette du prix sur celle de la consommation"
+          git push
