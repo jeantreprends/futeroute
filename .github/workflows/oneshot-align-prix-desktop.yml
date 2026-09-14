@@ -1,0 +1,61 @@
+name: One-shot alignement prix personnalisé desktop
+
+on:
+  push:
+    branches:
+      - fix/align-prix-perso-desktop
+    paths:
+      - .github/workflows/oneshot-align-prix-desktop.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/align-prix-perso-desktop
+      - name: Aligne l’option prix personnalisé sur desktop
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = """    .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }
+    .prix-perso-panel { display: none; margin-top: 10px; }
+"""
+          new = """    .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }
+    /* Desktop : la case « Je connais le prix… » doit démarrer exactement
+       au même x que « Optimiser mes pleins ». Le bloc est imbriqué dans
+       .param-input, donc on compense la largeur du libellé (94 px) + le gap
+       de la ligne (10 px). Le mobile reste inchangé puisque le libellé y
+       passe déjà au-dessus. */
+    @media (min-width: 481px) {
+      .carburant-row .prix-perso-wrap {
+        margin-left: -104px;
+        width: calc(100% + 104px);
+      }
+    }
+    .prix-perso-panel { display: none; margin-top: 10px; }
+"""
+
+          if old not in s:
+              raise SystemExit('Bloc .prix-perso-wrap attendu introuvable')
+
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Aucun changement"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Aligne le prix personnalisé sur desktop"
+          git push
