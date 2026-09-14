@@ -6,6 +6,7 @@ on:
       - feature/prix-carburant-personnalise
     paths:
       - .github/workflows/oneshot-remonte-prix-moyen.yml
+      - .github/patch_remonte_prix.py
 
 permissions:
   contents: write
@@ -17,40 +18,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: feature/prix-carburant-personnalise
-      - name: Replace le prix moyen dans le flux
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-
-          old = '''    .carburant-row { padding: 15px 0 33px; }
-    .carburant-row .param-input { position: relative; }
-    .carburant-row .prix-actuel {
-      position: absolute;
-      top: calc(100% + 5px);
-      left: 2px;
-      margin: 0;
-    }
-'''
-          new = '''    .carburant-row { padding: 15px 0; }
-    .carburant-row .param-input { position: relative; }
-    /* Le prix moyen reste dans le flux, juste sous les boutons carburant.
-       L'ancien positionnement absolu le repoussait sous la nouvelle case
-       « Je connais le prix de mon carburant ». */
-    .carburant-row .prix-actuel {
-      position: static;
-      margin-top: 8px;
-      padding-left: 2px;
-    }
-'''
-          if old not in s:
-              raise SystemExit('Bloc CSS carburant attendu introuvable')
-          s = s.replace(old, new, 1)
-          p.write_text(s, encoding='utf-8')
-          PY
-      - name: Commit
+      - name: Patch index.html
+        run: python .github/patch_remonte_prix.py
+      - name: Commit changes
         run: |
           if git diff --quiet -- index.html; then
             echo "Aucun changement"
@@ -59,5 +29,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Replace le prix moyen au-dessus de l’option personnalisée"
+          git commit -m "Replace le prix moyen au-dessus de l'option personnalisée"
           git push
