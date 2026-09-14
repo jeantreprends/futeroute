@@ -353,6 +353,13 @@
       box-shadow: 0 0 0 3px rgba(226,151,26,0.18);
     }
 
+    /* Prix personnalisé : la case et son libellé réutilisent exactement le
+       même composant que « Optimiser mes pleins » pour garder taille,
+       espacement, alignement et état coché strictement identiques. */
+    .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }
+    .prix-perso-panel { display: none; margin-top: 10px; }
+    .prix-perso-panel.open { display: block; }
+
     /* Prix moyen actuel : une ligne, alignée avec le champ Carburant */
     .prix-actuel {
       margin-top: 6px;
@@ -410,13 +417,15 @@
        la règle commune .carburant-row { display:none }. On neutralise donc
        uniquement son conteneur visuel pour éviter la fine barre jaune vide. */
     #modeStation .section-carburant { background: transparent; border: 0; padding: 0; margin: 0; }
-    .carburant-row { padding: 15px 0 33px; }
+    .carburant-row { padding: 15px 0; }
     .carburant-row .param-input { position: relative; }
+    /* Le prix moyen reste dans le flux, juste sous les boutons carburant.
+       L'ancien positionnement absolu le repoussait sous la nouvelle case
+       « Je connais le prix de mon carburant ». */
     .carburant-row .prix-actuel {
-      position: absolute;
-      top: calc(100% + 5px);
-      left: 2px;
-      margin: 0;
+      position: static;
+      margin-top: 8px;
+      padding-left: 2px;
     }
 
     /* Règle + valeur sur une seule ligne (valeur à droite) */
@@ -434,7 +443,8 @@
     .conso-value .roulette-unit { font-size: 10px; font-weight: 600; color: #607080; }
     /* Sur ordinateur, la valeur devient un champ éditable au clic (pas d'encadré
        visible, juste un très léger fond au focus pour indiquer qu'on peut taper). */
-    #consoVal.conso-val-input {
+    #consoVal.conso-val-input,
+    #prixPersoVal.conso-val-input {
       width: 4ch;
       padding: 1px 2px;
       border: none;
@@ -449,11 +459,12 @@
       box-shadow: none;
       cursor: text;
     }
-    #consoVal.conso-val-input:focus {
+    #consoVal.conso-val-input:focus,
+    #prixPersoVal.conso-val-input:focus {
       background: rgba(226,151,26,0.1);
       box-shadow: none;
     }
-    #consoVal.conso-val-input[readonly] { cursor: default; }
+    #consoVal.conso-val-input[readonly], #prixPersoVal.conso-val-input[readonly] { cursor: default; }
 
     /* Desktop : flèches +/- de part et d'autre de la valeur, au lieu de la règle */
     .conso-arrow {
@@ -1863,6 +1874,24 @@
           <button type="button" class="carb-choice" data-value="electrique" onclick="setCarburant('electrique', this)">Électrique</button>
         </div>
         <div class="prix-actuel">Prix moyen actuel : <span id="prixAffiche">Chargement…</span></div>
+        <div class="prix-perso-wrap">
+          <button type="button" class="optim-switch-row prix-perso-toggle" id="prixPersoToggle" role="checkbox" aria-checked="false" onclick="setPrixPersoActive(!prixPersoActive)">
+            <span class="optim-checkbox prix-perso-checkbox" aria-hidden="true"></span>
+            <span class="optim-title prix-perso-title">Je connais le prix de mon carburant</span>
+          </button>
+          <div class="prix-perso-panel" id="prixPersoPanel">
+            <input type="hidden" id="prixPerso" value="1.50">
+            <div class="conso-line">
+              <div class="conso-roulette" id="prixPersoRoulette" role="slider" aria-label="Prix du carburant" aria-valuemin="0.10" aria-valuemax="5.00" tabindex="0">
+                <div class="roulette-viewport"><div class="roulette-track" id="prixPersoTrack"></div></div>
+                <div class="roulette-center"></div>
+              </div>
+              <button type="button" class="conso-arrow" id="prixPersoMinus" aria-label="Diminuer le prix du carburant">−</button>
+              <div class="conso-value"><input type="text" id="prixPersoVal" class="conso-val-input" value="1,50" inputmode="decimal" readonly aria-label="Prix personnalisé du carburant"> <span class="roulette-unit" id="prixPersoUnit">€/L</span></div>
+              <button type="button" class="conso-arrow" id="prixPersoPlus" aria-label="Augmenter le prix du carburant">+</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -3049,6 +3078,153 @@ const CARB_FIELD = {
 const PRIX_ELECTRIQUE_ESTIME = 0.55;
 let prixActuel = null;
 
+
+// Prix carburant personnalisé : le prix moyen reste visible, mais le calcul
+// peut utiliser la valeur connue par l'utilisateur. Pas de 0,01 €/L.
+let prixPersoActive = false;
+let prixPersoInitialise = false;
+const PRIX_PERSO_MIN = 0.10, PRIX_PERSO_MAX = 5.00, PRIX_PERSO_PX_PAR_CENTIME = 6;
+function prixPersoValeur() {
+  const el = document.getElementById('prixPerso');
+  const v = el ? parseFloat(el.value) : NaN;
+  return isFinite(v) ? v : null;
+}
+function prixCarburantUtilise() {
+  const perso = prixPersoValeur();
+  return prixPersoActive && perso !== null ? perso : prixActuel;
+}
+function majUnitePrixPerso() {
+  const unit = document.getElementById('prixPersoUnit');
+  if (!unit) return;
+  unit.textContent = document.getElementById('carburant').value === 'electrique' ? '€/kWh' : '€/L';
+}
+function prixPersoSet(v, doReset) {
+  v = Math.min(PRIX_PERSO_MAX, Math.max(PRIX_PERSO_MIN, Math.round(v * 100) / 100));
+  const hidden = document.getElementById('prixPerso');
+  if (hidden) hidden.value = v.toFixed(2);
+  const disp = document.getElementById('prixPersoVal');
+  if (disp) disp.value = v.toFixed(2).replace('.', ',');
+  const track = document.getElementById('prixPersoTrack');
+  const box = document.getElementById('prixPersoRoulette');
+  if (track && box && box.clientWidth) {
+    const center = box.clientWidth / 2;
+    const cents = Math.round((v - PRIX_PERSO_MIN) * 100);
+    track.style.transform = `translateX(${center - cents * PRIX_PERSO_PX_PAR_CENTIME}px)`;
+  }
+  if (box) box.setAttribute('aria-valuenow', v.toFixed(2));
+  if (doReset) resetResultat();
+}
+function setPrixPersoActive(on) {
+  prixPersoActive = !!on;
+  const toggle = document.getElementById('prixPersoToggle');
+  const panel = document.getElementById('prixPersoPanel');
+  if (toggle) {
+    toggle.classList.toggle('on', prixPersoActive);
+    toggle.setAttribute('aria-checked', prixPersoActive ? 'true' : 'false');
+  }
+  if (panel) panel.classList.toggle('open', prixPersoActive);
+  if (prixPersoActive && !prixPersoInitialise) {
+    prixPersoInitialise = true;
+    prixPersoSet(isFinite(prixActuel) ? prixActuel : 1.50, false);
+  }
+  if (prixPersoActive) requestAnimationFrame(() => prixPersoSet(prixPersoValeur() || 1.50, false));
+  resetResultat();
+}
+function prixPersoInit() {
+  const track = document.getElementById('prixPersoTrack');
+  const box = document.getElementById('prixPersoRoulette');
+  if (!track || !box) return;
+
+  // Même densité visuelle que la conso : 60 px entre deux valeurs légendées.
+  // Ici une valeur légendée tous les 0,10 €, avec un cran fin chaque centime.
+  let html = '';
+  for (let cents = 10; cents <= 500; cents += 10) {
+    html += `<div class="rt-major" style="left:${(cents - 10) * PRIX_PERSO_PX_PAR_CENTIME}px"><span>${(cents / 100).toFixed(1).replace('.', ',')}</span></div>`;
+  }
+  track.innerHTML = html;
+
+  let dragging = false, startX = 0, startVal = 1.50;
+  let lastX = 0, lastT = 0, velocity = 0, momentumFrame = null;
+  function stopMomentum() {
+    if (momentumFrame) { cancelAnimationFrame(momentumFrame); momentumFrame = null; }
+  }
+  box.addEventListener('pointerdown', e => {
+    stopMomentum();
+    dragging = true; startX = e.clientX; startVal = prixPersoValeur() || 1.50;
+    lastX = e.clientX; lastT = performance.now(); velocity = 0;
+    track.style.transition = 'none';
+    box.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  box.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const now = performance.now();
+    const dt = now - lastT;
+    if (dt >= 8) {
+      const instVel = -(e.clientX - lastX) / (PRIX_PERSO_PX_PAR_CENTIME * 100) / dt;
+      const MAX_VEL = 0.004;
+      velocity = velocity * 0.7 + Math.max(-MAX_VEL, Math.min(MAX_VEL, instVel)) * 0.3;
+      lastX = e.clientX; lastT = now;
+    }
+    prixPersoSet(startVal - (e.clientX - startX) / (PRIX_PERSO_PX_PAR_CENTIME * 100), true);
+  });
+  function startMomentum() {
+    if (Math.abs(velocity) < 0.0008) { track.style.transition = 'transform 0.15s ease-out'; return; }
+    let v = velocity;
+    let lastTime = performance.now();
+    const step = (now) => {
+      const dt = now - lastTime;
+      lastTime = now;
+      v *= Math.pow(0.08, dt / 1000);
+      prixPersoSet((prixPersoValeur() || 1.50) + v * dt, true);
+      const val = prixPersoValeur() || 1.50;
+      const atBound = val <= PRIX_PERSO_MIN || val >= PRIX_PERSO_MAX;
+      if (Math.abs(v) > 0.00008 && !atBound) {
+        momentumFrame = requestAnimationFrame(step);
+      } else {
+        momentumFrame = null;
+        track.style.transition = 'transform 0.15s ease-out';
+      }
+    };
+    momentumFrame = requestAnimationFrame(step);
+  }
+  const end = () => {
+    if (!dragging) return;
+    dragging = false;
+    startMomentum();
+  };
+  box.addEventListener('pointerup', end);
+  box.addEventListener('pointercancel', end);
+  box.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { prixPersoSet((prixPersoValeur() || 1.50) + 0.01, true); e.preventDefault(); }
+  });
+  window.addEventListener('resize', () => { if (prixPersoActive) prixPersoSet(prixPersoValeur() || 1.50, false); });
+  prixPersoSet(prixPersoValeur() || 1.50, false);
+
+  const minusBtn = document.getElementById('prixPersoMinus');
+  const plusBtn = document.getElementById('prixPersoPlus');
+  holdRepeat(minusBtn, () => prixPersoSet((prixPersoValeur() || 1.50) - 0.01, true));
+  holdRepeat(plusBtn, () => prixPersoSet((prixPersoValeur() || 1.50) + 0.01, true));
+
+  const valInput = document.getElementById('prixPersoVal');
+  const isDesktop = () => window.matchMedia('(min-width: 481px)').matches;
+  const syncEditable = () => { if (valInput) valInput.readOnly = !isDesktop(); };
+  syncEditable();
+  window.addEventListener('resize', syncEditable);
+  if (valInput) {
+    valInput.addEventListener('focus', () => { if (!valInput.readOnly) valInput.select(); });
+    valInput.addEventListener('keydown', e => { if (e.key === 'Enter') valInput.blur(); });
+    valInput.addEventListener('blur', () => {
+      if (valInput.readOnly) return;
+      const parsed = parseFloat(valInput.value.replace(',', '.'));
+      prixPersoSet(isNaN(parsed) ? (prixPersoValeur() || 1.50) : parsed, true);
+    });
+  }
+  majUnitePrixPerso();
+}
+prixPersoInit();
+
 // Met à jour l'unité affichée (L ou kWh) selon le carburant choisi, et
 // préremplit une consommation moyenne plausible au changement de "famille"
 // (électrique <-> thermique), sans écraser une valeur déjà ajustée si on
@@ -3063,6 +3239,7 @@ function setCarburant(value, btn, keepScope) {
   document.getElementById('carburant').value = value;
   document.querySelectorAll('#carbChoices .carb-choice').forEach(b => b.classList.toggle('active', b === btn));
   resetResultat(keepScope);
+  majUnitePrixPerso();
   chargerPrix();
   majUniteConso(keepScope);
   majPastilles();
@@ -6063,7 +6240,7 @@ async function analyserTronconsSansPeage(coords, lieux, apiKey, conso) {
       if (!peage || typeof peage.cost !== 'number' || peage.cost <= 0) continue;
       unPeageDetecte = true;
       // Économie nette : péage évité moins le carburant du détour.
-      const surcoutCarb = (zero.distanceKm - rapide.distanceKm) * conso / 100 * (prixActuel || 0);
+      const surcoutCarb = (zero.distanceKm - rapide.distanceKm) * conso / 100 * (prixCarburantUtilise() || 0);
       const economie = peage.cost - surcoutCarb;
       if (economie <= 0.5) continue;
       const detourSec = Math.max(0, zero.dureeSec - rapide.dureeSec);
@@ -6135,7 +6312,7 @@ function afficherRentabiliteSimple(routeRapide, routeZero, coutPeage, conso, dep
     bloc.style.display = 'none';
     return;
   }
-  const surcoutCarb = (routeZero.distanceKm - routeRapide.distanceKm) * conso / 100 * (prixActuel || 0);
+  const surcoutCarb = (routeZero.distanceKm - routeRapide.distanceKm) * conso / 100 * (prixCarburantUtilise() || 0);
   const economie = coutPeage - surcoutCarb;
   const detourSec = Math.max(0, routeZero.dureeSec - routeRapide.dureeSec);
   const eurParH = detourSec >= 60 ? economie / (detourSec / 3600) : Infinity;
@@ -6191,7 +6368,8 @@ async function calculer() {
 
   if (!depart || !arrivee) return showError('⚠️ Remplissez le départ et la destination.');
   if (isNaN(conso) || conso <= 0) return showError('⚠️ Consommation invalide.');
-  if (!prixActuel) return showError('⚠️ Le prix du carburant n\'a pas pu être chargé. Vérifiez votre connexion.');
+  const prixPourCalcul = prixCarburantUtilise();
+  if (!prixPourCalcul) return showError('⚠️ Le prix du carburant n\'a pas pu être chargé. Vérifiez votre connexion.');
 
   setLoading(true);
   document.getElementById('sectionResultats').style.display = 'none';
@@ -6217,7 +6395,7 @@ async function calculer() {
     const mkOption = (route) => {
       const distA = route.distanceKm;
       const litresA = (distA * conso) / 100;
-      return { polyline: route.polyline, distA, dureeSec: route.dureeSec, litresA, coutA: litresA * prixActuel, coutPeage: null, peageDetails: null, unit };
+      return { polyline: route.polyline, distA, dureeSec: route.dureeSec, litresA, coutA: litresA * prixPourCalcul, coutPeage: null, peageDetails: null, unit };
     };
 
     // Si le trajet le plus rapide et le trajet "zéro péage" sont en fait le
