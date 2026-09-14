@@ -353,25 +353,10 @@
       box-shadow: 0 0 0 3px rgba(226,151,26,0.18);
     }
 
-    /* Prix personnalisé : option secondaire sous le prix moyen.
-       La roulette elle-même réutilise exactement le composant consommation. */
+    /* Prix personnalisé : la case et son libellé réutilisent exactement le
+       même composant que « Optimiser mes pleins » pour garder taille,
+       espacement, alignement et état coché strictement identiques. */
     .prix-perso-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9e1e8; }
-    .prix-perso-toggle {
-      display: flex; align-items: center; gap: 9px; width: 100%;
-      border: 0; background: none; padding: 0; cursor: pointer;
-      font: inherit; color: #607080; text-align: left;
-    }
-    .prix-perso-toggle .prix-perso-title { font-size: 12.5px; font-weight: 600; }
-    .prix-perso-checkbox {
-      width: 18px; height: 18px; flex: 0 0 18px; border-radius: 5px;
-      border: 1.5px solid #b8c5d3; background: #fff; position: relative;
-      transition: border-color .15s, background .15s;
-    }
-    .prix-perso-toggle.on .prix-perso-checkbox { border-color: #e2971a; background: #e2971a; }
-    .prix-perso-toggle.on .prix-perso-checkbox::after {
-      content: ''; position: absolute; left: 5px; top: 2px; width: 5px; height: 9px;
-      border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
-    }
     .prix-perso-panel { display: none; margin-top: 10px; }
     .prix-perso-panel.open { display: block; }
 
@@ -1888,9 +1873,9 @@
         </div>
         <div class="prix-actuel">Prix moyen actuel : <span id="prixAffiche">Chargement…</span></div>
         <div class="prix-perso-wrap">
-          <button type="button" class="prix-perso-toggle" id="prixPersoToggle" role="checkbox" aria-checked="false" onclick="setPrixPersoActive(!prixPersoActive)">
-            <span class="prix-perso-checkbox" aria-hidden="true"></span>
-            <span class="prix-perso-title">Je connais le prix de mon carburant</span>
+          <button type="button" class="optim-switch-row prix-perso-toggle" id="prixPersoToggle" role="checkbox" aria-checked="false" onclick="setPrixPersoActive(!prixPersoActive)">
+            <span class="optim-checkbox prix-perso-checkbox" aria-hidden="true"></span>
+            <span class="optim-title prix-perso-title">Je connais le prix de mon carburant</span>
           </button>
           <div class="prix-perso-panel" id="prixPersoPanel">
             <input type="hidden" id="prixPerso" value="1.50">
