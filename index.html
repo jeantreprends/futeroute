@@ -100,7 +100,7 @@
        sens qu'une fois qu'il y a un résultat à montrer à droite, sinon la
        carte reste collée à gauche d'un grand vide. */
     @media (min-width: 1040px) {
-      .page:not(.has-results) { max-width: 640px; }
+      .page { max-width: 640px; }
     }
 
     /* Desktop, résultat affiché (.page.has-results) : colonne de paramètres
@@ -111,8 +111,8 @@
        chacun placé explicitement par numéro de ligne (robuste, indépendant
        de l'ordre dans le DOM). */
     @media (min-width: 1040px) {
-      .page.has-results {
-        max-width: 1180px;
+      .page.has-results:not(.station-mode), .page.station-mode.station-result { max-width: 1180px; }
+      .page.has-results:not(.station-mode) {
         display: grid;
         grid-template-columns: 460px 1fr;
         column-gap: 32px;
@@ -441,16 +441,11 @@
     #stationPosStatus { white-space: normal; }
     #cheapestNoteStation { margin: 0; }
     @media (min-width: 1040px) {
-      .page.station-mode { display: block; max-width: 1180px; }
       .station-mode .tagline { max-width: 640px; margin-inline: auto; }
-      .station-fields, #modeStation.with-result {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px;
-      }
       .station-fields .param-row { display: block; }
       .station-fields .param-label { width: auto; margin-bottom: 8px; }
       .station-fields .lieu-controls { flex-wrap: wrap; }
-      #modeStation.with-result { grid-template-columns: 460px minmax(0, 1fr); gap: 32px; align-items: start; }
-      #modeStation.with-result .station-fields { display: block; }
+      .station-result #modeStation { display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 32px; align-items: start; }
     }
     .carburant-row { padding: 15px 0; }
     .carburant-row .param-input { position: relative; }
@@ -4942,7 +4937,7 @@ function invaliderRechercheStation() {
   note.replaceChildren();
   note.style.display = 'none';
   note.classList.remove('loading');
-  document.getElementById('modeStation').classList.remove('with-result');
+  document.querySelector('.page').classList.remove('station-result');
   hideStationError();
   setStationLoading(false);
 }
@@ -5056,7 +5051,7 @@ async function afficherStationStandalone() {
   cheapestNote.classList.add('loading');
   const station = await fetchStationOuBorne(lat, lon, type, rayon, mode);
   if (version !== versionRenduStation) return;
-  document.getElementById('modeStation').classList.add('with-result');
+  document.querySelector('.page').classList.add('station-result');
   cheapestNote.classList.remove('loading');
   cheapestNote.textContent = '';
   cheapestNote.style.display = 'block';
