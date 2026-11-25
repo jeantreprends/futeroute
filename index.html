@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta name="robots" content="noindex">
+  <script>window.futePreview = new URLSearchParams(location.search).get("vue");</script>
 <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="favicon.png">
   <meta charset="UTF-8">
@@ -1826,6 +1828,25 @@
       #modeStation .station-fields .param-row { display: flex; align-items: center; }
       #modeStation .station-fields .param-label { width: 94px; margin-bottom: 0; }
     }
+    .preview-heading { font-size: 19px; line-height: 1.2; letter-spacing: -.03em; color: #1e344c; margin: 0 0 12px; }
+    .preview-fold { margin-top: 10px; }
+    .preview-fold > summary { cursor: pointer; color: #1766a3; font-size: 13px; font-weight: 650; padding: 8px 0; list-style: none; }
+    .preview-fold > summary::-webkit-details-marker { display:none; }
+    .preview-fold > summary::after { content:''; display:inline-block; width:6px; height:6px; border:solid currentColor; border-width:0 1.5px 1.5px 0; transform: rotate(45deg); margin:0 0 3px 9px; }
+    .preview-fold[open] > summary::after { transform:rotate(225deg); margin-bottom:0; }
+    .preview-fold > .itinerary-controls { margin: 6px 0 !important; }
+    .preview-fold > .trajet-row, .preview-fold > .veh-row { border:0; }
+    #paramsCard[data-layout] #reservoirHint[hidden] { display:none; }
+    #paramsCard[data-layout] .section { margin-bottom:0; }
+    #paramsCard[data-layout="b"] { background:transparent; box-shadow:none; padding:0; }
+    #paramsCard[data-layout="b"] > .section { background:white; padding:clamp(16px,3vw,26px); border-radius:var(--rayon-carte); box-shadow:0 3px 16px #1b38500d; border:0; }
+    #paramsCard[data-layout="b"] .section-carburant { margin-top:12px; }
+    #paramsCard[data-layout="b"] .section > .card-title { font-size:19px; text-transform:none; letter-spacing:-.03em; color:#1e344c; margin:0 0 12px; }
+    #paramsCard[data-layout="c"] > .card-title { margin-bottom:4px; }
+    #paramsCard[data-layout="c"] > .preview-fold { margin:0 0 12px; }
+    #paramsCard[data-layout="c"] .section-carburant { margin-top:12px; padding-top:6px; }
+    #paramsCard[data-layout="c"] .section-carburant > details > summary { display:flex; gap:8px; align-items:center; flex-wrap:wrap; color:#1e344c; font-size:15px; }
+    #paramsCard[data-layout="c"] summary strong { margin-left:auto; font-size:13px; color:#775820; }
   </style>
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -6791,6 +6812,71 @@ rechercherStationSurTrajet = async function() {
 
 // --- fin TEST UX ---
 
+</script>
+<script>
+(() => {
+  const variant = ['a', 'b', 'c'].includes(window.futePreview) ? window.futePreview : 'a';
+  const root = document.getElementById('paramsCard');
+  const trip = root.querySelector('.section');
+  const vehicle = root.querySelector('.section-carburant');
+  const actions = trip.querySelector('.itinerary-controls:not(.add-stop-row)');
+  const find = selector => root.querySelector(selector);
+  function fold(parent, label, elements) {
+    const details = document.createElement('details');
+    details.className = 'preview-fold';
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    details.append(summary, ...elements);
+    parent.append(details);
+    return details;
+  }
+  function heading(label) {
+    const h = document.createElement('h2');
+    h.className = 'preview-heading';
+    h.textContent = label;
+    return h;
+  }
+  root.dataset.layout = variant;
+  const savedTrip = find('#trajetRow');
+  const savedVehicle = find('.veh-row');
+  const tripForm = find('#trajetSaveForm');
+  const vehForm = find('#vehSaveForm');
+  const saveVeh = find('#vehSaveBtn');
+  const price = find('.prix-perso-wrap');
+  const tank = find('#reservoirBloc');
+  const pills = find('#cPills');
+  const fuel = find('.carburant-row');
+  const conso = find('.conso-row');
+  const hint = find('#reservoirHint');
+  document.querySelector('.header .tagline').hidden = true;
+  if (variant === 'a') {
+    fold(trip, 'Trajets enregistrés et actions', [savedTrip, actions, tripForm]);
+    vehicle.prepend(heading('Votre véhicule'));
+    fold(vehicle, 'Véhicules enregistrés et options', [savedVehicle, price, tank, saveVeh, vehForm]);
+  } else if (variant === 'b') {
+    trip.prepend(find('.card-title'));
+    vehicle.prepend(heading('Votre véhicule'));
+    fold(trip, 'Gérer mes trajets', [actions, tripForm, savedTrip]);
+    fold(vehicle, 'Gérer mes véhicules', [savedVehicle, saveVeh, vehForm]);
+  } else {
+    const title = find('.card-title');
+    const saved = fold(root, 'Utiliser un trajet enregistré', [savedTrip]);
+    title.after(saved);
+    const sync = () => { saved.hidden = savedTrip.classList.contains('vide'); };
+    new MutationObserver(sync).observe(savedTrip, {attributes:true, attributeFilter:['class']});
+    sync();
+    savedTrip.addEventListener('click', e => { if (e.target.closest('.saved-chip') && !e.target.closest('.saved-chip-x')) saved.open = false; });
+    fold(trip, 'Actions du trajet', [actions, tripForm]);
+    const edit = fold(vehicle, 'Votre véhicule', [savedVehicle,pills,fuel,conso,price,tank,saveVeh,vehForm]);
+    const value = document.createElement('strong');
+    edit.querySelector('summary').append(value);
+    const update = () => { value.textContent = document.getElementById('pillCarburant').textContent + ' · ' + document.getElementById('pillConso').textContent + '/100 km'; };
+    new MutationObserver(update).observe(pills, {subtree:true, childList:true, characterData:true});
+    update();
+  }
+  hint.hidden = !optimPleinActive;
+  document.getElementById('optimToggle').addEventListener('click', () => { hint.hidden = !optimPleinActive; });
+})();
 </script>
 </body>
 </html>
