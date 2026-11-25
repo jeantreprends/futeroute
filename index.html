@@ -1826,6 +1826,19 @@
       #modeStation .station-fields .param-row { display: flex; align-items: center; }
       #modeStation .station-fields .param-label { width: 94px; margin-bottom: 0; }
     }
+    .saved-menu { margin-top: 10px; }
+    .saved-menu > summary { cursor: pointer; color: #1766a3; font-size: 13px; font-weight: 650; padding: 8px 0; list-style: none; }
+    .saved-menu > summary::-webkit-details-marker { display:none; }
+    .saved-menu > summary::after { content:''; display:inline-block; width:6px; height:6px; border:solid currentColor; border-width:0 1.5px 1.5px 0; transform: rotate(45deg); margin:0 0 3px 9px; }
+    .saved-menu[open] > summary::after { transform:rotate(225deg); margin-bottom:0; }
+    .saved-menu > .itinerary-controls { margin: 6px 0 !important; }
+    .saved-menu > .trajet-row, .saved-menu > .veh-row { border:0; }
+    #paramsCard #reservoirHint[hidden] { display:none; }
+    #paramsCard .section { margin-bottom:0; }
+    #paramsCard { background:transparent; box-shadow:none; padding:0; }
+    #paramsCard > .section { background:white; padding:clamp(16px,3vw,26px); border-radius:var(--rayon-carte); box-shadow:0 3px 16px #1b38500d; border:0; }
+    #paramsCard .section-carburant { margin-top:12px; }
+    #paramsCard .section > .card-title { font-size:19px; text-transform:none; letter-spacing:-.03em; color:#1e344c; margin:0 0 12px; }
   </style>
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1861,7 +1874,7 @@
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
     <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤</button>
     <h1><span class="rat-emphasis">Futé</span>route</h1>
-    <div class="tagline">Comparez le coût de vos itinéraires et trouvez où faire le plein.</div>
+    <div class="tagline" hidden>Comparez le coût de vos itinéraires et trouvez où faire le plein.</div>
     <nav class="mode-nav" aria-label="Outils Futéroute">
       <a href="#cout" data-mode="cout">Coût du trajet</a>
       <a href="#station" data-mode="station">Station la moins chère</a>
@@ -1896,10 +1909,9 @@
   <div id="modeCout">
   <!-- Paramètres -->
   <div class="card" id="paramsCard">
-    <div class="card-title">Votre trajet</div>
-
     <!-- Bloc Départ / Destination -->
     <div class="section">
+      <h2 class="card-title">Votre trajet</h2>
       <!-- "+ Ajouter une étape" : en haut à droite de "Départ", dans
            l'encadré, aligné avec "Enregistrer ce trajet" plus bas. -->
       <div class="itinerary-controls add-stop-row">
@@ -1913,31 +1925,30 @@
         <button type="button" class="swap-btn" id="swapBtn" onclick="swapItinerary()" aria-label="Inverser départ et arrivée">⇅</button>
       </div>
 
-      <div class="itinerary-controls" style="gap:14px; margin-top:-4px;">
-        <button type="button" class="link-btn trajet-save-btn" onclick="enregistrerTrajet()">☆ Enregistrer ce trajet</button>
-        <button type="button" class="link-btn" style="margin-left:auto;" onclick="reinitialiserTrajet()"><span class="reset-icon">↻</span> Réinitialiser</button>
-      </div>
-      <!-- Trajets favoris (localStorage) : une puce = un itinéraire complet.
-           Le champ de nom s'ouvre prérempli ("Départ → Arrivée"), modifiable. -->
-      <div class="save-form" id="trajetSaveForm">
-        <input type="text" id="trajetNom" placeholder="Nom du trajet (ex : Vacances)" maxlength="40" autocomplete="off">
-        <button type="button" class="save-form-btn save-form-ok" onclick="confirmerTrajet()" aria-label="Enregistrer le trajet">✓</button>
-        <button type="button" class="save-form-btn save-form-cancel" onclick="toggleTrajetForm(false)" aria-label="Annuler">✕</button>
-      </div>
-      <!-- "Enregistrer ce trajet" vit sur la même ligne que "Mes trajets".
-           Cette ligne reste donc TOUJOURS affichée (le bouton doit rester
-           accessible même sans favori) ; c'est le libellé et les puces qui
-           disparaissent quand il n'y a rien d'enregistré (classe .vide). -->
-      <div class="param-row trajet-row" id="trajetRow">
-        <div class="param-label">Mes trajets</div>
-        <div class="param-input">
-          <div class="saved-chips" id="trajetChips"></div>
+      <details class="saved-menu">
+        <summary>Mes trajets</summary>
+        <div class="itinerary-controls" style="gap:14px; margin-top:-4px;">
+          <button type="button" class="link-btn trajet-save-btn" onclick="enregistrerTrajet()">☆ Enregistrer ce trajet</button>
+          <button type="button" class="link-btn" style="margin-left:auto;" onclick="reinitialiserTrajet()"><span class="reset-icon">↻</span> Réinitialiser</button>
         </div>
-      </div>
+        <!-- Trajets favoris (localStorage) : une puce = un itinéraire complet.
+             Le champ de nom s'ouvre prérempli ("Départ → Arrivée"), modifiable. -->
+        <div class="save-form" id="trajetSaveForm">
+          <input type="text" id="trajetNom" placeholder="Nom du trajet (ex : Vacances)" maxlength="40" autocomplete="off">
+          <button type="button" class="save-form-btn save-form-ok" onclick="confirmerTrajet()" aria-label="Enregistrer le trajet">✓</button>
+          <button type="button" class="save-form-btn save-form-cancel" onclick="toggleTrajetForm(false)" aria-label="Annuler">✕</button>
+        </div>
+        <div class="param-row trajet-row" id="trajetRow">
+          <div class="param-input">
+            <div class="saved-chips" id="trajetChips"></div>
+          </div>
+        </div>
+      </details>
     </div>
 
     <!-- Réglages du véhicule -->
     <div class="section section-carburant">
+    <h2 class="card-title">Votre véhicule</h2>
     <div class="c-pills" id="cPills">
       <button type="button" class="c-pill" data-cible="carburant-row" onclick="ouvrirReglage(this)">
         <span class="k">Carburant</span><span class="v" id="pillCarburant">SP95</span>
@@ -2013,7 +2024,7 @@
           <span class="optim-checkbox"></span>
           <span class="optim-title">Optimiser mes pleins sur ce trajet</span>
         </button>
-        <div class="reservoir-hint" id="reservoirHint">On vous trouve la station la moins chère sur votre trajet, à l'endroit où il vous restera 10 à 20 % de carburant.</div>
+        <div class="reservoir-hint" id="reservoirHint" hidden>On vous trouve la station la moins chère sur votre trajet, à l'endroit où il vous restera 10 à 20 % de carburant.</div>
         <div id="reservoirPanel" class="reservoir-inactive">
           <div class="niveau-label">Contenance du réservoir : <strong id="reservoirCapaciteVal">50 L</strong></div>
           <input type="range" id="reservoirCapacite" class="niveau-slider" min="5" max="120" step="5" value="50" disabled aria-label="Contenance du réservoir en litres">
@@ -2027,18 +2038,20 @@
          réservoir, jamais le niveau au départ) sous un nom : il apparaît
          ensuite en puce dans "Mes véhicules" en bas du bloc. Même forme
          que "Enregistrer ce trajet" (lien discret, pas un gros bouton). -->
-    <button type="button" class="link-btn" id="vehSaveBtn" onclick="toggleVehForm(true)">☆ Enregistrer ce véhicule</button>
-    <div class="save-form" id="vehSaveForm">
-      <input type="text" id="vehNom" placeholder="Nom du véhicule (ex : Clio)" maxlength="30" autocomplete="off">
-      <button type="button" class="save-form-btn save-form-ok" onclick="confirmerVehicule()" aria-label="Enregistrer le véhicule">✓</button>
-      <button type="button" class="save-form-btn save-form-cancel" onclick="toggleVehForm(false)" aria-label="Annuler">✕</button>
-    </div>
-    <div class="param-row veh-row" style="display:none;">
-      <div class="param-label">Mes véhicules</div>
-      <div class="param-input">
-        <div class="saved-chips" id="vehChips"></div>
+    <details class="saved-menu">
+      <summary>Mes véhicules</summary>
+      <div class="param-row veh-row" style="display:none;">
+        <div class="param-input">
+          <div class="saved-chips" id="vehChips"></div>
+        </div>
       </div>
-    </div>
+      <button type="button" class="link-btn" id="vehSaveBtn" onclick="toggleVehForm(true)">☆ Enregistrer ce véhicule</button>
+      <div class="save-form" id="vehSaveForm">
+        <input type="text" id="vehNom" placeholder="Nom du véhicule (ex : Clio)" maxlength="30" autocomplete="off">
+        <button type="button" class="save-form-btn save-form-ok" onclick="confirmerVehicule()" aria-label="Enregistrer le véhicule">✓</button>
+        <button type="button" class="save-form-btn save-form-cancel" onclick="toggleVehForm(false)" aria-label="Annuler">✕</button>
+      </div>
+    </details>
     </div>
   </div>
 
@@ -3610,8 +3623,7 @@ function setOptimPlein(on) {
   const toggle = document.getElementById('optimToggle');
   toggle.classList.toggle('on', on);
   toggle.setAttribute('aria-checked', on ? 'true' : 'false');
-  // Le texte d'aide reste affiché dans les deux états (il explique l'option,
-  // donc il sert surtout avant de la cocher) ; seuls les curseurs se grisent.
+  document.getElementById('reservoirHint').hidden = !on;
   document.getElementById('reservoirPanel').classList.toggle('reservoir-inactive', !on);
   document.getElementById('reservoirCapacite').disabled = !on;
   document.getElementById('niveauDepart').disabled = !on;
