@@ -1755,6 +1755,71 @@
     .nav-icon-btn img { display: block; object-fit: contain; }
     .nav-icon-btn.maps img { width: 12px; height: 12px; }
     .nav-icon-btn.waze img { width: 14px; height: 14px; }
+    /* Variante carnet de route */
+    :root {
+      --papier: #faf8f2;
+      --encre: #192f38;
+      --secondaire: #4d6063;
+      --trait: #c3c9bf;
+      --ambre: #aa540a;
+    }
+    body { background: var(--papier); color: var(--encre); }
+    .header { text-align: left; padding-top: 12px; border-top: 4px solid var(--encre); margin-bottom: 24px; }
+    .header h1 { color: var(--encre); background: none; transform: none; font-size: clamp(44px, 6vw, 62px); line-height: 1.05; letter-spacing: -.065em; }
+    .header h1 .rat-emphasis { color: var(--ambre); }
+    .header .tagline { padding: 0; color: var(--secondaire); margin: 8px 0 0; max-width: 60ch; }
+    .account-btn { top: 16px; }
+    .mode-nav { justify-content: flex-start; gap: clamp(16px, 4vw, 32px); border-bottom: 1px solid var(--trait); }
+    .mode-nav a { color: var(--secondaire); margin-bottom: -1px; padding-bottom: 10px; }
+    .mode-nav a[aria-current], .mode-nav a:hover { color: var(--encre); border-color: var(--ambre); }
+    .card, .section { border: 0; background: transparent; box-shadow: none; border-radius: 0; padding: 0; }
+    .card-title {
+      color: var(--encre); text-transform: none; font: 600 clamp(22px, 3vw, 30px)/1.15 Georgia, serif;
+      letter-spacing: -.035em; margin-bottom: 18px;
+    }
+    #paramsCard .section + .section { border-top: 1px solid var(--encre); padding-top: 12px; margin-top: 18px; }
+    .param-label, .optim-title { color: var(--encre); }
+    .reservoir-hint, .prix-actuel, .page-footer a, .page-footer button { color: var(--secondaire); }
+    .link-btn { color: #255665; }
+    .points-wrap::before { background: var(--trait); }
+    input.point-input { background: #fffefa; color: var(--encre); border: 1px solid #a9b6ae; border-radius: 3px; }
+    .c-pills { gap: 24px; padding: 0; }
+    .c-pill {
+      flex: 0 1 auto; display: grid; grid-template-columns: auto auto; gap: 2px 12px; padding: 5px 0;
+      border: 0; border-bottom: 2px solid var(--trait); border-radius: 0; background: transparent; text-align: left;
+    }
+    .c-pill .k { grid-column: 1 / -1; color: var(--secondaire); font-size: 10px; letter-spacing: .08em; }
+    .c-pill .v { color: var(--encre); font-size: 17px; }
+    .c-pill::after { content: '⌄'; color: var(--ambre); font-weight: 700; }
+    .c-pill:hover, .c-pill.ouvert { box-shadow: none; border-color: var(--ambre); }
+    .c-pill.ouvert::after { transform: rotate(180deg); }
+    .prix-perso-wrap { border: 0; padding-top: 0; margin-top: 18px; }
+    .optim-switch-row { min-height: 28px; }
+    .optim-checkbox { border-radius: 2px; border-color: #88968f; }
+    .optim-switch-row.on .optim-checkbox { background: var(--encre); border-color: var(--encre); }
+    .reservoir-row { padding-top: 0; }
+    .reservoir-hint { margin: 0 0 6px 24px; }
+    .carb-choices { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    .carb-choice { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; padding: 8px 1px; color: var(--secondaire); }
+    .carb-choice.active, .carb-choice:hover { color: var(--encre); background: transparent; border-bottom-color: var(--ambre); }
+    .btn { background: var(--encre); box-shadow: none; border-radius: 3px; min-height: 44px; }
+    .btn:disabled { background: #677675; }
+    .saved-chip, .save-form-btn, .swap-btn { border-radius: 3px; }
+    .station-fields > .section { padding: 4px 0 12px; border-top: 1px solid var(--trait); }
+    .station-reset { margin-inline: 0; }
+    .route-row, .route-row.sel, .cheapest-note {
+      background: transparent; border: 0; border-top: 1px solid var(--trait); border-radius: 0; box-shadow: none; animation: none;
+    }
+    .route-row.sel, .cheapest-note { border-top: 3px solid var(--encre); }
+    .cheapest-note::before { display: none; }
+    .route-row.sel .route-prix, .route-row.sel .route-nom { color: var(--encre); }
+    .station-tab-btn, .ar-toggle-btn, .ar-toggle, .station-tabs { border-radius: 2px; }
+    .page-footer { border-top: 1px solid var(--trait); padding-top: 16px; }
+    :focus-visible { outline: 2px solid #326778; outline-offset: 2px; }
+    @media (min-width: 1040px) {
+      .station-mode .tagline { margin-inline: 0; }
+      #modeCout .carburant-row .carb-choices, #modeCout .carburant-row .prix-actuel { margin-left: 0; }
+    }
   </style>
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1790,7 +1855,7 @@
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
     <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤</button>
     <h1><span class="rat-emphasis">Futé</span>route</h1>
-    <div class="tagline">Quelle est la station la moins chère sur votre trajet&nbsp;? Est-ce rentable d'éviter les péages&nbsp;? On vous répond en un calcul, en plus du coût exact de votre trajet !</div>
+    <div class="tagline">Calculez le coût de votre trajet et trouvez où faire le plein.</div>
     <nav class="mode-nav" aria-label="Outils Futéroute">
       <a href="#cout" data-mode="cout">Coût du trajet</a>
       <a href="#station" data-mode="station">Station la moins chère</a>
