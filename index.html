@@ -109,9 +109,7 @@
        (display:contents) : ses enfants (carte paramètres, bouton,
        loader/erreur, résultats) rejoignent directement la grille de .page,
        chacun placé explicitement par numéro de ligne (robuste, indépendant
-       de l'ordre dans le DOM). #modeStation (mode "station seule", sans
-       paramètres de trajet à séparer) reste un panneau unique centré, sans
-       colonne dédiée. */
+       de l'ordre dans le DOM). */
     @media (min-width: 1040px) {
       .page.has-results {
         max-width: 1180px;
@@ -128,7 +126,6 @@
       .page.has-results #loader { grid-column: 1; grid-row: 5; }
       .page.has-results #error { grid-column: 1; grid-row: 6; }
       .page.has-results #sectionResultats { grid-column: 2; grid-row: 3 / 7; margin-top: 0 !important; }
-      .page.has-results #modeStation { grid-column: 1 / -1; grid-row: 3 / 7; max-width: 640px; margin: 0 auto; }
       .page.has-results .page-footer { grid-column: 1 / -1; grid-row: 8; }
     }
 
@@ -233,7 +230,7 @@
        endroit dans leur boîte, d'où des valeurs différentes par ligne. */
     .veh-row, .carburant-row, .conso-row { border-bottom-color: #cfd8e0; border-bottom-width: 1.5px; }
     /* Haut resserré (début du bloc jaune), bas aligné sur l'écart commun. */
-    .veh-row { padding: 8px 0 14px; }
+    .veh-row { padding: 10px 0 6px; border-top: 1.5px solid #cfd8e0; }
     .conso-row { padding: 15px 0 14px; }
     /* Plus discret que les autres lignes du formulaire (véhicule, carburant,
        consommation) : une option secondaire n'a pas besoin du même poids
@@ -361,7 +358,7 @@
        être un vrai bloc vertical. La règle générique .carburant-row.ouvert
        repasse sinon la ligne en flex et remet le titre à gauche des boutons. */
     @media (min-width: 481px) {
-      #modeCout .carburant-row.ouvert {
+      #modeCout #paramsCard .carburant-row.ouvert {
         display: block;
       }
       #modeCout .carburant-row .param-label {
@@ -382,11 +379,6 @@
         width: min(420px, 100%);
         max-width: 100%;
         margin: 8px auto 0;
-      }
-      #modeCout .carburant-row .prix-perso-wrap {
-        margin-left: 0;
-        width: 100%;
-        max-width: 100%;
       }
     }
     .prix-perso-panel { display: none; margin-top: 10px; }
@@ -445,10 +437,21 @@
     }
     /* Bloc lieu (onglet station) : "position actuelle" à gauche, "France entière" à droite. */
     .lieu-controls { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    /* Dans l'onglet station, le sélecteur carburant est actuellement replié par
-       la règle commune .carburant-row { display:none }. On neutralise donc
-       uniquement son conteneur visuel pour éviter la fine barre jaune vide. */
-    #modeStation .section-carburant { background: transparent; border: 0; padding: 0; margin: 0; }
+    .station-reset { display: block; margin: 10px auto 0; }
+    #stationPosStatus { white-space: normal; }
+    #cheapestNoteStation { margin: 0; }
+    @media (min-width: 1040px) {
+      .page.station-mode { display: block; max-width: 1180px; }
+      .station-mode .tagline { max-width: 640px; margin-inline: auto; }
+      .station-fields, #modeStation.with-result {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px;
+      }
+      .station-fields .param-row { display: block; }
+      .station-fields .param-label { width: auto; margin-bottom: 8px; }
+      .station-fields .lieu-controls { flex-wrap: wrap; }
+      #modeStation.with-result { grid-template-columns: 460px minmax(0, 1fr); gap: 32px; align-items: start; }
+      #modeStation.with-result .station-fields { display: block; }
+    }
     .carburant-row { padding: 15px 0; }
     .carburant-row .param-input { position: relative; }
     /* Le prix moyen reste dans le flux, juste sous les boutons carburant.
@@ -773,7 +776,7 @@
       #points .point-row:not(.is-stop)::before { top: auto; bottom: 20px; margin-top: 0; }
     }
 
-    /* Trois pastilles compactes : Carburant · Conso · À bord. */
+    /* Réglages compacts du véhicule. */
     .c-pills { display: flex; gap: 6px; padding: 10px 0 2px; }
     .c-pill {
       flex: 1; min-width: 0; background: #fff; border: 1px solid #ecdcb8;
@@ -792,9 +795,8 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
     }
     /* Les réglages détaillés sont repliés tant qu'on n'a pas tapé la pastille. */
-    .carburant-row, .conso-row, .pax-row { display: none; }
-    .carburant-row.ouvert, .conso-row.ouvert, .pax-row.ouvert { display: flex; }
-    .pax-aide { font-size: 11px; color: #b0bcc9; margin-left: 8px; }
+    #paramsCard .carburant-row, #paramsCard .conso-row { display: none; }
+    #paramsCard .carburant-row.ouvert, #paramsCard .conso-row.ouvert { display: flex; }
     /* Comparateur des itinéraires (péages / sans péages), en tête des
        résultats, affiché seulement quand pertinent : une ligne par option,
        la sélection change tout le détail en dessous (coûts, litres,
@@ -1003,6 +1005,15 @@
        rester à droite du champ quel que soit le retour à la ligne en mobile. */
     .point-row .param-input { position: relative; }
     .autocomplete-wrap .point-input { padding-right: 34px; }
+    .clear-address {
+      position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
+      width: 26px; height: 28px; border: 0; background: transparent;
+      color: #b42332; line-height: 1; font-family: inherit; font-size: 20px; cursor: pointer;
+    }
+    .has-geoloc .clear-address { right: 54px; }
+    .point-input:placeholder-shown + .clear-address, .point-input:read-only + .clear-address { display: none; }
+    .autocomplete-wrap .point-input:not(:placeholder-shown) { padding-right: 58px; }
+    .point-row.has-geoloc .point-input:not(:placeholder-shown) { padding-right: 82px; }
     .fav-star {
       position: absolute;
       right: 6px;
@@ -1440,19 +1451,9 @@
       pointer-events: none;
     }
 
-    /* Accès à "Station la moins chère" (sans trajet) : une simple icône à
-       côté du bouton compte plutôt qu'un onglet de même poids que "Coût du
-       trajet" - c'est une fonction secondaire. */
-    .station-icon-btn {
-      position: absolute; top: 0; right: 40px;
-      width: 34px; height: 34px; border-radius: 50%;
-      border: 1.5px solid #d5e0ee; background: #fff;
-      font-size: 15px; line-height: 1; cursor: pointer;
-      box-shadow: 0 2px 6px rgba(15,23,41,0.08);
-      transition: box-shadow 0.15s, border-color 0.15s;
-    }
-    .station-icon-btn:hover { border-color: #9dc2ee; }
-    .station-back-btn { display: block; margin: 0 2px 10px; }
+    .mode-nav { display: flex; justify-content: center; margin-top: 14px; gap: 16px; }
+    .mode-nav a { padding: 8px 1px; font-size: 14px; font-weight: 650; color: #345875; text-decoration: none; border-bottom: 2px solid transparent; }
+    .mode-nav a:hover, .mode-nav a[aria-current] { color: #0d4890; border-color: currentColor; }
 
     #r-cout { text-align: right; }
 
@@ -1788,11 +1789,12 @@
   <div class="header">
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
     <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤</button>
-    <!-- Station la moins chère sans trajet : fonction secondaire, accès en
-         icône plutôt qu'un onglet de même poids que "Coût du trajet". -->
-    <button type="button" class="station-icon-btn" onclick="setMainMode('station')" aria-label="Station la moins chère sans trajet" title="Station la moins chère sans trajet">⛽</button>
     <h1><span class="rat-emphasis">Futé</span>route</h1>
     <div class="tagline">Quelle est la station la moins chère sur votre trajet&nbsp;? Est-ce rentable d'éviter les péages&nbsp;? On vous répond en un calcul, en plus du coût exact de votre trajet !</div>
+    <nav class="mode-nav" aria-label="Outils Futéroute">
+      <a href="#cout" data-mode="cout">Coût du trajet</a>
+      <a href="#station" data-mode="station">Station la moins chère</a>
+    </nav>
   </div>
 
   <!-- Mon compte : connexion par lien magique (e-mail, sans mot de passe) et
@@ -1863,33 +1865,14 @@
       </div>
     </div>
 
-    <!-- Bloc Carburant / Consommation. Repliable : une fois les réglages
-         connus (mémorisés dans le navigateur), il s'affiche en une ligne
-         résumé "⛽ SP95 · 6,6 L/100 km · 👥 2" pour laisser l'écran au
-         trajet et au résultat. -->
+    <!-- Réglages du véhicule -->
     <div class="section section-carburant">
-    <!-- Véhicules enregistrés (localStorage) : une puce = un profil
-         carburant + conso + réservoir qu'on applique d'un tap. La ligne
-         n'apparaît que s'il y a au moins un véhicule ; l'enregistrement se
-         fait par le bouton en bas du bloc. -->
-    <div class="param-row veh-row" style="display:none;">
-      <div class="param-label">Mes véhicules</div>
-      <div class="param-input">
-        <div class="saved-chips" id="vehChips"></div>
-      </div>
-    </div>
-    <!-- Proposition C : trois pastilles compactes qui résument le véhicule et
-         le nombre d'occupants. Un tap ouvre le réglage correspondant, qui
-         reste exactement celui d'avant (rien n'est retiré, seulement replié). -->
     <div class="c-pills" id="cPills">
       <button type="button" class="c-pill" data-cible="carburant-row" onclick="ouvrirReglage(this)">
         <span class="k">Carburant</span><span class="v" id="pillCarburant">SP95</span>
       </button>
       <button type="button" class="c-pill" data-cible="conso-row" onclick="ouvrirReglage(this)">
         <span class="k">Conso</span><span class="v" id="pillConso">6,6 L</span>
-      </button>
-      <button type="button" class="c-pill" data-cible="pax-row" onclick="ouvrirReglage(this)">
-        <span class="k">À bord</span><span class="v" id="pillPax">1</span>
       </button>
     </div>
 
@@ -1906,24 +1889,6 @@
           <button type="button" class="carb-choice" data-value="electrique" onclick="setCarburant('electrique', this)">Électrique</button>
         </div>
         <div class="prix-actuel">Prix moyen actuel : <span id="prixAffiche">Chargement…</span></div>
-        <div class="prix-perso-wrap">
-          <button type="button" class="optim-switch-row prix-perso-toggle" id="prixPersoToggle" role="checkbox" aria-checked="false" onclick="setPrixPersoActive(!prixPersoActive)">
-            <span class="optim-checkbox prix-perso-checkbox" aria-hidden="true"></span>
-            <span class="optim-title prix-perso-title">Je connais le prix de mon carburant</span>
-          </button>
-          <div class="prix-perso-panel" id="prixPersoPanel">
-            <input type="hidden" id="prixPerso" value="1.50">
-            <div class="conso-line">
-              <div class="conso-roulette" id="prixPersoRoulette" role="slider" aria-label="Prix du carburant" aria-valuemin="0.10" aria-valuemax="5.00" tabindex="0">
-                <div class="roulette-viewport"><div class="roulette-track" id="prixPersoTrack"></div></div>
-                <div class="roulette-center"></div>
-              </div>
-              <button type="button" class="conso-arrow" id="prixPersoMinus" aria-label="Diminuer le prix du carburant">−</button>
-              <div class="conso-value"><input type="text" id="prixPersoVal" class="conso-val-input" value="1,50" inputmode="decimal" readonly aria-label="Prix personnalisé du carburant"> <span class="roulette-unit" id="prixPersoUnit">€/L</span></div>
-              <button type="button" class="conso-arrow" id="prixPersoPlus" aria-label="Augmenter le prix du carburant">+</button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -1943,17 +1908,22 @@
       </div>
     </div>
 
-    <!-- Nombre d'occupants (partage des frais), réglable aussi depuis le
-         formulaire via la pastille "À bord". -->
-    <div class="param-row pax-row">
-      <div class="param-label">À bord</div>
-      <div class="param-input">
-        <span class="pax-stepper">
-          <button type="button" class="pax-btn" onclick="setNbPassagers(nbPassagers - 1)" aria-label="Une personne de moins">−</button>
-          <span class="pax-num" id="paxNumForm">1</span>
-          <button type="button" class="pax-btn" onclick="setNbPassagers(nbPassagers + 1)" aria-label="Une personne de plus">+</button>
-        </span>
-        <span class="pax-aide">conducteur compris</span>
+    <div class="prix-perso-wrap">
+      <button type="button" class="optim-switch-row prix-perso-toggle" id="prixPersoToggle" role="checkbox" aria-checked="false" onclick="setPrixPersoActive(!prixPersoActive)">
+        <span class="optim-checkbox prix-perso-checkbox" aria-hidden="true"></span>
+        <span class="optim-title prix-perso-title">Je connais le prix de mon carburant</span>
+      </button>
+      <div class="prix-perso-panel" id="prixPersoPanel">
+        <input type="hidden" id="prixPerso" value="1.50">
+        <div class="conso-line">
+          <div class="conso-roulette" id="prixPersoRoulette" role="slider" aria-label="Prix du carburant" aria-valuemin="0.10" aria-valuemax="5.00" tabindex="0">
+            <div class="roulette-viewport"><div class="roulette-track" id="prixPersoTrack"></div></div>
+            <div class="roulette-center"></div>
+          </div>
+          <button type="button" class="conso-arrow" id="prixPersoMinus" aria-label="Diminuer le prix du carburant">−</button>
+          <div class="conso-value"><input type="text" id="prixPersoVal" class="conso-val-input" value="1,50" inputmode="decimal" readonly aria-label="Prix personnalisé du carburant"> <span class="roulette-unit" id="prixPersoUnit">€/L</span></div>
+          <button type="button" class="conso-arrow" id="prixPersoPlus" aria-label="Augmenter le prix du carburant">+</button>
+        </div>
       </div>
     </div>
 
@@ -1984,13 +1954,19 @@
 
     <!-- Enregistre le véhicule courant (carburant + conso + capacité du
          réservoir, jamais le niveau au départ) sous un nom : il apparaît
-         ensuite en puce dans "Mes véhicules" en haut du bloc. Même forme
+         ensuite en puce dans "Mes véhicules" en bas du bloc. Même forme
          que "Enregistrer ce trajet" (lien discret, pas un gros bouton). -->
-    <button type="button" class="link-btn" id="vehSaveBtn" style="display:block;margin-left:auto;" onclick="toggleVehForm(true)">☆ Enregistrer ce véhicule</button>
+    <button type="button" class="link-btn" id="vehSaveBtn" onclick="toggleVehForm(true)">☆ Enregistrer ce véhicule</button>
     <div class="save-form" id="vehSaveForm">
       <input type="text" id="vehNom" placeholder="Nom du véhicule (ex : Clio)" maxlength="30" autocomplete="off">
       <button type="button" class="save-form-btn save-form-ok" onclick="confirmerVehicule()" aria-label="Enregistrer le véhicule">✓</button>
       <button type="button" class="save-form-btn save-form-cancel" onclick="toggleVehForm(false)" aria-label="Annuler">✕</button>
+    </div>
+    <div class="param-row veh-row" style="display:none;">
+      <div class="param-label">Mes véhicules</div>
+      <div class="param-input">
+        <div class="saved-chips" id="vehChips"></div>
+      </div>
     </div>
     </div>
   </div>
@@ -2069,51 +2045,53 @@
 
   <!-- Station la moins chère près de chez moi, indépendamment de tout trajet -->
   <div id="modeStation" style="display:none;">
-    <button type="button" class="link-btn station-back-btn" onclick="setMainMode('cout')">← Coût du trajet</button>
-    <div class="card">
+    <div class="card station-form">
       <div class="card-title" id="stationModeTitle">Station la moins chère près de chez moi</div>
 
-      <div class="section">
-        <div class="param-row point-row">
-          <div class="param-label">Lieu</div>
-          <div class="param-input">
-            <div class="autocomplete-wrap">
-              <input type="text" id="stationAdresse" class="point-input" autocomplete="off" placeholder="Adresse ou position actuelle" oninput="onStationAdresseInput(this)" onfocus="showFavoritesIfEmpty(this)">
-              <div class="autocomplete-list"></div>
-            </div>
-            <button type="button" class="fav-star" title="Enregistrer en favori" onclick="toggleFavPlace(document.getElementById('stationAdresse').value, this)">☆</button>
-          </div>
-        </div>
-        <div class="lieu-controls">
-          <button type="button" class="link-btn" onclick="utiliserPositionActuelle()"> Utiliser ma position actuelle</button>
-          <button type="button" class="link-btn" id="franceEntiereBtn" onclick="toggleFranceEntiere()">France entière 🇫🇷</button>
-        </div>
-        <div class="prix-actuel" id="stationPosStatus"></div>
-      </div>
-
-      <div class="section section-carburant">
-        <div class="param-row carburant-row">
-          <div class="param-label">Carburant</div>
-          <div class="param-input">
-            <input type="hidden" id="carburantStation" value="sp95">
-            <div class="carb-choices" id="carbChoicesStation">
-              <button type="button" class="carb-choice active" data-value="sp95" onclick="setCarburantStation('sp95', this)">SP95</button>
-              <button type="button" class="carb-choice" data-value="gazole" onclick="setCarburantStation('gazole', this)">Gazole</button>
-              <button type="button" class="carb-choice" data-value="sp98" onclick="setCarburantStation('sp98', this)">SP98</button>
-              <button type="button" class="carb-choice" data-value="gplc" onclick="setCarburantStation('gplc', this)">GPL</button>
-              <button type="button" class="carb-choice" data-value="e85" onclick="setCarburantStation('e85', this)">E85</button>
-              <button type="button" class="carb-choice" data-value="electrique" onclick="setCarburantStation('electrique', this)">Électrique</button>
+      <div class="station-fields">
+        <div class="section section-carburant">
+          <div class="param-row carburant-row">
+            <div class="param-label">Carburant</div>
+            <div class="param-input">
+              <input type="hidden" id="carburantStation" value="sp95">
+              <div class="carb-choices" id="carbChoicesStation">
+                <button type="button" class="carb-choice active" data-value="sp95" onclick="setCarburantStation('sp95', this)">SP95</button>
+                <button type="button" class="carb-choice" data-value="gazole" onclick="setCarburantStation('gazole', this)">Gazole</button>
+                <button type="button" class="carb-choice" data-value="sp98" onclick="setCarburantStation('sp98', this)">SP98</button>
+                <button type="button" class="carb-choice" data-value="gplc" onclick="setCarburantStation('gplc', this)">GPL</button>
+                <button type="button" class="carb-choice" data-value="e85" onclick="setCarburantStation('e85', this)">E85</button>
+                <button type="button" class="carb-choice" data-value="electrique" onclick="setCarburantStation('electrique', this)">Électrique</button>
+              </div>
             </div>
           </div>
+        </div>
+        <div class="section">
+          <div class="param-row point-row">
+            <div class="param-label">Lieu</div>
+            <div class="param-input">
+              <div class="autocomplete-wrap">
+                <input type="text" id="stationAdresse" class="point-input" autocomplete="off" placeholder="Adresse ou position actuelle" oninput="onStationAdresseInput(this)" onfocus="showFavoritesIfEmpty(this)">
+                <button type="button" class="clear-address" aria-label="Effacer le lieu" onclick="effacerAdresse(this)">×</button>
+                <div class="autocomplete-list"></div>
+              </div>
+              <button type="button" class="fav-star" title="Enregistrer en favori" onclick="toggleFavPlace(document.getElementById('stationAdresse').value, this)">☆</button>
+            </div>
+          </div>
+          <div class="lieu-controls">
+            <button type="button" class="link-btn" onclick="utiliserPositionActuelle()"> Utiliser ma position actuelle</button>
+            <button type="button" class="link-btn" id="franceEntiereBtn" onclick="toggleFranceEntiere()">France entière 🇫🇷</button>
+          </div>
+          <div class="prix-actuel" id="stationPosStatus"></div>
         </div>
       </div>
 
       <button class="btn" id="stationSearchBtn" onclick="rechercherStationStandalone()">Chercher la station la moins chère</button>
+      <button type="button" class="link-btn station-reset" onclick="reinitialiserStation()">↻ Recommencer la recherche</button>
       <div class="loader" id="stationLoader">⏳ Recherche en cours…</div>
       <div class="error" id="stationError"></div>
 
-      <div class="cheapest-note" id="cheapestNoteStation" style="display:none; margin-top:14px;"></div>
     </div>
+    <div class="cheapest-note" id="cheapestNoteStation" style="display:none;"></div>
   </div>
 
   <!-- Transparence : d'où viennent les chiffres, et leurs limites. -->
@@ -3060,6 +3038,7 @@ async function onAutoComplete(input) {
     const texteGeo = val;
     try {
       const results = await searchPlaces(texteGeo, 10);
+      if (input.value.trim() !== val || !input.isConnected) return;
       if (!results.length) { list.style.display = 'none'; return; }
       list.innerHTML = '';
       const vus = new Set();
@@ -3284,7 +3263,7 @@ function ouvrirReglage(pill) {
   const cible = pill.dataset.cible;
   const deja = pill.classList.contains('ouvert');
   document.querySelectorAll('.c-pill').forEach(p => p.classList.remove('ouvert'));
-  ['carburant-row', 'conso-row', 'pax-row'].forEach(c => {
+  ['carburant-row', 'conso-row'].forEach(c => {
     const el = document.querySelector('.' + c);
     if (el) el.classList.remove('ouvert');
   });
@@ -3297,7 +3276,7 @@ function ouvrirReglage(pill) {
   if (cible === 'conso-row') consoSet(parseFloat(document.getElementById('conso').value) || 6.6, true);
 }
 
-// Résumé affiché sur les pastilles (carburant, consommation, occupants).
+// Résumé affiché sur les pastilles (carburant, consommation).
 function majPastilles() {
   const type = document.getElementById('carburant').value;
   const pc = document.getElementById('pillCarburant');
@@ -3307,10 +3286,6 @@ function majPastilles() {
   if (pco && isFinite(conso)) {
     pco.textContent = conso.toFixed(1).replace('.', ',') + (type === 'electrique' ? ' kWh' : ' L');
   }
-  const pp = document.getElementById('pillPax');
-  if (pp) pp.textContent = String(nbPassagers);
-  const pf = document.getElementById('paxNumForm');
-  if (pf) pf.textContent = String(nbPassagers);
 }
 function setCarburantStation(value, btn) {
   document.getElementById('carburantStation').value = value;
@@ -3322,8 +3297,7 @@ function setCarburantStation(value, btn) {
     ? 'Borne de recharge la plus proche' : 'Station la moins chère près de chez moi';
   document.getElementById('stationSearchBtn').textContent = electrique
     ? 'Chercher la borne la plus proche' : 'Chercher la station la moins chère';
-  // Un changement de carburant invalide le résultat affiché.
-  document.getElementById('cheapestNoteStation').style.display = 'none';
+  invaliderRechercheStation();
 }
 
 function majUniteConso(keepScope) {
@@ -3386,6 +3360,11 @@ function resetResultat(keepScope) {
 // Bascule principale : Coût carburant (trajet complet) / Station la moins
 // chère (recherche indépendante autour d'une position donnée).
 function setMainMode(mode, updateHash) {
+  document.querySelector('.page').classList.toggle('station-mode', mode === 'station');
+  document.querySelectorAll('.mode-nav a').forEach(link => {
+    if (link.dataset.mode === mode) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
   document.getElementById('modeCout').style.display = mode === 'cout' ? '' : 'none';
   document.getElementById('modeStation').style.display = mode === 'station' ? '' : 'none';
   // Lien distinct par onglet (#cout / #station), pour pouvoir le partager ou
@@ -4886,10 +4865,28 @@ let stationGeoCoords = null; // [lon, lat] fixé par géolocalisation, invalidé
 let lastStationSearchStandalone = null; // { lat, lon, type, rayon, mode: 'min'|'max' }
 let stationFranceEntiere = false; // mode "France entière" : pas de lieu, recherche sur tout le pays
 
-function onStationAdresseInput(el) {
-  stationGeoCoords = null;
-  document.getElementById('cheapestNoteStation').style.display = 'none';
+let versionRechercheStation = 0;
+let versionRenduStation = 0;
+let versionPositionStation = 0;
+
+function invaliderRechercheStation() {
+  versionRechercheStation++;
+  versionRenduStation++;
+  lastStationSearchStandalone = null;
+  const note = document.getElementById('cheapestNoteStation');
+  note.replaceChildren();
+  note.style.display = 'none';
+  note.classList.remove('loading');
+  document.getElementById('modeStation').classList.remove('with-result');
   hideStationError();
+  setStationLoading(false);
+}
+
+function onStationAdresseInput(el) {
+  versionPositionStation++;
+  stationGeoCoords = null;
+  document.getElementById('stationPosStatus').textContent = '';
+  invaliderRechercheStation();
   if (el.value.trim().length === 0) showFavoritesIfEmpty(el);
   else onAutoComplete(el);
   syncStarForInput(el);
@@ -4898,30 +4895,36 @@ function onStationAdresseInput(el) {
 // Bascule "France entière" : fige le champ lieu (non modifiable) et recherche
 // sur tout le pays ; le bouton devient "Choisir le lieu" pour revenir au mode
 // normal (champ vidé et rendu modifiable).
+function reinitialiserStation() {
+  reglerFranceEntiere(false);
+  const defaut = document.querySelector('#carbChoicesStation [data-value="sp95"]');
+  setCarburantStation('sp95', defaut);
+  defaut.focus();
+}
+
 function toggleFranceEntiere() {
+  reglerFranceEntiere(!stationFranceEntiere);
+}
+
+function reglerFranceEntiere(active) {
   const input = document.getElementById('stationAdresse');
   const btn = document.getElementById('franceEntiereBtn');
-  stationFranceEntiere = !stationFranceEntiere;
-  // En mode France entière, le carburant doit rester sélectionnable avant
-  // de lancer la recherche. On réutilise exactement la ligne de choix
-  // déjà présente dans ce formulaire, sans créer un second composant.
-  const stationFuelRow = document.querySelector('#modeStation .carburant-row');
-  if (stationFuelRow) stationFuelRow.classList.toggle('ouvert', stationFranceEntiere);
-  document.getElementById('cheapestNoteStation').style.display = 'none';
-  hideStationError();
-  if (stationFranceEntiere) {
-    stationGeoCoords = null;
-    input.value = 'France entière 🇫🇷';
-    input.readOnly = true;
-    btn.textContent = 'Choisir le lieu 📍';
-  } else {
-    input.value = '';
-    input.readOnly = false;
-    btn.textContent = 'France entière 🇫🇷';
-  }
+  versionPositionStation++;
+  stationGeoCoords = null;
+  stationFranceEntiere = active;
+  input.value = active ? 'France entière 🇫🇷' : '';
+  input.readOnly = active;
+  input.parentElement.querySelector('.autocomplete-list').style.display = 'none';
+  btn.textContent = active ? 'Choisir le lieu 📍' : 'France entière 🇫🇷';
+  syncStarForInput(input);
+  document.getElementById('stationPosStatus').textContent = '';
+  invaliderRechercheStation();
 }
 
 function utiliserPositionActuelle() {
+  if (stationFranceEntiere) reglerFranceEntiere(false);
+  invaliderRechercheStation();
+  const version = ++versionPositionStation;
   const status = document.getElementById('stationPosStatus');
   if (!navigator.geolocation) {
     status.textContent = 'Géolocalisation non disponible sur cet appareil.';
@@ -4930,11 +4933,15 @@ function utiliserPositionActuelle() {
   status.textContent = 'Localisation en cours…';
   navigator.geolocation.getCurrentPosition(
     pos => {
+      if (version !== versionPositionStation) return;
+      invaliderRechercheStation();
       stationGeoCoords = [pos.coords.longitude, pos.coords.latitude];
       document.getElementById('stationAdresse').value = 'Ma position actuelle';
+      syncStarForInput(document.getElementById('stationAdresse'));
       status.textContent = '✓ Position récupérée';
     },
     () => {
+      if (version !== versionPositionStation) return;
       status.textContent = 'Impossible de récupérer votre position (autorisation refusée ou indisponible).';
     },
     { enableHighAccuracy: true, timeout: 10000 }
@@ -4942,8 +4949,8 @@ function utiliserPositionActuelle() {
 }
 
 async function rechercherStationStandalone() {
-  hideStationError();
-  const apiKey = document.getElementById('apiKey').value.trim();
+  invaliderRechercheStation();
+  const version = versionRechercheStation;
   const adresse = document.getElementById('stationAdresse').value.trim();
   const type = document.getElementById('carburantStation').value;
 
@@ -4963,16 +4970,18 @@ async function rechercherStationStandalone() {
     }
     if (!stationGeoCoords && !adresse) { showStationError('⚠️ Indiquez votre adresse ou utilisez votre position actuelle.'); return; }
     const coords = stationGeoCoords || await geocode(adresse);
+    if (version !== versionRechercheStation) return;
     lastStationSearchStandalone = { lat: coords[1], lon: coords[0], type, rayon: STATION_RAYON_KM, mode: 'min' };
     await afficherStationStandalone();
   } catch(e) {
-    showStationError('⚠️ ' + (e.message || 'Erreur inconnue.'));
+    if (version === versionRechercheStation) showStationError('⚠️ ' + (e.message || 'Erreur inconnue.'));
   } finally {
-    setStationLoading(false);
+    if (version === versionRechercheStation) setStationLoading(false);
   }
 }
 
 async function afficherStationStandalone() {
+  const version = ++versionRenduStation;
   const cheapestNote = document.getElementById('cheapestNoteStation');
   if (!lastStationSearchStandalone) { cheapestNote.style.display = 'none'; return; }
   const { lat, lon, type, rayon, mode } = lastStationSearchStandalone;
@@ -4981,6 +4990,8 @@ async function afficherStationStandalone() {
   const illimite = rayon === STATION_RAYON_ILLIMITE;
   cheapestNote.classList.add('loading');
   const station = await fetchStationOuBorne(lat, lon, type, rayon, mode);
+  if (version !== versionRenduStation) return;
+  document.getElementById('modeStation').classList.add('with-result');
   cheapestNote.classList.remove('loading');
   cheapestNote.textContent = '';
   cheapestNote.style.display = 'block';
@@ -5015,6 +5026,7 @@ async function afficherStationStandalone() {
           const r = await getRoute([[lon, lat], [station.lon, station.lat]], apiKey, false);
           routePoly = r && r.polyline;
         } catch (e) { /* repli sur carte station simple */ }
+        if (version !== versionRenduStation) return;
         cheapestNote.appendChild(buildItineraireMap(routePoly, station, { originRoute: true }));
       } else {
         cheapestNote.appendChild(buildStationMap(station.lat, station.lon));
@@ -5148,6 +5160,7 @@ function makePointRow(value) {
     '<div class="param-label"></div>' +
     '<div class="param-input"><div class="autocomplete-wrap">' +
       '<input type="text" class="point-input" autocomplete="off" oninput="onPointInput(this)">' +
+      '<button type="button" class="clear-address" aria-label="Effacer le lieu" onclick="effacerAdresse(this)">×</button>' +
       '<div class="autocomplete-list"></div>' +
     '</div>' +
     '<button type="button" class="geoloc-btn" title="Utiliser ma position actuelle">' +
@@ -5195,6 +5208,7 @@ function refreshPoints() {
   rows.forEach((row, i) => {
     const label = row.querySelector('.param-label');
     const input = row.querySelector('.point-input');
+    const clear = row.querySelector('.clear-address');
     const rm = row.querySelector('.stop-remove');
     row.querySelector('.drag-handle').style.display = showHandles ? '' : 'none';
     if (i === 0) {
@@ -5217,6 +5231,7 @@ function refreshPoints() {
       row.classList.remove('has-geoloc');
       row.classList.toggle('shift-for-handles', showHandles);
     }
+    clear.setAttribute('aria-label', i === 0 ? 'Effacer le départ' : i === rows.length - 1 ? "Effacer l’arrivée" : 'Effacer l’étape ' + i);
   });
   // Les flèches d'inversion n'ont de sens que sans étape (départ + destination).
   const swap = document.getElementById('swapBtn');
@@ -5264,6 +5279,14 @@ function removePoint(btn) {
   if (row) row.remove();
   refreshPoints();
   resetResultat();
+}
+
+function effacerAdresse(bouton) {
+  const input = bouton.parentElement.querySelector('.point-input');
+  input.value = '';
+  input.parentElement.querySelector('.autocomplete-list').style.display = 'none';
+  input.focus();
+  input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 function onPointInput(el) {
@@ -5890,7 +5913,6 @@ function buildNavInline(routeKey) {
 function setNbPassagers(n) {
   nbPassagers = Math.min(NB_PASSAGERS_MAX, Math.max(1, n));
   try { localStorage.setItem(NB_PASSAGERS_KEY, String(nbPassagers)); } catch (e) {}
-  majPastilles();
   // Réaffiche les résultats : seul le partage change, aucun recalcul d'API.
   if (lastResultData) renderResultMode();
 }
@@ -6571,7 +6593,7 @@ async function calculer() {
 document.addEventListener('keydown', e => { if (e.key === 'Enter') calculer(); });
 
 
-// --- TEST UX : stations ex aequo + sélection carburant après recherche ---
+// --- TEST UX : stations ex æquo ---
 function renderStationsPrixEgaux(note, stations, totalStations, type, depart, arrivee, litresPlein, customNote) {
   const info = document.createElement('div');
   info.className = 'cheapest-fuel-note';
@@ -6696,57 +6718,6 @@ rechercherStationSurTrajet = async function() {
   applyStationTabVisibility();
 };
 
-function buildCarburantStationResultat() {
-  const current = document.getElementById('carburantStation').value;
-  const control = document.createElement('div');
-  control.className = 'station-result-fuel';
-  control.style.cssText = 'margin:12px 0 14px;padding:12px 0 4px;border-top:1px solid #e8edf2;';
-
-  const label = document.createElement('div');
-  label.className = 'param-label';
-  label.style.marginBottom = '8px';
-  label.textContent = 'Carburant';
-  control.appendChild(label);
-
-  const choices = document.createElement('div');
-  choices.className = 'carb-choices';
-  choices.id = 'carbChoicesStationResultat';
-  const vals = [
-    ['sp95', 'SP95'], ['gazole', 'Gazole'], ['sp98', 'SP98'],
-    ['gplc', 'GPL'], ['e85', 'E85'], ['electrique', 'Électrique']
-  ];
-  vals.forEach(([value, texte]) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'carb-choice' + (value === current ? ' active' : '');
-    btn.dataset.value = value;
-    btn.textContent = texte;
-    btn.addEventListener('click', () => {
-      if (document.getElementById('carburantStation').value === value) return;
-      const original = document.querySelector(`#carbChoicesStation .carb-choice[data-value="${value}"]`);
-      setCarburantStation(value, original || btn);
-      rechercherStationStandalone();
-    });
-    choices.appendChild(btn);
-  });
-  control.appendChild(choices);
-  return control;
-}
-
-const rechercherStationStandaloneBaseCarburant = rechercherStationStandalone;
-rechercherStationStandalone = async function() {
-  await rechercherStationStandaloneBaseCarburant();
-  // En France entière, le sélecteur reste visible dans le formulaire :
-  // ne pas en dupliquer un second dans la carte de résultat.
-  if (stationFranceEntiere) return;
-  const note = document.getElementById('cheapestNoteStation');
-  if (!note || note.style.display === 'none' || !note.children.length) return;
-  if (note.querySelector('#carbChoicesStationResultat')) return;
-  const control = buildCarburantStationResultat();
-  const header = note.querySelector('.cheapest-header');
-  if (header) header.insertAdjacentElement('afterend', control);
-  else note.prepend(control);
-};
 // --- fin TEST UX ---
 
 </script>
