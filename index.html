@@ -1831,7 +1831,7 @@
     .saved-menu > summary::-webkit-details-marker { display:none; }
     .saved-menu > summary::after { content:''; display:inline-block; width:6px; height:6px; border:solid currentColor; border-width:0 1.5px 1.5px 0; transform: rotate(45deg); margin:0 0 3px 9px; }
     .saved-menu[open] > summary::after { transform:rotate(225deg); margin-bottom:0; }
-    .saved-menu > .itinerary-controls { margin: 6px 0 !important; }
+    .itinerary-controls.trip-actions { margin: 6px 0; gap: 14px; }
     .saved-menu > .trajet-row, .saved-menu > .veh-row { border:0; }
     #paramsCard #reservoirHint[hidden] { display:none; }
     #paramsCard .section { margin-bottom:0; }
@@ -1925,19 +1925,19 @@
         <button type="button" class="swap-btn" id="swapBtn" onclick="swapItinerary()" aria-label="Inverser départ et arrivée">⇅</button>
       </div>
 
+      <div class="itinerary-controls trip-actions">
+        <button type="button" class="link-btn trajet-save-btn" onclick="enregistrerTrajet()">☆ Enregistrer ce trajet</button>
+        <button type="button" class="link-btn" style="margin-left:auto;" onclick="reinitialiserTrajet()"><span class="reset-icon">↻</span> Réinitialiser</button>
+      </div>
+      <!-- Trajets favoris (localStorage) : une puce = un itinéraire complet.
+           Le champ de nom s'ouvre prérempli ("Départ → Arrivée"), modifiable. -->
+      <div class="save-form" id="trajetSaveForm">
+        <input type="text" id="trajetNom" placeholder="Nom du trajet (ex : Vacances)" maxlength="40" autocomplete="off">
+        <button type="button" class="save-form-btn save-form-ok" onclick="confirmerTrajet()" aria-label="Enregistrer le trajet">✓</button>
+        <button type="button" class="save-form-btn save-form-cancel" onclick="toggleTrajetForm(false)" aria-label="Annuler">✕</button>
+      </div>
       <details class="saved-menu">
         <summary>Mes trajets</summary>
-        <div class="itinerary-controls" style="gap:14px; margin-top:-4px;">
-          <button type="button" class="link-btn trajet-save-btn" onclick="enregistrerTrajet()">☆ Enregistrer ce trajet</button>
-          <button type="button" class="link-btn" style="margin-left:auto;" onclick="reinitialiserTrajet()"><span class="reset-icon">↻</span> Réinitialiser</button>
-        </div>
-        <!-- Trajets favoris (localStorage) : une puce = un itinéraire complet.
-             Le champ de nom s'ouvre prérempli ("Départ → Arrivée"), modifiable. -->
-        <div class="save-form" id="trajetSaveForm">
-          <input type="text" id="trajetNom" placeholder="Nom du trajet (ex : Vacances)" maxlength="40" autocomplete="off">
-          <button type="button" class="save-form-btn save-form-ok" onclick="confirmerTrajet()" aria-label="Enregistrer le trajet">✓</button>
-          <button type="button" class="save-form-btn save-form-cancel" onclick="toggleTrajetForm(false)" aria-label="Annuler">✕</button>
-        </div>
         <div class="param-row trajet-row" id="trajetRow">
           <div class="param-input">
             <div class="saved-chips" id="trajetChips"></div>
@@ -2038,18 +2038,18 @@
          réservoir, jamais le niveau au départ) sous un nom : il apparaît
          ensuite en puce dans "Mes véhicules" en bas du bloc. Même forme
          que "Enregistrer ce trajet" (lien discret, pas un gros bouton). -->
+    <button type="button" class="link-btn" id="vehSaveBtn" onclick="toggleVehForm(true)">☆ Enregistrer ce véhicule</button>
+    <div class="save-form" id="vehSaveForm">
+      <input type="text" id="vehNom" placeholder="Nom du véhicule (ex : Clio)" maxlength="30" autocomplete="off">
+      <button type="button" class="save-form-btn save-form-ok" onclick="confirmerVehicule()" aria-label="Enregistrer le véhicule">✓</button>
+      <button type="button" class="save-form-btn save-form-cancel" onclick="toggleVehForm(false)" aria-label="Annuler">✕</button>
+    </div>
     <details class="saved-menu">
       <summary>Mes véhicules</summary>
       <div class="param-row veh-row" style="display:none;">
         <div class="param-input">
           <div class="saved-chips" id="vehChips"></div>
         </div>
-      </div>
-      <button type="button" class="link-btn" id="vehSaveBtn" onclick="toggleVehForm(true)">☆ Enregistrer ce véhicule</button>
-      <div class="save-form" id="vehSaveForm">
-        <input type="text" id="vehNom" placeholder="Nom du véhicule (ex : Clio)" maxlength="30" autocomplete="off">
-        <button type="button" class="save-form-btn save-form-ok" onclick="confirmerVehicule()" aria-label="Enregistrer le véhicule">✓</button>
-        <button type="button" class="save-form-btn save-form-cancel" onclick="toggleVehForm(false)" aria-label="Annuler">✕</button>
       </div>
     </details>
     </div>
