@@ -1774,7 +1774,14 @@
     }
     #paramsCard .point-input, #stationAdresse { border: 1px solid #c9d8e8; border-radius: var(--rayon-commande); background: #f6f9fe; }
     #paramsCard .point-input:focus, #stationAdresse:focus { border-color: #1976d2; background: white; }
-    #paramsCard > .section-carburant { border-top: 1px solid #dae3ed; padding-top: 16px; margin: 16px 0 0; }
+    #paramsCard > .section-carburant { margin: 24px 0 0; }
+    .vehicle-divider {
+      display: flex; align-items: center; gap: 12px; margin: 0 0 12px;
+      color: #455c73; font-size: 14px; font-weight: 650; line-height: 1.4;
+    }
+    .vehicle-divider::before, .vehicle-divider::after {
+      content: ''; flex: 1; height: 1px; background: #c9d6e3;
+    }
     .c-pills {
       gap: 0; padding: 0; border: 1px solid #e5d8bc;
       border-radius: var(--rayon-commande); overflow: hidden; background: #fff9ed;
@@ -1938,6 +1945,7 @@
 
     <!-- Réglages du véhicule -->
     <div class="section section-carburant">
+    <h2 class="vehicle-divider">Votre véhicule</h2>
     <div class="c-pills" id="cPills">
       <button type="button" class="c-pill" data-cible="carburant-row" onclick="ouvrirReglage(this)">
         <span class="k">Carburant</span><span class="v" id="pillCarburant">SP95</span>
