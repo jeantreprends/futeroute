@@ -1765,7 +1765,7 @@
     .mode-nav a[aria-current] { color: #0b57a4; border-bottom: 3px solid #1976d2; }
     .card { border-radius: var(--rayon-carte); box-shadow: 0 3px 16px #1b38500d; }
     #paramsCard, .station-form { padding: clamp(16px, 3vw, 26px); }
-    #paramsCard > .card-title, #stationModeTitle {
+    #paramsCard > .card-title, .vehicle-title, #stationModeTitle {
       margin-bottom: 16px; font-size: 21px; line-height: 1.2; letter-spacing: -.035em;
       text-transform: none; color: #1e344c;
     }
@@ -1774,7 +1774,7 @@
     }
     #paramsCard .point-input, #stationAdresse { border: 1px solid #c9d8e8; border-radius: var(--rayon-commande); background: #f6f9fe; }
     #paramsCard .point-input:focus, #stationAdresse:focus { border-color: #1976d2; background: white; }
-    #paramsCard > .section-carburant { border-top: 1px solid #dae3ed; padding-top: 16px; margin: 16px 0 0; }
+    #paramsCard > .section-carburant { border-top: 2px solid #e0b15d; padding-top: 20px; margin: 24px 0 0; }
     .c-pills {
       gap: 0; padding: 0; border: 1px solid #e5d8bc;
       border-radius: var(--rayon-commande); overflow: hidden; background: #fff9ed;
@@ -1825,6 +1825,44 @@
     @media (min-width: 481px) {
       #modeStation .station-fields .param-row { display: flex; align-items: center; }
       #modeStation .station-fields .param-label { width: 94px; margin-bottom: 0; }
+    }
+    @media (max-width: 767px) {
+      :root { --rayon-carte: 0; --rayon-commande: 0; }
+      body { background: #fff; }
+      .page .card, .page .section, .page .cheapest-note, .page .leg-advice,
+      .page .eco-line, .page .eco-badge, .page .leg-badge, .page .route-row,
+      .page .ar-toggle, .page .station-tabs, .page .pax-stepper {
+        border: 0; border-radius: 0; background: transparent; box-shadow: none;
+        padding-inline: 0;
+      }
+      .page #paramsCard, .page .station-form { padding: 4px 0 12px; }
+      #paramsCard .point-input, #stationAdresse {
+        border: 0; border-bottom: 1px solid #92a5b7; background: transparent;
+      }
+      #paramsCard .point-input:focus, #stationAdresse:focus {
+        border-color: #1769c2; box-shadow: 0 1px #1769c2;
+      }
+      #paramsCard > .section-carburant { margin-top: 22px; padding-top: 18px; }
+      .c-pills, .carb-choices { overflow: visible; border: 0; background: transparent; }
+      .c-pill { padding-left: 0; border-bottom: 1px solid #cdd7df; }
+      .c-pill + .c-pill { margin-left: 14px; border-left: 0; }
+      .c-pill.ouvert, .c-pill:hover { background: transparent; border-bottom-color: #b97e14; }
+      .carb-choices .carb-choice { background: transparent; border: 0; border-bottom: 1px solid #d6dfe7; }
+      .carb-choices .carb-choice.active { box-shadow: inset 0 -3px #a16808; color: #754900; }
+      .page .saved-chip, .page .ar-toggle-btn, .page .station-tab-btn {
+        background: transparent; border-radius: 0; box-shadow: none; color: #205e96;
+      }
+      .page .saved-chip.selected, .page .ar-toggle-btn.active, .page .station-tab-btn.active {
+        box-shadow: inset 0 -2px currentColor;
+      }
+      .saved-chip.selected .saved-chip-x { color: #586e81; }
+      .page .route-row, .page .cheapest-note { border-top: 1px solid #cbd6e0; }
+      .page .route-row.sel { border-top: 2px solid #1769c2; }
+      .page .error, .page .autocomplete-list, .page .maps-link, .page .nav-icon-btn,
+      .page .cheapest-link, .page .troncon-cta, .page .troncon-select,
+      .page .cheapest-mode-btn, .page .cheapest-nolimit-btn, .page .save-form-btn,
+      .page .account-row input, .page .account-send, .page .account-logout,
+      .page .save-form input, .page .conso-roulette { border-radius: 0; }
     }
   </style>
   <!-- PWA -->
@@ -1896,7 +1934,7 @@
   <div id="modeCout">
   <!-- Paramètres -->
   <div class="card" id="paramsCard">
-    <div class="card-title">Votre trajet</div>
+    <h2 class="card-title">Votre trajet</h2>
 
     <!-- Bloc Départ / Destination -->
     <div class="section">
@@ -1938,6 +1976,7 @@
 
     <!-- Réglages du véhicule -->
     <div class="section section-carburant">
+    <h2 class="card-title vehicle-title">Votre véhicule</h2>
     <div class="c-pills" id="cPills">
       <button type="button" class="c-pill" data-cible="carburant-row" onclick="ouvrirReglage(this)">
         <span class="k">Carburant</span><span class="v" id="pillCarburant">SP95</span>
@@ -2120,22 +2159,6 @@
       <div class="card-title" id="stationModeTitle">Station la moins chère près de chez moi</div>
 
       <div class="station-fields">
-        <div class="section section-carburant">
-          <div class="param-row carburant-row">
-            <div class="param-label">Carburant</div>
-            <div class="param-input">
-              <input type="hidden" id="carburantStation" value="sp95">
-              <div class="carb-choices" id="carbChoicesStation">
-                <button type="button" class="carb-choice active" data-value="sp95" onclick="setCarburantStation('sp95', this)">SP95</button>
-                <button type="button" class="carb-choice" data-value="gazole" onclick="setCarburantStation('gazole', this)">Gazole</button>
-                <button type="button" class="carb-choice" data-value="sp98" onclick="setCarburantStation('sp98', this)">SP98</button>
-                <button type="button" class="carb-choice" data-value="gplc" onclick="setCarburantStation('gplc', this)">GPL</button>
-                <button type="button" class="carb-choice" data-value="e85" onclick="setCarburantStation('e85', this)">E85</button>
-                <button type="button" class="carb-choice" data-value="electrique" onclick="setCarburantStation('electrique', this)">Électrique</button>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="section">
           <div class="param-row point-row">
             <div class="param-label">Lieu</div>
@@ -2153,6 +2176,22 @@
             <button type="button" class="link-btn" id="franceEntiereBtn" onclick="toggleFranceEntiere()">France entière 🇫🇷</button>
           </div>
           <div class="prix-actuel" id="stationPosStatus"></div>
+        </div>
+        <div class="section section-carburant">
+          <div class="param-row carburant-row">
+            <div class="param-label">Carburant</div>
+            <div class="param-input">
+              <input type="hidden" id="carburantStation" value="sp95">
+              <div class="carb-choices" id="carbChoicesStation">
+                <button type="button" class="carb-choice active" data-value="sp95" onclick="setCarburantStation('sp95', this)">SP95</button>
+                <button type="button" class="carb-choice" data-value="gazole" onclick="setCarburantStation('gazole', this)">Gazole</button>
+                <button type="button" class="carb-choice" data-value="sp98" onclick="setCarburantStation('sp98', this)">SP98</button>
+                <button type="button" class="carb-choice" data-value="gplc" onclick="setCarburantStation('gplc', this)">GPL</button>
+                <button type="button" class="carb-choice" data-value="e85" onclick="setCarburantStation('e85', this)">E85</button>
+                <button type="button" class="carb-choice" data-value="electrique" onclick="setCarburantStation('electrique', this)">Électrique</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -4970,7 +5009,7 @@ function reinitialiserStation() {
   reglerFranceEntiere(false);
   const defaut = document.querySelector('#carbChoicesStation [data-value="sp95"]');
   setCarburantStation('sp95', defaut);
-  defaut.focus();
+  document.getElementById('stationAdresse').focus();
 }
 
 function toggleFranceEntiere() {
