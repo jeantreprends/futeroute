@@ -1753,6 +1753,7 @@
     .nav-icon-btn.maps img { width: 12px; height: 12px; }
     .nav-icon-btn.waze img { width: 14px; height: 14px; }
     /* Navigation et formulaires */
+    :root { --rayon-commande: 8px; --rayon-carte: 12px; }
     .header h1 { display: inline-flex; align-items: baseline; position: relative; margin-left: 28px; }
     .header h1::before {
       content: ''; position: absolute; right: calc(100% + 7px); bottom: 5px;
@@ -1762,7 +1763,7 @@
     .mode-nav { gap: 0; width: fit-content; max-width: 100%; margin: 16px auto 0; border-bottom: 1px solid #c5d2df; }
     .mode-nav a { margin-bottom: -1px; padding: 10px clamp(6px, 2vw, 19px); color: #4d657d; }
     .mode-nav a[aria-current] { color: #0b57a4; border-bottom: 3px solid #1976d2; }
-    .card { border-radius: 12px; box-shadow: 0 3px 16px #1b38500d; }
+    .card { border-radius: var(--rayon-carte); box-shadow: 0 3px 16px #1b38500d; }
     #paramsCard, .station-form { padding: clamp(16px, 3vw, 26px); }
     #paramsCard > .card-title, #stationModeTitle {
       margin-bottom: 16px; font-size: 21px; line-height: 1.2; letter-spacing: -.035em;
@@ -1771,12 +1772,12 @@
     #paramsCard > .section, .station-fields > .section {
       border: 0; border-radius: 0; padding: 0; background: transparent;
     }
-    #paramsCard .point-input, #stationAdresse { border: 1px solid #c9d8e8; border-radius: 7px; background: #f6f9fe; }
+    #paramsCard .point-input, #stationAdresse { border: 1px solid #c9d8e8; border-radius: var(--rayon-commande); background: #f6f9fe; }
     #paramsCard .point-input:focus, #stationAdresse:focus { border-color: #1976d2; background: white; }
     #paramsCard > .section-carburant { border-top: 1px solid #dae3ed; padding-top: 16px; margin: 16px 0 0; }
     .c-pills {
-      gap: 0; padding: 0; border-left: 3px solid #e3a235;
-      background: #fff7e8;
+      gap: 0; padding: 0; border: 1px solid #e5d8bc;
+      border-radius: var(--rayon-commande); overflow: hidden; background: #fff9ed;
     }
     .c-pill {
       flex: 1 1 50%; position: relative; align-items: flex-start; gap: 3px;
@@ -1798,20 +1799,28 @@
     .reservoir-row { padding: 0 0 8px; }
     .reservoir-hint { color: #586e81; margin: 0 0 4px 25px; }
     .veh-row, .trajet-row:not(.vide) { border-top: 1px solid #dce5ed; }
-    .saved-chip { opacity: 1; background: #eef5fc; color: #205e96; border-radius: 6px; }
+    .saved-chip { opacity: 1; background: #eef5fc; color: #205e96; border-radius: var(--rayon-commande); }
     .saved-chip.selected { background: #1769b4; color: white; }
     .saved-chip-x { color: #586e81; }
     .station-fields .carburant-row { padding-top: 0; }
     .station-fields > .section + .section { border-top: 1px solid #dae3ed; padding: 8px 0; }
-    .carb-choices { gap: 0; border: 1px solid #dfd3bb; background: #fffbf3; border-radius: 6px; }
+    .carb-choices { overflow: hidden; gap: 0; border: 1px solid #dfd3bb; background: #fffbf3; border-radius: var(--rayon-commande); }
     .carb-choice { min-height: 35px; padding: 6px 3px; border: 0; border-radius: 0; color: #644c24; background: transparent; }
     .carb-choice:nth-child(n+4) { border-top: 1px solid #e5dbc9; }
     .carb-choice:not(:nth-child(3n+1)) { border-left: 1px solid #e5dbc9; }
     .carb-choice.active { color: #442e06; background: #ffd483; }
     .carb-choice:focus-visible, .c-pill:focus-visible { outline: 2px solid #1667b1; outline-offset: -2px; }
-    .btn { border-radius: 8px; box-shadow: 0 3px 8px #0d47a120; }
-    .route-row, .route-row.sel { border-radius: 7px; box-shadow: none; }
-    .cheapest-note { border: 1px solid #cadfd1; border-top: 3px solid #398054; background: #fbfefc; border-radius: 9px; animation: none; }
+    .btn { border-radius: var(--rayon-commande); box-shadow: none; }
+    .btn:not(:disabled) { background: #1769c2; }
+    .account-btn, .swap-btn {
+      border: 0; border-radius: var(--rayon-commande); background: transparent; box-shadow: none;
+    }
+    .swap-btn { color: #556c85; background: #fff; }
+    .account-btn:hover, .swap-btn:hover { color: #1769c2; background: #edf4fb; box-shadow: none; }
+    .account-btn:focus-visible, .swap-btn:focus-visible { outline: 2px solid #1667b1; outline-offset: 1px; }
+    .account-btn.connected { background: #e5f3e9; }
+    .route-row, .route-row.sel { border-radius: var(--rayon-commande); box-shadow: none; }
+    .cheapest-note { border: 1px solid #cadfd1; border-top: 3px solid #398054; background: #fbfefc; border-radius: var(--rayon-carte); animation: none; }
     .cheapest-note::before { display: none; }
     @media (min-width: 481px) {
       #modeStation .station-fields .param-row { display: flex; align-items: center; }
