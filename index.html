@@ -141,12 +141,13 @@
     .account-btn {
       margin: 12px auto 0; padding: 0;
       width: 34px; height: 34px; border-radius: 50%;
-      border: 1.5px solid #d5e0ee; background: #fff;
+      border: 0; background: #fff;
       font-size: 15px; line-height: 1; cursor: pointer;
-      box-shadow: 0 2px 6px rgba(15,23,41,0.08);
-      transition: box-shadow 0.15s, border-color 0.15s;
+      transition: background-color 0.15s;
     }
-    .account-btn:hover { border-color: #9dc2ee; }
+    @media (max-width: 767px) {
+      .header .account-btn { position: absolute; top: -12px; right: 0; margin: 0; }
+    }
     .account-hint { font-size: 12px; color: #607080; line-height: 1.5; margin-bottom: 10px; }
     .account-row { display: flex; gap: 6px; }
     .account-row input { flex: 1; min-width: 0; }
@@ -1798,7 +1799,6 @@
     .account-btn.connected {
       color: #176332; font-size: 0;
       background: #bde8c6;
-      box-shadow: inset 0 0 0 1px #67a879;
     }
     .account-btn svg { display: none; }
     .account-btn.connected svg { display: block; width: 19px; height: 19px; margin: auto; }
@@ -1900,12 +1900,11 @@
         <defs>
           <image id="wordmark" href="futeroute-logo.webp" width="1098" height="169"/>
           <clipPath id="wordmark-left"><path d="M0 0H360V108H325L343 126V169H0Z"/></clipPath>
-          <clipPath id="wordmark-rat"><path d="M360 0H658V169H343V126L325 108H360Z"/></clipPath>
           <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
         </defs>
         <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
         <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-13 0)"/>
-        <use href="#wordmark" clip-path="url(#wordmark-rat)"/>
+        <image href="logo%20rat%20seul.png" x="324" y="5" width="331" height="156"/>
       </svg>
     </h1>
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
