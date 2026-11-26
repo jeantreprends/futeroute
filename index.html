@@ -136,17 +136,14 @@
       position: relative;
     }
 
-    /* Compte : bouton rond centré sous le logo, et carte
+    /* Compte : bouton rond à gauche au-dessus du logo, et carte
        de connexion par lien magique (repliée par défaut). */
     .account-btn {
-      margin: 12px auto 0; padding: 0;
+      margin: 0 auto 8px 0; padding: 0;
       width: 34px; height: 34px; border-radius: 50%;
       border: 0; background: #fff;
       font-size: 15px; line-height: 1; cursor: pointer;
       transition: background-color 0.15s;
-    }
-    @media (max-width: 767px) {
-      .header .account-btn { position: absolute; top: -12px; right: 0; margin: 0; }
     }
     .account-hint { font-size: 12px; color: #607080; line-height: 1.5; margin-bottom: 10px; }
     .account-row { display: flex; gap: 6px; }
@@ -1895,20 +1892,21 @@
 <div class="page">
 
   <div class="header">
+    <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
+    <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7" r="4.5"/><path d="M3 22a9 9 0 0 1 18 0Z"/></svg></button>
     <h1>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
         <defs>
           <image id="wordmark" href="futeroute-logo.webp" width="1098" height="169"/>
-          <clipPath id="wordmark-left"><path d="M0 0H360V108H325L343 126V169H0Z"/></clipPath>
+          <clipPath id="wordmark-left"><path d="M0 0H360V107H324L341 121Q338 129 330 133L320 138V169H0Z"/></clipPath>
           <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
         </defs>
         <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
+        <path transform="translate(6 0)" fill="#fcb00f" d="M324 109L341 121Q338 129 329 133L322 132L319 118Z"/>
         <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-13 0)"/>
-        <image href="logo%20rat%20seul.png" x="324" y="5" width="331" height="156"/>
+        <image href="logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
       </svg>
     </h1>
-    <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
-    <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7" r="4.5"/><path d="M3 22a9 9 0 0 1 18 0Z"/></svg></button>
     <div class="tagline" hidden>Comparez le coût de vos itinéraires et trouvez où faire le plein.</div>
     <nav class="mode-nav" aria-label="Outils Futéroute">
       <a href="#cout" data-mode="cout">Coût du trajet</a>
