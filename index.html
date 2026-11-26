@@ -165,22 +165,8 @@
       cursor: pointer; font-family: inherit;
     }
     .account-logout:hover { border-color: #c62828; color: #c62828; }
-    .header h1 {
-      font-family: 'Sora', 'Segoe UI', Arial, sans-serif;
-      font-size: 44px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      display: inline-block;
-      transform: scaleY(1.12);
-      background: linear-gradient(135deg, #0f1729, #29405e);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .header h1 .rat-emphasis {
-      color: #e2971a;
-      font-weight: 800;
-    }
+    .header h1 { width: min(340px, calc(100% - 84px)); margin: 0 auto; }
+    .header h1 img { display: block; width: 100%; height: auto; }
     .header .tagline {
       font-size: 13px;
       color: #607080;
@@ -599,9 +585,6 @@
     @media (max-width: 480px) {
       .src-long { display: none; }
       .src-court { display: inline; }
-      /* « Futéroute » est plus long que l'ancien nom : sur mobile il empiétait
-         sur le bouton ⛽ (positionné à droite), on réduit donc un peu le titre. */
-      .header h1 { font-size: 37px; }
       /* Mobile : le libellé passe au-dessus, l'encadré prend toute la largeur */
       .card { padding: 16px; }
       .section { padding: 6px 12px; }
@@ -1753,11 +1736,6 @@
     .nav-icon-btn.waze img { width: 14px; height: 14px; }
     /* Navigation et formulaires */
     :root { --rayon-commande: 8px; --rayon-carte: 12px; }
-    .header h1 { display: inline-flex; align-items: baseline; position: relative; margin-left: 28px; }
-    .header h1::before {
-      content: ''; position: absolute; right: calc(100% + 7px); bottom: 5px;
-      width: 36px; height: 23px; background: url("logo rat seul.png") center / contain no-repeat;
-    }
     .header .tagline { margin-top: 6px; color: #54677e; }
     .mode-nav { gap: 0; width: fit-content; max-width: 100%; margin: 16px auto 0; border-bottom: 1px solid #c5d2df; }
     .mode-nav a { margin-bottom: -1px; padding: 10px clamp(6px, 2vw, 19px); color: #4d657d; }
@@ -1919,7 +1897,7 @@
   <div class="header">
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
     <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7" r="4.5"/><path d="M3 22a9 9 0 0 1 18 0Z"/></svg></button>
-    <h1><span class="rat-emphasis">Futé</span>route</h1>
+    <h1><img src="futeroute-logo.webp" width="1098" height="169" alt="Futé Route"></h1>
     <div class="tagline" hidden>Comparez le coût de vos itinéraires et trouvez où faire le plein.</div>
     <nav class="mode-nav" aria-label="Outils Futéroute">
       <a href="#cout" data-mode="cout">Coût du trajet</a>
