@@ -166,7 +166,7 @@
     }
     .account-logout:hover { border-color: #c62828; color: #c62828; }
     .header h1 { width: min(340px, calc(100% - 84px)); margin: 0 auto; }
-    .header h1 img { display: block; width: 100%; height: auto; }
+    .header h1 svg { display: block; width: 100%; height: auto; }
     .header .tagline {
       font-size: 13px;
       color: #607080;
@@ -1895,7 +1895,19 @@
 <div class="page">
 
   <div class="header">
-    <h1><img src="futeroute-logo.webp" width="1098" height="169" alt="Futé Route"></h1>
+    <h1>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
+        <defs>
+          <image id="wordmark" href="futeroute-logo.webp" width="1098" height="169"/>
+          <clipPath id="wordmark-left"><path d="M0 0H360V108H325L343 126V169H0Z"/></clipPath>
+          <clipPath id="wordmark-rat"><path d="M360 0H658V169H343V126L325 108H360Z"/></clipPath>
+          <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
+        </defs>
+        <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
+        <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-13 0)"/>
+        <use href="#wordmark" clip-path="url(#wordmark-rat)"/>
+      </svg>
+    </h1>
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
     <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7" r="4.5"/><path d="M3 22a9 9 0 0 1 18 0Z"/></svg></button>
     <div class="tagline" hidden>Comparez le coût de vos itinéraires et trouvez où faire le plein.</div>
