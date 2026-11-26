@@ -1838,7 +1838,47 @@
     #paramsCard { background:transparent; box-shadow:none; padding:0; }
     #paramsCard > .section { background:white; padding:clamp(16px,3vw,26px); border-radius:var(--rayon-carte); box-shadow:0 3px 16px #1b38500d; border:0; }
     #paramsCard .section-carburant { margin-top:12px; }
-    #paramsCard .section > .card-title { font-size:19px; text-transform:none; letter-spacing:-.03em; color:#1e344c; margin:0 0 12px; }
+    #paramsCard .section > .card-title, #sectionResultats > .card-title, #sectionResultats .station-section-title { font-size:19px; text-transform:none; letter-spacing:-.03em; color:#1e344c; margin:0 0 12px; }
+    /* Les résultats reprennent les titres et les commandes du formulaire. */
+    #sectionResultats { padding: clamp(16px, 3vw, 26px); }
+    #sectionResultats .ar-toggle, #sectionResultats .station-tabs {
+      background: transparent; padding: 0; border-radius: 0;
+      border-bottom: 1px solid #d5e0eb; gap: 12px;
+    }
+    #sectionResultats .ar-toggle-btn, #sectionResultats .station-tab-btn {
+      padding: 8px 2px; border-radius: 0; margin-bottom: -1px;
+      background: transparent; box-shadow: none; border-bottom: 2px solid transparent;
+      font-weight: 650; line-height: 1.3; font-family: inherit; font-size: 13px; color: #52677a;
+    }
+    #sectionResultats .ar-toggle-btn.active, #sectionResultats .station-tab-btn.active {
+      color: #0b57a4; border-bottom-color: #1976d2;
+    }
+    #sectionResultats .route-row { border: 1px solid #cedbe8; padding: 12px; opacity: 1; }
+    #sectionResultats .route-row.sel { border-color: #84acd3; background: #f6f9fe; }
+    #sectionResultats .route-nom { color: #1e344c; font-size: 14px; }
+    #sectionResultats .route-infos, #sectionResultats .route-delta.ref,
+    #sectionResultats .cout-detail-conso { color: #536b80; }
+    #sectionResultats .route-prix { font-variant-numeric: tabular-nums; }
+    #sectionResultats .route-row.sel .route-prix { color: #1769c2; font-size: clamp(23px, 3vw, 28px); }
+    #sectionResultats .pax-stepper, #sectionResultats .pax-btn,
+    #sectionResultats .cheapest-map-wrap, #sectionResultats .itmap-expand-btn,
+    #sectionResultats .itmap-recenter-btn { border-radius: var(--rayon-commande); }
+    #sectionResultats .nav-icon-btn { background: #eef5fc; color: #205e96; border-color: transparent; box-shadow: none; }
+    #sectionResultats .leg-advice {
+      background: transparent; border: none; border-top: 1px solid #dce5ed;
+      border-radius: 0; padding: 14px 0 0; margin-top: 16px;
+    }
+    #sectionResultats .leg-advice-title { color: #1e344c; font-size: 15px; }
+    #sectionResultats .leg-advice-empty { color: #52677a; font-style: normal; }
+    #sectionResultats .station-section-head { border-top: 1px solid #dce5ed; padding-top: 18px; margin-top: 20px; }
+    #sectionResultats .cheapest-note { background: transparent; border: none; padding: 0; margin-top: 14px; }
+    #sectionResultats .cheapest-title { color: #344d65; line-height: 1.35; }
+    #sectionResultats .station-section-title { margin-bottom: 0; }
+    #sectionResultats :is(button, a, .route-row):focus-visible { outline: 2px solid #1667b1; outline-offset: 2px; }
+    @media (max-width: 480px) {
+      #sectionResultats .route-detail-row { flex-wrap: wrap; align-items: center; }
+      #sectionResultats .route-detail-row .route-nav-inline { margin-left: auto; }
+    }
   </style>
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
