@@ -147,7 +147,6 @@
       transition: box-shadow 0.15s, border-color 0.15s;
     }
     .account-btn:hover { border-color: #9dc2ee; }
-    .account-btn.connected { border-color: #66bb6a; background: #f3faf3; }
     .account-hint { font-size: 12px; color: #607080; line-height: 1.5; margin-bottom: 10px; }
     .account-row { display: flex; gap: 6px; }
     .account-row input { flex: 1; min-width: 0; }
@@ -1818,7 +1817,14 @@
     .swap-btn { color: #556c85; background: #fff; }
     .account-btn:hover, .swap-btn:hover { color: #1769c2; background: #edf4fb; box-shadow: none; }
     .account-btn:focus-visible, .swap-btn:focus-visible { outline: 2px solid #1667b1; outline-offset: 1px; }
-    .account-btn.connected { background: #e5f3e9; }
+    .account-btn.connected {
+      color: #176332; font-size: 0;
+      background: #bde8c6;
+      box-shadow: inset 0 0 0 1px #67a879;
+    }
+    .account-btn svg { display: none; }
+    .account-btn.connected svg { display: block; width: 19px; height: 19px; margin: auto; }
+    .account-btn.connected:hover { background: #abdfb7; }
     .route-row, .route-row.sel { border-radius: var(--rayon-commande); box-shadow: none; }
     .cheapest-note { border: 1px solid #cadfd1; border-top: 3px solid #398054; background: #fbfefc; border-radius: var(--rayon-carte); animation: none; }
     .cheapest-note::before { display: none; }
@@ -1912,7 +1918,7 @@
 
   <div class="header">
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
-    <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤</button>
+    <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7" r="4.5"/><path d="M3 22a9 9 0 0 1 18 0Z"/></svg></button>
     <h1><span class="rat-emphasis">Futé</span>route</h1>
     <div class="tagline" hidden>Comparez le coût de vos itinéraires et trouvez où faire le plein.</div>
     <nav class="mode-nav" aria-label="Outils Futéroute">
