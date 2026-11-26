@@ -136,10 +136,10 @@
       position: relative;
     }
 
-    /* Compte : petit bouton discret en haut à droite de l'en-tête, et carte
+    /* Compte : bouton rond centré sous le logo, et carte
        de connexion par lien magique (repliée par défaut). */
     .account-btn {
-      position: absolute; top: 0; right: 0;
+      margin: 12px auto 0; padding: 0;
       width: 34px; height: 34px; border-radius: 50%;
       border: 1.5px solid #d5e0ee; background: #fff;
       font-size: 15px; line-height: 1; cursor: pointer;
@@ -1789,7 +1789,7 @@
     .carb-choice:focus-visible, .c-pill:focus-visible { outline: 2px solid #1667b1; outline-offset: -2px; }
     .btn { border-radius: var(--rayon-commande); box-shadow: none; }
     .btn:not(:disabled) { background: #1769c2; }
-    .account-btn, .swap-btn {
+    .swap-btn {
       border: 0; border-radius: var(--rayon-commande); background: transparent; box-shadow: none;
     }
     .swap-btn { color: #556c85; background: #fff; }
@@ -1895,9 +1895,9 @@
 <div class="page">
 
   <div class="header">
+    <h1><img src="futeroute-logo.webp" width="1098" height="169" alt="Futé Route"></h1>
     <!-- Compte (Supabase) : bouton masqué tant que la config n'est pas renseignée -->
     <button type="button" class="account-btn" id="accountBtn" style="display:none;" onclick="toggleAccountCard()" aria-label="Mon compte">👤<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7" r="4.5"/><path d="M3 22a9 9 0 0 1 18 0Z"/></svg></button>
-    <h1><img src="futeroute-logo.webp" width="1098" height="169" alt="Futé Route"></h1>
     <div class="tagline" hidden>Comparez le coût de vos itinéraires et trouvez où faire le plein.</div>
     <nav class="mode-nav" aria-label="Outils Futéroute">
       <a href="#cout" data-mode="cout">Coût du trajet</a>
