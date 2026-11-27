@@ -694,6 +694,10 @@
     .saved-chip.selected .saved-chip-x { color: #cfe3fb; }
     .saved-chip.selected .saved-chip-x:hover { color: #fff; }
     .saved-chip .chip-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .saved-chip-grip { flex-shrink: 0; color: inherit; opacity: .75; cursor: grab; touch-action: none; user-select: none; }
+    .saved-chip.dragging { opacity: .5; }
+    .saved-chip.drop-target { outline: 2px solid #1769b4; outline-offset: 2px; }
+    .saved-chip-preview { position: fixed; z-index: 1000; pointer-events: none; margin: 0; }
     .saved-chip-x { color: #90a4ae; font-weight: 700; padding: 0 2px; flex-shrink: 0; }
     .saved-chip-x:hover { color: #e53935; }
     .saved-chip-add {
@@ -2503,7 +2507,10 @@ function loadStore(key) {
 }
 // Les éléments visibles (sans les pierres tombales) : à utiliser partout où
 // on affiche ou applique un favori.
-function loadActifs(key) { return loadStore(key).filter(x => !x.del); }
+function loadActifs(key) {
+  return loadStore(key).filter(x => !x.del)
+    .sort((a, b) => (a.ordre ?? Infinity) - (b.ordre ?? Infinity));
+}
 function saveStore(key, arr) {
   try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
   // Connecté : relit le cloud, fusionne et repousse (débouncé).
@@ -2519,7 +2526,12 @@ function fusionnerListes(a, b, cleFn) {
     const c = cleFn(x);
     if (!c) return;
     const prev = parCle.get(c);
-    if (!prev || (x.maj || 0) > (prev.maj || 0)) parCle.set(c, x);
+    const contenu = !prev || (x.maj || 0) > (prev.maj || 0) ? x : prev;
+    // Un déplacement ne remplace ni le contenu ni une suppression récente.
+    const position = (x.ordreMaj || 0) > (prev?.ordreMaj || 0) ? x : prev;
+    parCle.set(c, position?.ordreMaj && position !== contenu
+      ? { ...contenu, ordre: position.ordre, ordreMaj: position.ordreMaj }
+      : contenu);
   });
   const seuil = Date.now() - 90 * 24 * 3600 * 1000;
   return Array.from(parCle.values()).filter(x => !x.del || (x.maj || 0) > seuil);
@@ -2904,6 +2916,85 @@ function makeSavedChip(icone, texte, titre, onApply, onDelete) {
   return chip;
 }
 
+function activerDeplacementFavori(chip, wrap, storeKey, cleFn, cle) {
+  chip.dataset.favori = cle;
+  const grip = document.createElement('span');
+  grip.className = 'saved-chip-grip';
+  grip.textContent = '⠿';
+  grip.title = 'Glisser pour déplacer';
+  grip.setAttribute('aria-hidden', 'true');
+  chip.prepend(grip);
+  chip.setAttribute('aria-keyshortcuts', 'Alt+ArrowLeft Alt+ArrowRight');
+
+  function deplacer(cible) {
+    if (!cible || cible === chip || chip.parentElement !== wrap || cible.parentElement !== wrap) return;
+    const actifs = loadActifs(storeKey);
+    const index = actifs.findIndex(item => cleFn(item) === cle);
+    const destination = actifs.findIndex(item => cleFn(item) === cible.dataset.favori);
+    if (index < 0 || destination < 0 || index === destination) return;
+    const [item] = actifs.splice(index, 1);
+    actifs.splice(destination, 0, item);
+    const bruts = loadStore(storeKey);
+    const ordreMaj = Math.max(Date.now(), ...bruts.map(item => (item.ordreMaj || 0) + 1));
+    const ordonnes = actifs.map((item, ordre) => ({ ...item, ordre, ordreMaj }));
+    saveStore(storeKey, [...ordonnes, ...bruts.filter(item => item.del)]);
+    const focus = document.activeElement === chip;
+    wrap.insertBefore(chip, destination < index ? cible : cible.nextElementSibling);
+    if (focus) chip.focus({ preventScroll: true });
+  }
+
+  chip.addEventListener('keydown', e => {
+    if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    e.preventDefault();
+    deplacer(e.key === 'ArrowLeft' ? chip.previousElementSibling : chip.nextElementSibling);
+  });
+  grip.addEventListener('click', e => e.stopPropagation());
+  grip.addEventListener('pointerdown', e => {
+    if (!e.isPrimary || e.button !== 0) return;
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    chip.classList.add('dragging');
+    const bounds = chip.getBoundingClientRect();
+    const preview = chip.cloneNode(true);
+    preview.classList.remove('dragging');
+    preview.classList.add('saved-chip-preview');
+    preview.setAttribute('aria-hidden', 'true');
+    preview.tabIndex = -1;
+    preview.style.width = bounds.width + 'px';
+    document.body.appendChild(preview);
+
+    let cible = null;
+    function suivre(event) {
+      if (event.pointerId !== e.pointerId) return;
+      preview.style.left = event.clientX - (e.clientX - bounds.left) + 'px';
+      preview.style.top = event.clientY - (e.clientY - bounds.top) + 'px';
+      cible?.classList.remove('drop-target');
+      const survol = document.elementFromPoint(event.clientX, event.clientY)?.closest('.saved-chip');
+      cible = survol && survol !== chip && survol.parentElement === wrap ? survol : null;
+      cible?.classList.add('drop-target');
+    }
+    function terminer(event) {
+      if (event.pointerId !== e.pointerId) return;
+      if (event.type === 'pointerup') {
+        suivre(event);
+        deplacer(cible);
+      }
+      cible?.classList.remove('drop-target');
+      chip.classList.remove('dragging');
+      preview.remove();
+      document.removeEventListener('pointermove', suivre);
+      document.removeEventListener('pointerup', terminer);
+      document.removeEventListener('pointercancel', terminer);
+      document.removeEventListener('lostpointercapture', terminer);
+    }
+    suivre(e);
+    document.addEventListener('pointermove', suivre);
+    document.addEventListener('pointerup', terminer);
+    document.addEventListener('pointercancel', terminer);
+    document.addEventListener('lostpointercapture', terminer);
+  });
+}
+
 // -- Véhicules --
 const CARB_LABELS_VEH = { sp95: 'SP95', gazole: 'Gazole', sp98: 'SP98', gplc: 'GPL', e85: 'E85', electrique: 'Électrique' };
 function renderVehChips() {
@@ -2914,7 +3005,7 @@ function renderVehChips() {
   document.getElementById('vehEmpty').hidden = vehs.length > 0;
   vehs.forEach((v) => {
     const titre = `${CARB_LABELS_VEH[v.type] || v.type} · ${v.conso} ${v.type === 'electrique' ? 'kWh' : 'L'}/100 km` + (v.capacite && v.type !== 'electrique' ? ` · réservoir ${v.capacite} L` : '');
-    wrap.appendChild(makeSavedChip('', v.nom, titre,
+    const chip = makeSavedChip('', v.nom, titre,
       (chip) => appliquerVehicule(v, chip),
       () => confirmDelete(document.getElementById('vehChips'), `Supprimer le véhicule « ${v.nom} » ?`, () => {
         // Suppression = pierre tombale datée (voir VEHICULES_KEY), par clé
@@ -2923,7 +3014,9 @@ function renderVehChips() {
         arr.push(Object.assign({}, v, { del: true, maj: Date.now() }));
         saveStore(VEHICULES_KEY, arr);
         renderVehChips();
-      })));
+      }));
+    if (vehs.length > 1) activerDeplacementFavori(chip, wrap, VEHICULES_KEY, cleVehicule, cleVehicule(v));
+    wrap.appendChild(chip);
   });
 }
 function toggleVehForm(open) {
@@ -2943,7 +3036,13 @@ function confirmerVehicule() {
   };
   // Retire toute entrée de même nom (y compris une éventuelle pierre
   // tombale : recréer un véhicule supprimé doit annuler la suppression).
-  const arr = loadStore(VEHICULES_KEY).filter(v => cleVehicule(v) !== nom.toLowerCase());
+  const stock = loadStore(VEHICULES_KEY);
+  const precedent = stock.find(v => cleVehicule(v) === nom.toLowerCase() && !v.del);
+  if (precedent?.ordreMaj) {
+    veh.ordre = precedent.ordre;
+    veh.ordreMaj = precedent.ordreMaj;
+  }
+  const arr = stock.filter(v => cleVehicule(v) !== nom.toLowerCase());
   veh.maj = Date.now();
   arr.push(veh);
   saveStore(VEHICULES_KEY, arr);
@@ -2977,7 +3076,7 @@ function renderTrajetChips() {
   const trajets = loadActifs(TRAJETS_KEY);
   trajets.forEach((t) => {
     const titre = t.points.join(' → ');
-    wrap.appendChild(makeSavedChip('', t.nom, titre,
+    const chip = makeSavedChip('', t.nom, titre,
       (chip) => appliquerTrajet(t, chip),
       () => confirmDelete(document.getElementById('trajetChips'), `Supprimer le trajet « ${t.nom} » ?`, () => {
         // Même principe que pour les véhicules : tombale datée, par clé.
@@ -2985,7 +3084,9 @@ function renderTrajetChips() {
         arr.push(Object.assign({}, t, { del: true, maj: Date.now() }));
         saveStore(TRAJETS_KEY, arr);
         renderTrajetChips();
-      })));
+      }));
+    if (trajets.length > 1) activerDeplacementFavori(chip, wrap, TRAJETS_KEY, cleTrajet, cleTrajet(t));
+    wrap.appendChild(chip);
   });
   document.getElementById('trajetEmpty').hidden = trajets.length > 0;
 }
@@ -3039,9 +3140,16 @@ function confirmerTrajet() {
   const cle = points.join('|').toLowerCase();
   // Remplace un trajet de même nom ou de même itinéraire (mise à jour),
   // pierre tombale comprise (recréer = annuler la suppression).
-  const arr = loadStore(TRAJETS_KEY).filter(t =>
-    cleTrajet(t) !== cle && (t.nom || '').trim().toLowerCase() !== nom.toLowerCase());
-  arr.push({ nom, points, maj: Date.now() });
+  const stock = loadStore(TRAJETS_KEY);
+  const correspond = t => cleTrajet(t) === cle || (t.nom || '').trim().toLowerCase() === nom.toLowerCase();
+  const precedent = stock.find(t => !t.del && cleTrajet(t) === cle) || stock.find(t => !t.del && correspond(t));
+  const trajet = { nom, points, maj: Date.now() };
+  if (precedent?.ordreMaj) {
+    trajet.ordre = precedent.ordre;
+    trajet.ordreMaj = precedent.ordreMaj;
+  }
+  const arr = stock.filter(t => !correspond(t));
+  arr.push(trajet);
   saveStore(TRAJETS_KEY, arr);
   toggleTrajetForm(false);
   renderTrajetChips();
