@@ -8,27 +8,31 @@
 <link rel="canonical" href="https://futeroute.fr/trajets/">
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f6; color: #1a2433; padding: 24px 16px; }
-  .page { max-width: 640px; margin: 0 auto; }
-  .breadcrumb { font-size: 12px; color: #90a4ae; margin-bottom: 14px; }
-  .breadcrumb a { color: #90a4ae; }
-  h1 { font-size: 22px; margin-bottom: 16px; color: #0f1729; }
-  .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 16px rgba(15,23,41,0.07); }
-  ul { list-style: none; columns: 2; gap: 8px; }
-  li { margin-bottom: 10px; break-inside: avoid; }
-  a { color: #1976d2; text-decoration: none; font-weight: 600; font-size: 14px; }
-  a:hover { text-decoration: underline; }
-  footer { text-align: center; margin-top: 20px; font-size: 12px; }
-  footer a { color: #607080; }
-</style>
+<link rel="stylesheet" href="/pages.css">
 </head>
 <body>
 <div class="page">
+<header class="entete">
+  <a class="marque" href="/" aria-label="Futéroute – calculateur"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
+  <defs>
+    <image id="wordmark" href="/futeroute-logo.webp" width="1098" height="169"/>
+    <clipPath id="wordmark-left"><path d="M0 0H360V107H324L341 121Q338 129 330 133L320 138V169H0Z"/></clipPath>
+    <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
+  </defs>
+  <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
+  <path transform="translate(6 0)" fill="#fcb00f" d="M324 109L341 121Q338 129 329 133L322 132L319 118Z"/>
+  <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-19 0)"/>
+  <image href="/logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
+</svg></a>
+  <nav class="rubriques" aria-label="Navigation principale">
+    <a href="/">Calculateur</a>
+    <a href="/trajets/" aria-current="page">Trajets</a>
+    <a href="/accueil.html">À propos</a>
+  </nav>
+</header>
   <div class="breadcrumb"><a href="https://futeroute.fr/">Futéroute</a> › Trajets</div>
   <h1>Coût des trajets en voiture</h1>
-  <div class="card"><ul><li><a href="./paris-lyon.html">Paris → Lyon</a></li>
+  <div class="card"><ul class="annuaire"><li><a href="./paris-lyon.html">Paris → Lyon</a></li>
 <li><a href="./paris-marseille.html">Paris → Marseille</a></li>
 <li><a href="./paris-bordeaux.html">Paris → Bordeaux</a></li>
 <li><a href="./paris-nantes.html">Paris → Nantes</a></li>
