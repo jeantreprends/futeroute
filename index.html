@@ -1872,14 +1872,20 @@
     .trip-questions :is(summary,input,button):focus-visible { outline: 2px solid #1667b1; outline-offset: 2px; }
     .trip-questions .leg-advice[open] { padding-bottom: 8px; }
     #trainRoute { color: #52677a; font-size: 13px; margin: 0 0 12px; }
-    .train-dates { display: flex; flex-wrap: wrap; gap: 10px; }
-    .train-dates label { display: grid; gap: 5px; flex: 0 1 155px; min-width: 0; font-size: 12px; font-weight: 600; color: #536b80; }
+    .train-dates { display: flex; flex-wrap: wrap; gap: 2px 18px; }
+    .train-dates label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 400; color: #536b80;
+    }
     .train-dates label[hidden] { display: none; }
     .train-dates input {
-      font: inherit; font-size: 16px; color: #1e344c; width: 100%; min-width: 0; min-height: 42px;
-      box-sizing: border-box; padding: 7px 9px; border: 1px solid #c9d8e8;
-      border-radius: var(--rayon-commande); background: #f6f9fe;
+      font: inherit; color: #344d65; min-width: 0; min-height: 44px; width: auto;
+      padding: 0 3px; border: 0; border-radius: 3px; background: transparent;
+      text-decoration: underline; text-decoration-color: #c9d8e8; text-underline-offset: 4px;
     }
+    .train-dates input::-webkit-calendar-picker-indicator { opacity: .6; cursor: pointer; }
+    .train-dates input:is(:hover, :focus-visible) { background: #f6f9fe; }
+    @media (pointer: coarse) { .train-dates input { font-size: 16px; } }
     .travel-links {
       display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px;
     }
