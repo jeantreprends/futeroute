@@ -1862,6 +1862,7 @@
       min-height: 44px; list-style: none; cursor: pointer;
       color: #1e344c; font-size: 14px; font-weight: 700;
     }
+    .trip-questions:not(:has(> details[open])) > details > summary { min-height: 32px; }
     .trip-questions summary::-webkit-details-marker { display: none; }
     .trip-questions summary::after {
       content: ''; width: 7px; height: 7px; margin-right: 4px;
