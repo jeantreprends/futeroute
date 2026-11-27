@@ -201,10 +201,7 @@
       position: relative;
     }
     .param-row:last-child { border-bottom: none; }
-    .point-row { border-bottom: none; transition: margin-left 0.15s ease; }
-    /* Départ/Arrivée décalés légèrement dès qu'il y a une étape, pour laisser
-       un peu d'air aux poignées de glisser-déposer (sinon collées au bord). */
-    .point-row.shift-for-handles { margin-left: 8px; }
+    .point-row { border-bottom: none; }
     /* Séparations plus marquées entre Carburant / Consommation / Réservoir : plus
        d'espace vertical et un trait un peu plus visible et plus long. */
     /* Paddings réglés pour un écart visuel identique (15 px) entre chaque
@@ -595,7 +592,7 @@
          elles se centrent sur la hauteur totale de la ligne - or Départ/Arrivée
          ont leur libellé au-dessus (2 lignes) là où une étape n'en a qu'une,
          donc les poignées ne tombaient pas à la même hauteur. */
-      .point-row:not(.is-stop) .drag-handle { top: auto; bottom: 8px; height: 43px; }
+      .point-row:not(.is-stop) .drag-handle { top: auto; bottom: 6px; height: 42px; }
       /* Recentre les flèches pile entre les deux encadrés (layout empilé) */
       #swapBtn { transform: translateY(calc(-50% + 11px)); }
       #swapBtn:active { transform: translateY(calc(-50% + 11px)) scale(0.9); }
@@ -723,14 +720,22 @@
     /* ===== Proposition C : fil du trajet + pastilles de réglage ===== */
     /* Fil vertical reliant départ et arrivée, avec une pastille verte au
        départ et rouge à l'arrivée : le trajet se lit d'un coup d'œil. */
-    .points-wrap { position: relative; padding-left: 20px; }
+    .points-wrap {
+      --point-gutter: 20px;
+      --handle-gutter: 0px;
+      position: relative;
+      padding-left: calc(var(--point-gutter) + var(--handle-gutter));
+    }
+    .points-wrap.has-step-handles { --handle-gutter: 22px; }
     .points-wrap::before {
-      content: ''; position: absolute; left: 4px; top: 26px; bottom: 26px;
+      content: ''; position: absolute; left: 6px; top: 26px; bottom: 26px;
       width: 2px; background: #dbe7f5; border-radius: 2px;
     }
     #points .point-row { position: relative; }
     #points .point-row::before {
-      content: ''; position: absolute; left: -20px; top: 50%; margin-top: -5px;
+      content: ''; position: absolute;
+      left: calc(0px - var(--point-gutter) - var(--handle-gutter));
+      top: 50%; margin-top: -7px;
       width: 10px; height: 10px; border-radius: 50%;
       background: #c3d3e4; border: 2px solid #fff; box-shadow: 0 0 0 1px #dbe7f5;
     }
@@ -739,7 +744,7 @@
     /* Sur mobile le libellé "Départ" est au-dessus du champ : la pastille se
        cale sur le champ lui-même, pas sur le milieu de la ligne. */
     @media (max-width: 480px) {
-      .points-wrap { padding-left: 18px; }
+      .points-wrap { --point-gutter: 18px; }
       #points .point-row:not(.is-stop)::before { top: auto; bottom: 20px; margin-top: 0; }
     }
 
@@ -1069,10 +1074,10 @@
       font-family: inherit; padding: 4px 0;
     }
 
-    /* Poignée sortie du flux : centrée dans la marge à gauche de l'emoji. */
+    /* Les poignées ont leur propre colonne entre le fil du trajet et les champs. */
     .drag-handle {
       position: absolute;
-      left: -18px;
+      left: calc(0px - var(--handle-gutter));
       top: 0; bottom: 0;
       width: 16px;
       display: flex;
@@ -1603,14 +1608,9 @@
       margin-top: 8px;
       font-size: 11px;
       font-weight: 600;
-      color: #1976d2;
       text-decoration: none;
-      background: #e8f4ff;
       padding: 5px 12px;
-      border-radius: 14px;
-      transition: background 0.15s;
     }
-    .cheapest-link:hover { background: #bbdefb; }
     /* Deux liens côte à côte : largeur égale. La classe est posée en JS
        (finaliserBtnRow) plutôt que par un sélecteur :has(), peu fiable sur
        iOS Safari. */
@@ -1706,18 +1706,23 @@
        qu'une destination, jamais de points de passage). */
     .route-nav-row { display: none; justify-content: center; gap: 6px; margin: 14px 0 20px; }
     .route-nav-row.show { display: flex; }
+    :is(.nav-icon-btn, .cheapest-link) {
+      color: #205e96; background: #eef5fc;
+      border: 1px solid rgba(32, 94, 150, .28);
+      border-radius: var(--rayon-commande);
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+    :is(.nav-icon-btn, .cheapest-link):hover {
+      border-color: rgba(32, 94, 150, .55);
+      background: #e2eefb;
+    }
+    :is(.nav-icon-btn, .cheapest-link):focus-visible { outline: 2px solid #1667b1; outline-offset: 2px; }
     .nav-icon-btn {
       height: 24px; padding: 0 9px;
-      background: #fff;
-      border: 1.5px solid #bcd3ef;
-      border-radius: 8px;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 5px;
-      box-shadow: 0 1px 2px rgba(15,23,41,0.06);
-      transition: border-color 0.15s, transform 0.1s, background 0.15s;
-      font-family: inherit; font-size: 10.5px; font-weight: 700; color: #1976d2;
+      font-family: inherit; font-size: 10.5px; font-weight: 700;
     }
-    .nav-icon-btn:hover { border-color: #1976d2; background: #eaf3ff; }
     .nav-icon-btn:active { transform: scale(0.95); }
     .nav-icon-btn img { display: block; object-fit: contain; }
     .nav-icon-btn.maps img { width: 12px; height: 12px; }
@@ -1834,7 +1839,6 @@
     #sectionResultats .pax-stepper, #sectionResultats .pax-btn,
     #sectionResultats .cheapest-map-wrap, #sectionResultats .itmap-expand-btn,
     #sectionResultats .itmap-recenter-btn { border-radius: var(--rayon-commande); }
-    #sectionResultats .nav-icon-btn { background: #eef5fc; color: #205e96; border-color: transparent; box-shadow: none; }
     #sectionResultats .leg-advice-empty { color: #52677a; font-style: normal; }
     #sectionResultats .station-section-head { border-top: 1px solid #dce5ed; padding-top: 18px; margin-top: 8px; }
     #sectionResultats .cheapest-note { background: transparent; border: none; padding: 0; margin-top: 14px; }
@@ -5467,9 +5471,11 @@ function utiliserPositionDepart(btn, input) {
 
 // Met à jour icône / libellé / placeholder / bouton supprimer selon la position.
 function refreshPoints() {
-  const rows = Array.from(pointsEl().querySelectorAll('.point-row'));
+  const points = pointsEl();
+  const rows = Array.from(points.querySelectorAll('.point-row'));
   // Poignées de déplacement visibles uniquement quand il y a au moins une étape.
   const showHandles = rows.length > 2;
+  points.parentElement.classList.toggle('has-step-handles', showHandles);
   rows.forEach((row, i) => {
     const label = row.querySelector('.param-label');
     const input = row.querySelector('.point-input');
@@ -5481,20 +5487,17 @@ function refreshPoints() {
       input.placeholder = 'Je pars de...'; rm.style.display = 'none';
       row.classList.remove('is-stop');
       row.classList.add('has-geoloc');
-      row.classList.toggle('shift-for-handles', showHandles);
     } else if (i === rows.length - 1) {
       label.textContent = 'Arrivée';
       input.placeholder = 'J\'arrive à...'; rm.style.display = 'none';
       row.classList.remove('is-stop');
       row.classList.remove('has-geoloc');
-      row.classList.toggle('shift-for-handles', showHandles);
     } else {
       // Étape : le numéro passe en placeholder dans l'encadré, ✕ à droite.
       label.textContent = '';
       input.placeholder = 'Étape ' + i; rm.style.display = '';
       row.classList.add('is-stop');
       row.classList.remove('has-geoloc');
-      row.classList.toggle('shift-for-handles', showHandles);
     }
     clear.setAttribute('aria-label', i === 0 ? 'Effacer le départ' : i === rows.length - 1 ? "Effacer l’arrivée" : 'Effacer l’étape ' + i);
   });
