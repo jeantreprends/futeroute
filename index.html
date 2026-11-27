@@ -2157,7 +2157,7 @@
       <div id="coutDetailStandalone"></div>
     </div>
     <div class="trip-questions">
-      <details class="leg-advice" id="legAdvice" style="display:none;" open></details>
+      <details class="leg-advice" id="legAdvice" style="display:none;"></details>
       <details id="trainCompare">
         <summary>Autres options de trajet</summary>
         <form id="trainForm">
@@ -6803,6 +6803,7 @@ async function calculer() {
       afficherRentabiliteSimple(routeRapide, routeZero, rapide.coutPeage, conso, depart, arrivee);
     }
 
+    document.getElementById('legAdvice').open = false;
     prepareTrainCompare(depart, arrivee);
     document.getElementById('sectionResultats').style.display = 'block';
     document.querySelector('.page').classList.add('has-results');
