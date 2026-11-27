@@ -260,11 +260,7 @@ ${renderHeader(false)}
   <div class="card">
     <div class="bilan">
       <div class="total">${fmtEur(totalRapide)} au total</div>
-      ${verdict ? `<div class="verdict ${verdict.rentable ? 'eco' : 'non-eco'}">${verdict.texte}</div>
-      <details class="rentabilite">
-        <summary>Qu’est-ce qu’on entend par « rentable » ?</summary>
-        <p>Le calculateur compare les péages évités au coût du carburant supplémentaire. Son repère est de 18 € économisés par heure de détour. La durée maximale du détour dépend de celle du trajet.</p>
-      </details>` : ''}
+      ${verdict ? `<div class="verdict ${verdict.rentable ? 'eco' : 'non-eco'}">${verdict.texte}</div>` : ''}
     </div>
     <div class="chiffres">
       <div class="chip"><div class="chip-label">Distance</div><div class="chip-value">${fmtKm(r.distanceKm)}</div></div>

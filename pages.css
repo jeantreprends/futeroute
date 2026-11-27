@@ -100,11 +100,6 @@ details p { color: var(--secondaire); margin: 0 0 14px; }
 .verdict { padding: 8px 12px; margin-top: 10px; border-left: 3px solid; border-radius: 0 8px 8px 0; font-size: .9rem; }
 .verdict.eco { background: #eff7f0; color: #276b32; }
 .verdict.non-eco { background: #fff8e9; color: #755116; }
-.rentabilite summary {
-  width: fit-content; min-height: 32px; font-size: .8rem; font-weight: 500;
-  color: var(--secondaire); text-decoration: underline; text-underline-offset: 3px;
-}
-.rentabilite p { max-width: 68ch; font-size: .85rem; margin-bottom: 2px; }
 .card .cta { margin-top: 16px; }
 .src-note { margin-top: 12px; }
 .related, .annuaire {
