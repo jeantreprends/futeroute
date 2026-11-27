@@ -143,9 +143,8 @@ async function calculerTrajet(browser, depart, arrivee) {
   }
 }
 
-function verdictSansPeages(rapide, zero) {
-  if (!zero || typeof rapide.coutPeage !== 'number') return null;
-  const totalRapide = rapide.coutCarburant + rapide.coutPeage;
+function verdictSansPeages(rapide, zero, totalRapide) {
+  if (!zero || totalRapide === null || rapide.coutPeage === 0) return null;
   const totalZero = zero.coutCarburant;
   const dE = totalRapide - totalZero;
   const dT = zero.dureeSec - rapide.dureeSec;
@@ -186,31 +185,38 @@ function renderHeader(annuaire) {
 
 function renderPage(t, r, all) {
   const title = `Trajet ${t.depart} → ${t.arrivee} : coût, péages, faut-il éviter l'autoroute ? | Futéroute`;
-  const totalRapide = r.coutCarburant + (r.coutPeage || 0);
-  const verdict = verdictSansPeages(r, r.zero);
+  const peageConnu = Number.isFinite(r.coutPeage) && r.coutPeage >= 0;
+  const totalRapide = peageConnu ? r.coutCarburant + r.coutPeage : null;
+  const carburant = fmtEur(r.coutCarburant);
+  const prixAffiche = peageConnu ? fmtEur(totalRapide) : `${carburant} de carburant`;
+  const verdict = verdictSansPeages(r, r.zero, totalRapide);
   const dateMaj = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
   const appUrl = `${SITE_URL}/index.html?from=${encodeURIComponent(t.depart)}&to=${encodeURIComponent(t.arrivee)}`;
 
-  const faq = [
+  let comparaison = 'Le tarif des péages est inconnu. Impossible de chiffrer l’économie éventuelle.';
+  if (verdict) comparaison = verdict.texte;
+  else if (r.coutPeage === 0) comparaison = 'Le trajet le plus rapide est déjà sans péage.';
+  else if (peageConnu) comparaison = 'Le coût de l’itinéraire sans péage n’est pas disponible pour cette comparaison.';
+  const trajet = `pour ${fmtKm(r.distanceKm)}, soit ${fmtDuree(r.dureeSec)} de route.`;
+  const questions = [
     {
       q: `Combien coûte le trajet ${t.depart} - ${t.arrivee} en voiture ?`,
-      a: `Comptez environ ${fmtEur(totalRapide)} (carburant + péages, base SP95 à 6,6 L/100 km) pour ${fmtKm(r.distanceKm)}, soit ${fmtDuree(r.dureeSec)} de route.`
-        + (typeof r.coutPeage === 'number' ? ` Les péages représentent ${fmtEur(r.coutPeage)} de ce total.` : ''),
+      a: peageConnu
+        ? `Comptez environ ${prixAffiche} (carburant + péages, base SP95 à 6,6 L/100 km) ${trajet} Les péages représentent ${fmtEur(r.coutPeage)} de ce total.`
+        : `Comptez environ ${prixAffiche} (SP95 à 6,6 L/100 km) ${trajet} Le tarif des péages est inconnu.`,
     },
     {
       q: `Vaut-il le coup d'éviter les péages entre ${t.depart} et ${t.arrivee} ?`,
-      a: verdict ? verdict.texte : `Le prix des péages n'a pas pu être déterminé pour ce trajet ; recalculez-le dans l'outil pour un chiffrage à jour.`,
+      a: comparaison,
     },
-  ].map(f => `<details class="faq-item"><summary>${f.q}</summary><p>${f.a}</p></details>`).join('\n');
+  ];
+  const faq = questions.map(f => `<details class="faq-item"><summary>${f.q}</summary><p>${f.a}</p></details>`).join('\n');
 
   const faqSchema = {
     '@context': 'https://schema.org', '@type': 'FAQPage',
-    mainEntity: [
-      { '@type': 'Question', name: `Combien coûte le trajet ${t.depart} - ${t.arrivee} en voiture ?`,
-        acceptedAnswer: { '@type': 'Answer', text: `Environ ${fmtEur(totalRapide)} pour ${fmtKm(r.distanceKm)} (${fmtDuree(r.dureeSec)}).` } },
-      { '@type': 'Question', name: `Vaut-il le coup d'éviter les péages entre ${t.depart} et ${t.arrivee} ?`,
-        acceptedAnswer: { '@type': 'Answer', text: verdict ? verdict.texte : 'Non déterminé.' } },
-    ],
+    mainEntity: questions.map(f => ({
+      '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
   };
 
   // Fil d'Ariane en données structurées (rich result dans Google).
@@ -239,9 +245,9 @@ function renderPage(t, r, all) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title}</title>
-<meta name="description" content="${t.depart} → ${t.arrivee} : ${fmtEur(totalRapide)} (carburant + péages), ${fmtKm(r.distanceKm)}, ${fmtDuree(r.dureeSec)}. ${verdict ? verdict.texte : ''} Chiffres mis à jour le ${dateMaj}.">
+<meta name="description" content="${t.depart} → ${t.arrivee} : ${prixAffiche}${peageConnu ? ' (carburant + péages)' : ' (hors péages, tarif inconnu)'}, ${fmtKm(r.distanceKm)}, ${fmtDuree(r.dureeSec)}.${verdict ? ' ' + verdict.texte : ''} Chiffres mis à jour le ${dateMaj}.">
 <link rel="canonical" href="${SITE_URL}/trajets/${t.slug}.html">
-<meta property="og:title" content="${t.depart} → ${t.arrivee} : ${fmtEur(totalRapide)}">
+<meta property="og:title" content="${t.depart} → ${t.arrivee} : ${prixAffiche}${peageConnu ? '' : ' (hors péages)'}">
 <meta property="og:type" content="article">
 <meta property="og:image" content="${SITE_URL}/logo%20trajet%20rat.png">
 <link rel="icon" href="../favicon.ico" sizes="any">
@@ -259,7 +265,7 @@ ${renderHeader(false)}
 
   <div class="card">
     <div class="bilan">
-      <div class="total">${fmtEur(totalRapide)} au total</div>
+      <div class="total">${prixAffiche}${peageConnu ? ' au total' : ' (hors péages)'}</div>
       ${verdict ? `<div class="verdict ${verdict.rentable ? 'eco' : 'non-eco'}">${verdict.texte}</div>` : ''}
     </div>
     <div class="chiffres">
@@ -267,8 +273,8 @@ ${renderHeader(false)}
       <div class="chip"><div class="chip-label">Durée</div><div class="chip-value">${fmtDuree(r.dureeSec)}</div></div>
     </div>
     <div class="chiffres">
-      <div class="chip"><div class="chip-label">Carburant (SP95)</div><div class="chip-value">${fmtEur(r.coutCarburant)}</div></div>
-      <div class="chip"><div class="chip-label">Péages</div><div class="chip-value">${typeof r.coutPeage === 'number' ? fmtEur(r.coutPeage) : 'n.c.'}</div></div>
+      <div class="chip"><div class="chip-label">Carburant (SP95)</div><div class="chip-value">${carburant}</div></div>
+      <div class="chip"><div class="chip-label">Péages</div><div class="chip-value">${peageConnu ? fmtEur(r.coutPeage) : 'Tarif inconnu'}</div></div>
     </div>
     <a class="cta" href="${appUrl}">Recalculer avec ma voiture (aller-retour, autre carburant, étapes…)</a>
     <div class="src-note">Carburant : moyenne France, prix du jour (data.gouv.fr). Péages : tarifs officiels des concessionnaires, classe 1 (voiture).</div>
@@ -399,4 +405,5 @@ ${urls.map(u => `  <url><loc>${u}</loc><changefreq>weekly</changefreq></url>`).j
   console.log(`\n${reussis.length}/${TRAJETS.length} trajets recalculés ; ${publiables.length}/${TRAJETS.length} pages publiées. sitemap.xml mis à jour.`);
 }
 
-main();
+if (require.main === module) main();
+module.exports = { renderPage };
