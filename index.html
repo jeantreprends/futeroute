@@ -1860,6 +1860,13 @@
       #sectionResultats .route-detail-row { flex-wrap: wrap; align-items: center; }
       #sectionResultats .route-detail-row .route-nav-inline { margin-left: auto; }
     }
+    .train-compare { margin: 14px 0; color: #205e96; }
+    .train-compare summary { cursor: pointer; width: fit-content; padding: 5px 0; font-weight: 600; }
+    .train-compare form { margin-top: 8px; color: #344d65; }
+    .train-dates { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+    .train-dates label { display: grid; gap: 4px; }
+    .train-dates label[hidden] { display: none; }
+    .train-dates input { width: auto; max-width: 100%; font: inherit; }
   </style>
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2130,6 +2137,18 @@
       </div>
       <div id="coutDetailStandalone"></div>
     </div>
+    <details class="train-compare" id="trainCompare">
+      <summary>Et en train ?</summary>
+      <form id="trainForm">
+        <p id="trainRoute"></p>
+        <p><strong>Quand partez-vous ?</strong></p>
+        <div class="train-dates">
+          <label>Aller<input id="trainOut" type="date" required></label>
+          <label id="trainBackLabel" hidden>Retour<input id="trainBack" type="date" disabled required></label>
+          <button class="account-send" type="submit">Voir les trains sur SNCF Connect</button>
+        </div>
+      </form>
+    </details>
     <!-- Préconisations par tronçon (trajets à étapes) : rempli en arrière-plan
          par analyserTronconsSansPeage() après l'affichage des résultats. -->
     <div class="leg-advice" id="legAdvice" style="display:none;"></div>
@@ -5929,8 +5948,55 @@ function fmtL(n, unit)   { return n.toLocaleString('fr-FR', {minimumFractionDigi
 let resultMode = 'simple'; // 'simple' | 'ar'
 let lastResultData = null;
 
+const trainCompare = document.getElementById('trainCompare');
+const trainOut = document.getElementById('trainOut');
+const trainBack = document.getElementById('trainBack');
+const trainRoute = document.getElementById('trainRoute');
+let trainCities = [];
+
+function syncTrainDates() {
+  const now = new Date();
+  const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')].join('-');
+  trainOut.min = today;
+  if (!trainOut.value) trainOut.value = today;
+  trainBack.min = trainOut.value >= today ? trainOut.value : today;
+  trainBack.disabled = resultMode !== 'ar';
+  document.getElementById('trainBackLabel').hidden = trainBack.disabled;
+}
+
+function prepareTrainCompare(depart, arrivee) {
+  trainCompare.open = false;
+  // Une adresse française normalisée se termine par le code postal et la commune.
+  const commune = lieu => lieu.match(/\b\d{5}\s+([^,]+)$/)?.[1] || lieu;
+  trainCities = [commune(depart), commune(arrivee)];
+  trainRoute.textContent = trainCities.join(' → ');
+  syncTrainDates();
+}
+trainCompare.addEventListener('toggle', () => { if (trainCompare.open) syncTrainDates(); });
+trainOut.addEventListener('input', () => {
+  trainBack.min = trainOut.value || trainOut.min;
+});
+document.getElementById('trainForm').addEventListener('submit', event => {
+  event.preventDefault();
+  const dateFr = iso => {
+    const [year, month, day] = iso.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric', month: 'long', ...(year !== new Date().getFullYear() && { year: 'numeric' })
+    });
+  };
+  const type = trainBack.disabled ? 'aller-simple' : 'aller-retour';
+  let demande = trainCities.join(' - ') + ', ' + type + ', Le ' + dateFr(trainOut.value);
+  if (!trainBack.disabled) demande += ', retour le ' + dateFr(trainBack.value);
+  demande += ', ' + nbPassagers + ' voyageur' + (nbPassagers > 1 ? 's' : '');
+  const url = 'https://www.sncf-connect.com/home/search?userInput=' + encodeURIComponent(demande);
+  window.open(url, '_blank', 'noopener,noreferrer');
+});
+
 function setResultMode(mode) {
   resultMode = mode;
+  syncTrainDates();
   document.querySelectorAll('.ar-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   if (lastResultData) renderResultMode();
 }
@@ -6696,6 +6762,7 @@ async function calculer() {
       afficherRentabiliteSimple(routeRapide, routeZero, rapide.coutPeage, conso, depart, arrivee);
     }
 
+    prepareTrainCompare(depart, arrivee);
     document.getElementById('sectionResultats').style.display = 'block';
     document.querySelector('.page').classList.add('has-results');
     document.getElementById('sectionResultats').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
