@@ -1880,10 +1880,21 @@
       box-sizing: border-box; padding: 7px 9px; border: 1px solid #c9d8e8;
       border-radius: var(--rayon-commande); background: #f6f9fe;
     }
-    .travel-links { display: grid; margin-top: 10px; }
-    .travel-links a { display: flex; gap: 8px; align-items: center; justify-content: space-between; min-height: 44px; color: #205e96; text-decoration: none; font-size: 14px; font-weight: 600; }
-    .travel-links a + a { border-top: 1px solid #e6edf4; }
-    .travel-links a span { font-weight: 400; color: #536b80; font-size: 13px; }
+    .travel-links {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px;
+    }
+    .travel-links a {
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3px;
+      min-height: 48px; padding: 8px 12px; border: 1px solid #d5e2ee; border-radius: var(--rayon-commande);
+      background: #eef5fc; color: #205e96; text-decoration: none; font-size: 14px; font-weight: 600;
+    }
+    .travel-links a[href]:hover { background: #e3effa; border-color: #a6c3de; }
+    .travel-links a span { display: inline-flex; align-items: center; gap: 4px; color: #536b80; font-size: 13px; font-weight: 400; }
+    .travel-links svg { flex-shrink: 0; }
+    @media (max-width: 540px) {
+      .travel-links { grid-template-columns: 1fr; }
+      .travel-links a { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
     .travel-links a[aria-disabled="true"] { opacity: .65; }
 
   </style>
@@ -2167,9 +2178,9 @@
             <label id="trainBackLabel" hidden>Date de retour<input id="trainBack" type="date" disabled required></label>
           </div>
           <div class="travel-links">
-            <a id="travelTrain" target="_blank" rel="noopener noreferrer">Train <span>SNCF Connect ↗</span></a>
-            <a id="travelCarpool" target="_blank" rel="noopener noreferrer">Covoiturage <span>BlaBlaCar ↗</span></a>
-            <a id="travelBus" target="_blank" rel="noopener noreferrer">Bus <span>BlaBlaCar Bus ↗</span></a>
+            <a id="travelTrain" target="_blank" rel="noopener noreferrer">Train <span>SNCF Connect <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12l8-8M5 4h7v7"/></svg></span></a>
+            <a id="travelCarpool" target="_blank" rel="noopener noreferrer">Covoiturage <span>BlaBlaCar <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12l8-8M5 4h7v7"/></svg></span></a>
+            <a id="travelBus" target="_blank" rel="noopener noreferrer">Bus <span>BlaBlaCar Bus <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12l8-8M5 4h7v7"/></svg></span></a>
           </div>
         </form>
       </details>
