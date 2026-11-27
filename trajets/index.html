@@ -8,110 +8,259 @@
 <link rel="canonical" href="https://futeroute.fr/trajets/">
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
-<link rel="stylesheet" href="/pages.css">
+<link rel="stylesheet" href="../pages.css">
+<link rel="stylesheet" href="./carte.css">
+<script src="./carte.js" defer></script>
 </head>
-<body>
+<body class="page-annuaire">
 <div class="page">
 <header class="entete">
-  <a class="marque" href="/" aria-label="Futéroute – calculateur"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
+  <a class="marque" href="https://futeroute.fr/" aria-label="Futéroute – calculateur"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
   <defs>
-    <image id="wordmark" href="/futeroute-logo.webp" width="1098" height="169"/>
+    <image id="wordmark" href="../futeroute-logo.webp" width="1098" height="169"/>
     <clipPath id="wordmark-left"><path d="M0 0H360V107H324L341 121Q338 129 330 133L320 138V169H0Z"/></clipPath>
     <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
   </defs>
   <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
   <path transform="translate(6 0)" fill="#fcb00f" d="M324 109L341 121Q338 129 329 133L322 132L319 118Z"/>
   <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-19 0)"/>
-  <image href="/logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
+  <image href="../logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
 </svg></a>
   <nav class="rubriques" aria-label="Navigation principale">
-    <a href="/">Calculateur</a>
-    <a href="/trajets/" aria-current="page">Trajets</a>
-    <a href="/accueil.html">À propos</a>
+    <a href="https://futeroute.fr/">Calculateur</a>
+    <a href="https://futeroute.fr/trajets/" aria-current="page">Trajets</a>
+    <a href="https://futeroute.fr/accueil.html">À propos</a>
   </nav>
 </header>
   <div class="breadcrumb"><a href="https://futeroute.fr/">Futéroute</a> › Trajets</div>
   <h1>Coût des trajets en voiture</h1>
-  <p class="card"><a href="./comparatif-sans-peages.html">Quels trajets sans péages économisent le plus par heure de détour ?</a></p>
-  <div class="card"><ul class="annuaire"><li><a href="./paris-lyon.html">Paris → Lyon</a></li>
-<li><a href="./paris-marseille.html">Paris → Marseille</a></li>
-<li><a href="./paris-bordeaux.html">Paris → Bordeaux</a></li>
-<li><a href="./paris-nantes.html">Paris → Nantes</a></li>
-<li><a href="./paris-lille.html">Paris → Lille</a></li>
-<li><a href="./paris-strasbourg.html">Paris → Strasbourg</a></li>
-<li><a href="./paris-toulouse.html">Paris → Toulouse</a></li>
-<li><a href="./paris-rennes.html">Paris → Rennes</a></li>
-<li><a href="./paris-nice.html">Paris → Nice</a></li>
-<li><a href="./paris-biarritz.html">Paris → Biarritz</a></li>
-<li><a href="./paris-caen.html">Paris → Caen</a></li>
-<li><a href="./paris-clermont-ferrand.html">Paris → Clermont-Ferrand</a></li>
-<li><a href="./paris-grenoble.html">Paris → Grenoble</a></li>
-<li><a href="./paris-montpellier.html">Paris → Montpellier</a></li>
-<li><a href="./paris-annecy.html">Paris → Annecy</a></li>
-<li><a href="./paris-dijon.html">Paris → Dijon</a></li>
-<li><a href="./paris-la-rochelle.html">Paris → La Rochelle</a></li>
-<li><a href="./lyon-marseille.html">Lyon → Marseille</a></li>
-<li><a href="./lyon-bordeaux.html">Lyon → Bordeaux</a></li>
-<li><a href="./lyon-nice.html">Lyon → Nice</a></li>
-<li><a href="./lyon-strasbourg.html">Lyon → Strasbourg</a></li>
-<li><a href="./lyon-toulouse.html">Lyon → Toulouse</a></li>
-<li><a href="./lyon-geneve.html">Lyon → Genève</a></li>
-<li><a href="./bordeaux-toulouse.html">Bordeaux → Toulouse</a></li>
-<li><a href="./nantes-bordeaux.html">Nantes → Bordeaux</a></li>
-<li><a href="./nantes-rennes.html">Nantes → Rennes</a></li>
-<li><a href="./marseille-nice.html">Marseille → Nice</a></li>
-<li><a href="./marseille-toulouse.html">Marseille → Toulouse</a></li>
-<li><a href="./lille-strasbourg.html">Lille → Strasbourg</a></li>
-<li><a href="./toulouse-montpellier.html">Toulouse → Montpellier</a></li>
-<li><a href="./strasbourg-nancy.html">Strasbourg → Nancy</a></li>
-<li><a href="./bordeaux-nice.html">Bordeaux → Nice</a></li>
-<li><a href="./paris-rouen.html">Paris → Rouen</a></li>
-<li><a href="./paris-reims.html">Paris → Reims</a></li>
-<li><a href="./paris-orleans.html">Paris → Orléans</a></li>
-<li><a href="./paris-tours.html">Paris → Tours</a></li>
-<li><a href="./paris-le-mans.html">Paris → Le Mans</a></li>
-<li><a href="./paris-metz.html">Paris → Metz</a></li>
-<li><a href="./paris-nancy.html">Paris → Nancy</a></li>
-<li><a href="./paris-mulhouse.html">Paris → Mulhouse</a></li>
-<li><a href="./paris-avignon.html">Paris → Avignon</a></li>
-<li><a href="./paris-toulon.html">Paris → Toulon</a></li>
-<li><a href="./paris-pau.html">Paris → Pau</a></li>
-<li><a href="./paris-brest.html">Paris → Brest</a></li>
-<li><a href="./paris-angers.html">Paris → Angers</a></li>
-<li><a href="./paris-limoges.html">Paris → Limoges</a></li>
-<li><a href="./paris-poitiers.html">Paris → Poitiers</a></li>
-<li><a href="./paris-besancon.html">Paris → Besançon</a></li>
-<li><a href="./paris-chambery.html">Paris → Chambéry</a></li>
-<li><a href="./paris-perpignan.html">Paris → Perpignan</a></li>
-<li><a href="./paris-amiens.html">Paris → Amiens</a></li>
-<li><a href="./paris-le-havre.html">Paris → Le Havre</a></li>
-<li><a href="./lyon-grenoble.html">Lyon → Grenoble</a></li>
-<li><a href="./lyon-montpellier.html">Lyon → Montpellier</a></li>
-<li><a href="./lyon-dijon.html">Lyon → Dijon</a></li>
-<li><a href="./lyon-clermont-ferrand.html">Lyon → Clermont-Ferrand</a></li>
-<li><a href="./lyon-annecy.html">Lyon → Annecy</a></li>
-<li><a href="./lyon-chambery.html">Lyon → Chambéry</a></li>
-<li><a href="./lyon-valence.html">Lyon → Valence</a></li>
-<li><a href="./lyon-saint-etienne.html">Lyon → Saint-Étienne</a></li>
-<li><a href="./marseille-montpellier.html">Marseille → Montpellier</a></li>
-<li><a href="./marseille-avignon.html">Marseille → Avignon</a></li>
-<li><a href="./marseille-aix-en-provence.html">Marseille → Aix-en-Provence</a></li>
-<li><a href="./marseille-toulon.html">Marseille → Toulon</a></li>
-<li><a href="./bordeaux-bayonne.html">Bordeaux → Bayonne</a></li>
-<li><a href="./bordeaux-biarritz.html">Bordeaux → Biarritz</a></li>
-<li><a href="./bordeaux-la-rochelle.html">Bordeaux → La Rochelle</a></li>
-<li><a href="./bordeaux-limoges.html">Bordeaux → Limoges</a></li>
-<li><a href="./toulouse-perpignan.html">Toulouse → Perpignan</a></li>
-<li><a href="./toulouse-pau.html">Toulouse → Pau</a></li>
-<li><a href="./nantes-angers.html">Nantes → Angers</a></li>
-<li><a href="./nantes-la-rochelle.html">Nantes → La Rochelle</a></li>
-<li><a href="./strasbourg-metz.html">Strasbourg → Metz</a></li>
-<li><a href="./strasbourg-mulhouse.html">Strasbourg → Mulhouse</a></li>
-<li><a href="./rennes-brest.html">Rennes → Brest</a></li>
-<li><a href="./rennes-caen.html">Rennes → Caen</a></li>
-<li><a href="./montpellier-nimes.html">Montpellier → Nîmes</a></li>
-<li><a href="./montpellier-perpignan.html">Montpellier → Perpignan</a></li>
-<li><a href="./nice-cannes.html">Nice → Cannes</a></li></ul></div>
+  <p class="lien-comparatif"><a href="https://futeroute.fr/trajets/comparatif-sans-peages.html">Quels trajets sans péages économisent le plus par heure de détour ?</a></p>
+  <section class="explorateur card" aria-labelledby="titre-carte">
+    <div class="barre-carte">
+      <h2 id="titre-carte">Carte des trajets</h2>
+      <label id="filtre-ville" hidden>Départ ou arrivée
+        <select id="ville-carte"><option value="">Toutes les villes</option><option>Aix-en-Provence</option><option>Amiens</option><option>Angers</option><option>Annecy</option><option>Avignon</option><option>Bayonne</option><option>Besançon</option><option>Biarritz</option><option>Bordeaux</option><option>Brest</option><option>Caen</option><option>Cannes</option><option>Chambéry</option><option>Clermont-Ferrand</option><option>Dijon</option><option>Genève</option><option>Grenoble</option><option>La Rochelle</option><option>Le Havre</option><option>Le Mans</option><option>Lille</option><option>Limoges</option><option>Lyon</option><option>Marseille</option><option>Metz</option><option>Montpellier</option><option>Mulhouse</option><option>Nancy</option><option>Nantes</option><option>Nice</option><option>Nîmes</option><option>Orléans</option><option>Paris</option><option>Pau</option><option>Perpignan</option><option>Poitiers</option><option>Reims</option><option>Rennes</option><option>Rouen</option><option>Saint-Étienne</option><option>Strasbourg</option><option>Toulon</option><option>Toulouse</option><option>Tours</option><option>Valence</option></select>
+      </label>
+    </div>
+    <div class="annuaire-carte">
+      <figure class="atlas">
+        <a class="saut-liste" href="#liste-trajets">Aller à la liste des trajets</a>
+        <svg class="carte-france" viewBox="0 0 640 580" role="group" aria-label="Liaisons entre les villes en France métropolitaine et à Genève">
+          <image href="./fond-france.svg" width="640" height="580" aria-hidden="true"/>
+          <g class="liaisons"><a href="https://futeroute.fr/trajets/paris-toulon.html" data-depart="Paris" data-arrivee="Toulon" aria-label="Paris → Toulon"><title>Paris → Toulon</title><path class="zone-trait" d="M336.2 156.3 L472.5 471"/><path class="trait" d="M336.2 156.3 L472.5 471"/></a>
+<a href="https://futeroute.fr/trajets/paris-perpignan.html" data-depart="Paris" data-arrivee="Perpignan" aria-label="Paris → Perpignan"><title>Paris → Perpignan</title><path class="zone-trait" d="M336.2 156.3 L357.4 495.1"/><path class="trait" d="M336.2 156.3 L357.4 495.1"/></a>
+<a href="https://futeroute.fr/trajets/paris-nice.html" data-depart="Paris" data-arrivee="Nice" aria-label="Paris → Nice"><title>Paris → Nice</title><path class="zone-trait" d="M336.2 156.3 L522.6 439.8"/><path class="trait" d="M336.2 156.3 L522.6 439.8"/></a>
+<a href="https://futeroute.fr/trajets/paris-biarritz.html" data-depart="Paris" data-arrivee="Biarritz" aria-label="Paris → Biarritz"><title>Paris → Biarritz</title><path class="zone-trait" d="M336.2 156.3 L187.9 452.6"/><path class="trait" d="M336.2 156.3 L187.9 452.6"/></a>
+<a href="https://futeroute.fr/trajets/paris-marseille.html" data-depart="Paris" data-arrivee="Marseille" aria-label="Paris → Marseille"><title>Paris → Marseille</title><path class="zone-trait" d="M336.2 156.3 L451.5 463.1"/><path class="trait" d="M336.2 156.3 L451.5 463.1"/></a>
+<a href="https://futeroute.fr/trajets/paris-pau.html" data-depart="Paris" data-arrivee="Pau" aria-label="Paris → Pau"><title>Paris → Pau</title><path class="zone-trait" d="M336.2 156.3 L233.9 460.8"/><path class="trait" d="M336.2 156.3 L233.9 460.8"/></a>
+<a href="https://futeroute.fr/trajets/bordeaux-nice.html" data-depart="Bordeaux" data-arrivee="Nice" aria-label="Bordeaux → Nice"><title>Bordeaux → Nice</title><path class="zone-trait" d="M224.8 376.1 L522.6 439.8"/><path class="trait" d="M224.8 376.1 L522.6 439.8"/></a>
+<a href="https://futeroute.fr/trajets/paris-montpellier.html" data-depart="Paris" data-arrivee="Montpellier" aria-label="Paris → Montpellier"><title>Paris → Montpellier</title><path class="zone-trait" d="M336.2 156.3 L394.2 445"/><path class="trait" d="M336.2 156.3 L394.2 445"/></a>
+<a href="https://futeroute.fr/trajets/paris-toulouse.html" data-depart="Paris" data-arrivee="Toulouse" aria-label="Paris → Toulouse"><title>Paris → Toulouse</title><path class="zone-trait" d="M336.2 156.3 L301.4 445.5"/><path class="trait" d="M336.2 156.3 L301.4 445.5"/></a>
+<a href="https://futeroute.fr/trajets/paris-avignon.html" data-depart="Paris" data-arrivee="Avignon" aria-label="Paris → Avignon"><title>Paris → Avignon</title><path class="zone-trait" d="M336.2 156.3 L430.7 426.7"/><path class="trait" d="M336.2 156.3 L430.7 426.7"/></a>
+<a href="https://futeroute.fr/trajets/paris-brest.html" data-depart="Paris" data-arrivee="Brest" aria-label="Paris → Brest"><title>Paris → Brest</title><path class="zone-trait" d="M336.2 156.3 L76 181"/><path class="trait" d="M336.2 156.3 L76 181"/></a>
+<a href="https://futeroute.fr/trajets/paris-bordeaux.html" data-depart="Paris" data-arrivee="Bordeaux" aria-label="Paris → Bordeaux"><title>Paris → Bordeaux</title><path class="zone-trait" d="M336.2 156.3 L224.8 376.1"/><path class="trait" d="M336.2 156.3 L224.8 376.1"/></a>
+<a href="https://futeroute.fr/trajets/paris-grenoble.html" data-depart="Paris" data-arrivee="Grenoble" aria-label="Paris → Grenoble"><title>Paris → Grenoble</title><path class="zone-trait" d="M336.2 156.3 L464.2 358.4"/><path class="trait" d="M336.2 156.3 L464.2 358.4"/></a>
+<a href="https://futeroute.fr/trajets/paris-chambery.html" data-depart="Paris" data-arrivee="Chambéry" aria-label="Paris → Chambéry"><title>Paris → Chambéry</title><path class="zone-trait" d="M336.2 156.3 L471.4 336.5"/><path class="trait" d="M336.2 156.3 L471.4 336.5"/></a>
+<a href="https://futeroute.fr/trajets/paris-annecy.html" data-depart="Paris" data-arrivee="Annecy" aria-label="Paris → Annecy"><title>Paris → Annecy</title><path class="zone-trait" d="M336.2 156.3 L479.8 318.9"/><path class="trait" d="M336.2 156.3 L479.8 318.9"/></a>
+<a href="https://futeroute.fr/trajets/lille-strasbourg.html" data-depart="Lille" data-arrivee="Strasbourg" aria-label="Lille → Strasbourg"><title>Lille → Strasbourg</title><path class="zone-trait" d="M362.8 58.8 L542 172.2"/><path class="trait" d="M362.8 58.8 L542 172.2"/></a>
+<a href="https://futeroute.fr/trajets/lyon-bordeaux.html" data-depart="Lyon" data-arrivee="Bordeaux" aria-label="Lyon → Bordeaux"><title>Lyon → Bordeaux</title><path class="zone-trait" d="M430.7 326.8 L224.8 376.1"/><path class="trait" d="M430.7 326.8 L224.8 376.1"/></a>
+<a href="https://futeroute.fr/trajets/paris-strasbourg.html" data-depart="Paris" data-arrivee="Strasbourg" aria-label="Paris → Strasbourg"><title>Paris → Strasbourg</title><path class="zone-trait" d="M336.2 156.3 L542 172.2"/><path class="trait" d="M336.2 156.3 L542 172.2"/></a>
+<a href="https://futeroute.fr/trajets/paris-la-rochelle.html" data-depart="Paris" data-arrivee="La Rochelle" aria-label="Paris → La Rochelle"><title>Paris → La Rochelle</title><path class="zone-trait" d="M336.2 156.3 L202.3 304.6"/><path class="trait" d="M336.2 156.3 L202.3 304.6"/></a>
+<a href="https://futeroute.fr/trajets/paris-mulhouse.html" data-depart="Paris" data-arrivee="Mulhouse" aria-label="Paris → Mulhouse"><title>Paris → Mulhouse</title><path class="zone-trait" d="M336.2 156.3 L525.4 217.1"/><path class="trait" d="M336.2 156.3 L525.4 217.1"/></a>
+<a href="https://futeroute.fr/trajets/paris-lyon.html" data-depart="Paris" data-arrivee="Lyon" aria-label="Paris → Lyon"><title>Paris → Lyon</title><path class="zone-trait" d="M336.2 156.3 L430.7 326.8"/><path class="trait" d="M336.2 156.3 L430.7 326.8"/></a>
+<a href="https://futeroute.fr/trajets/lyon-strasbourg.html" data-depart="Lyon" data-arrivee="Strasbourg" aria-label="Lyon → Strasbourg"><title>Lyon → Strasbourg</title><path class="zone-trait" d="M430.7 326.8 L542 172.2"/><path class="trait" d="M430.7 326.8 L542 172.2"/></a>
+<a href="https://futeroute.fr/trajets/lyon-toulouse.html" data-depart="Lyon" data-arrivee="Toulouse" aria-label="Lyon → Toulouse"><title>Lyon → Toulouse</title><path class="zone-trait" d="M430.7 326.8 L301.4 445.5"/><path class="trait" d="M430.7 326.8 L301.4 445.5"/></a>
+<a href="https://futeroute.fr/trajets/paris-nantes.html" data-depart="Paris" data-arrivee="Nantes" aria-label="Paris → Nantes"><title>Paris → Nantes</title><path class="zone-trait" d="M336.2 156.3 L187.7 245.4"/><path class="trait" d="M336.2 156.3 L187.7 245.4"/></a>
+<a href="https://futeroute.fr/trajets/paris-clermont-ferrand.html" data-depart="Paris" data-arrivee="Clermont-Ferrand" aria-label="Paris → Clermont-Ferrand"><title>Paris → Clermont-Ferrand</title><path class="zone-trait" d="M336.2 156.3 L365.3 325.2"/><path class="trait" d="M336.2 156.3 L365.3 325.2"/></a>
+<a href="https://futeroute.fr/trajets/paris-limoges.html" data-depart="Paris" data-arrivee="Limoges" aria-label="Paris → Limoges"><title>Paris → Limoges</title><path class="zone-trait" d="M336.2 156.3 L293.6 321.4"/><path class="trait" d="M336.2 156.3 L293.6 321.4"/></a>
+<a href="https://futeroute.fr/trajets/paris-besancon.html" data-depart="Paris" data-arrivee="Besançon" aria-label="Paris → Besançon"><title>Paris → Besançon</title><path class="zone-trait" d="M336.2 156.3 L475.5 244.2"/><path class="trait" d="M336.2 156.3 L475.5 244.2"/></a>
+<a href="https://futeroute.fr/trajets/paris-rennes.html" data-depart="Paris" data-arrivee="Rennes" aria-label="Paris → Rennes"><title>Paris → Rennes</title><path class="zone-trait" d="M336.2 156.3 L182.8 197.1"/><path class="trait" d="M336.2 156.3 L182.8 197.1"/></a>
+<a href="https://futeroute.fr/trajets/marseille-toulouse.html" data-depart="Marseille" data-arrivee="Toulouse" aria-label="Marseille → Toulouse"><title>Marseille → Toulouse</title><path class="zone-trait" d="M451.5 463.1 L301.4 445.5"/><path class="trait" d="M451.5 463.1 L301.4 445.5"/></a>
+<a href="https://futeroute.fr/trajets/paris-metz.html" data-depart="Paris" data-arrivee="Metz" aria-label="Paris → Metz"><title>Paris → Metz</title><path class="zone-trait" d="M336.2 156.3 L482.5 142.7"/><path class="trait" d="M336.2 156.3 L482.5 142.7"/></a>
+<a href="https://futeroute.fr/trajets/paris-poitiers.html" data-depart="Paris" data-arrivee="Poitiers" aria-label="Paris → Poitiers"><title>Paris → Poitiers</title><path class="zone-trait" d="M336.2 156.3 L261.1 281.3"/><path class="trait" d="M336.2 156.3 L261.1 281.3"/></a>
+<a href="https://futeroute.fr/trajets/paris-nancy.html" data-depart="Paris" data-arrivee="Nancy" aria-label="Paris → Nancy"><title>Paris → Nancy</title><path class="zone-trait" d="M336.2 156.3 L481.6 165.7"/><path class="trait" d="M336.2 156.3 L481.6 165.7"/></a>
+<a href="https://futeroute.fr/trajets/lyon-nice.html" data-depart="Lyon" data-arrivee="Nice" aria-label="Lyon → Nice"><title>Lyon → Nice</title><path class="zone-trait" d="M430.7 326.8 L522.6 439.8"/><path class="trait" d="M430.7 326.8 L522.6 439.8"/></a>
+<a href="https://futeroute.fr/trajets/lyon-marseille.html" data-depart="Lyon" data-arrivee="Marseille" aria-label="Lyon → Marseille"><title>Lyon → Marseille</title><path class="zone-trait" d="M430.7 326.8 L451.5 463.1"/><path class="trait" d="M430.7 326.8 L451.5 463.1"/></a>
+<a href="https://futeroute.fr/trajets/nantes-bordeaux.html" data-depart="Nantes" data-arrivee="Bordeaux" aria-label="Nantes → Bordeaux"><title>Nantes → Bordeaux</title><path class="zone-trait" d="M187.7 245.4 L224.8 376.1"/><path class="trait" d="M187.7 245.4 L224.8 376.1"/></a>
+<a href="https://futeroute.fr/trajets/paris-angers.html" data-depart="Paris" data-arrivee="Angers" aria-label="Paris → Angers"><title>Paris → Angers</title><path class="zone-trait" d="M336.2 156.3 L225.6 232"/><path class="trait" d="M336.2 156.3 L225.6 232"/></a>
+<a href="https://futeroute.fr/trajets/paris-dijon.html" data-depart="Paris" data-arrivee="Dijon" aria-label="Paris → Dijon"><title>Paris → Dijon</title><path class="zone-trait" d="M336.2 156.3 L438.2 240.2"/><path class="trait" d="M336.2 156.3 L438.2 240.2"/></a>
+<a href="https://futeroute.fr/trajets/lyon-montpellier.html" data-depart="Lyon" data-arrivee="Montpellier" aria-label="Lyon → Montpellier"><title>Lyon → Montpellier</title><path class="zone-trait" d="M430.7 326.8 L394.2 445"/><path class="trait" d="M430.7 326.8 L394.2 445"/></a>
+<a href="https://futeroute.fr/trajets/rennes-brest.html" data-depart="Rennes" data-arrivee="Brest" aria-label="Rennes → Brest"><title>Rennes → Brest</title><path class="zone-trait" d="M182.8 197.1 L76 181"/><path class="trait" d="M182.8 197.1 L76 181"/></a>
+<a href="https://futeroute.fr/trajets/paris-caen.html" data-depart="Paris" data-arrivee="Caen" aria-label="Paris → Caen"><title>Paris → Caen</title><path class="zone-trait" d="M336.2 156.3 L232.9 138.3"/><path class="trait" d="M336.2 156.3 L232.9 138.3"/></a>
+<a href="https://futeroute.fr/trajets/bordeaux-toulouse.html" data-depart="Bordeaux" data-arrivee="Toulouse" aria-label="Bordeaux → Toulouse"><title>Bordeaux → Toulouse</title><path class="zone-trait" d="M224.8 376.1 L301.4 445.5"/><path class="trait" d="M224.8 376.1 L301.4 445.5"/></a>
+<a href="https://futeroute.fr/trajets/paris-tours.html" data-depart="Paris" data-arrivee="Tours" aria-label="Paris → Tours"><title>Paris → Tours</title><path class="zone-trait" d="M336.2 156.3 L273.4 236.8"/><path class="trait" d="M336.2 156.3 L273.4 236.8"/></a>
+<a href="https://futeroute.fr/trajets/paris-lille.html" data-depart="Paris" data-arrivee="Lille" aria-label="Paris → Lille"><title>Paris → Lille</title><path class="zone-trait" d="M336.2 156.3 L362.8 58.8"/><path class="trait" d="M336.2 156.3 L362.8 58.8"/></a>
+<a href="https://futeroute.fr/trajets/paris-le-mans.html" data-depart="Paris" data-arrivee="Le Mans" aria-label="Paris → Le Mans"><title>Paris → Le Mans</title><path class="zone-trait" d="M336.2 156.3 L254.4 204.5"/><path class="trait" d="M336.2 156.3 L254.4 204.5"/></a>
+<a href="https://futeroute.fr/trajets/toulouse-montpellier.html" data-depart="Toulouse" data-arrivee="Montpellier" aria-label="Toulouse → Montpellier"><title>Toulouse → Montpellier</title><path class="zone-trait" d="M301.4 445.5 L394.2 445"/><path class="trait" d="M301.4 445.5 L394.2 445"/></a>
+<a href="https://futeroute.fr/trajets/paris-le-havre.html" data-depart="Paris" data-arrivee="Le Havre" aria-label="Paris → Le Havre"><title>Paris → Le Havre</title><path class="zone-trait" d="M336.2 156.3 L252 121.2"/><path class="trait" d="M336.2 156.3 L252 121.2"/></a>
+<a href="https://futeroute.fr/trajets/bordeaux-limoges.html" data-depart="Bordeaux" data-arrivee="Limoges" aria-label="Bordeaux → Limoges"><title>Bordeaux → Limoges</title><path class="zone-trait" d="M224.8 376.1 L293.6 321.4"/><path class="trait" d="M224.8 376.1 L293.6 321.4"/></a>
+<a href="https://futeroute.fr/trajets/lyon-dijon.html" data-depart="Lyon" data-arrivee="Dijon" aria-label="Lyon → Dijon"><title>Lyon → Dijon</title><path class="zone-trait" d="M430.7 326.8 L438.2 240.2"/><path class="trait" d="M430.7 326.8 L438.2 240.2"/></a>
+<a href="https://futeroute.fr/trajets/bordeaux-biarritz.html" data-depart="Bordeaux" data-arrivee="Biarritz" aria-label="Bordeaux → Biarritz"><title>Bordeaux → Biarritz</title><path class="zone-trait" d="M224.8 376.1 L187.9 452.6"/><path class="trait" d="M224.8 376.1 L187.9 452.6"/></a>
+<a href="https://futeroute.fr/trajets/bordeaux-bayonne.html" data-depart="Bordeaux" data-arrivee="Bayonne" aria-label="Bordeaux → Bayonne"><title>Bordeaux → Bayonne</title><path class="zone-trait" d="M224.8 376.1 L191.5 451.9"/><path class="trait" d="M224.8 376.1 L191.5 451.9"/></a>
+<a href="https://futeroute.fr/trajets/rennes-caen.html" data-depart="Rennes" data-arrivee="Caen" aria-label="Rennes → Caen"><title>Rennes → Caen</title><path class="zone-trait" d="M182.8 197.1 L232.9 138.3"/><path class="trait" d="M182.8 197.1 L232.9 138.3"/></a>
+<a href="https://futeroute.fr/trajets/bordeaux-la-rochelle.html" data-depart="Bordeaux" data-arrivee="La Rochelle" aria-label="Bordeaux → La Rochelle"><title>Bordeaux → La Rochelle</title><path class="zone-trait" d="M224.8 376.1 L202.3 304.6"/><path class="trait" d="M224.8 376.1 L202.3 304.6"/></a>
+<a href="https://futeroute.fr/trajets/marseille-nice.html" data-depart="Marseille" data-arrivee="Nice" aria-label="Marseille → Nice"><title>Marseille → Nice</title><path class="zone-trait" d="M451.5 463.1 L522.6 439.8"/><path class="trait" d="M451.5 463.1 L522.6 439.8"/></a>
+<a href="https://futeroute.fr/trajets/toulouse-perpignan.html" data-depart="Toulouse" data-arrivee="Perpignan" aria-label="Toulouse → Perpignan"><title>Toulouse → Perpignan</title><path class="zone-trait" d="M301.4 445.5 L357.4 495.1"/><path class="trait" d="M301.4 445.5 L357.4 495.1"/></a>
+<a href="https://futeroute.fr/trajets/toulouse-pau.html" data-depart="Toulouse" data-arrivee="Pau" aria-label="Toulouse → Pau"><title>Toulouse → Pau</title><path class="zone-trait" d="M301.4 445.5 L233.9 460.8"/><path class="trait" d="M301.4 445.5 L233.9 460.8"/></a>
+<a href="https://futeroute.fr/trajets/paris-reims.html" data-depart="Paris" data-arrivee="Reims" aria-label="Paris → Reims"><title>Paris → Reims</title><path class="zone-trait" d="M336.2 156.3 L401.1 134.6"/><path class="trait" d="M336.2 156.3 L401.1 134.6"/></a>
+<a href="https://futeroute.fr/trajets/strasbourg-metz.html" data-depart="Strasbourg" data-arrivee="Metz" aria-label="Strasbourg → Metz"><title>Strasbourg → Metz</title><path class="zone-trait" d="M542 172.2 L482.5 142.7"/><path class="trait" d="M542 172.2 L482.5 142.7"/></a>
+<a href="https://futeroute.fr/trajets/lyon-clermont-ferrand.html" data-depart="Lyon" data-arrivee="Clermont-Ferrand" aria-label="Lyon → Clermont-Ferrand"><title>Lyon → Clermont-Ferrand</title><path class="zone-trait" d="M430.7 326.8 L365.3 325.2"/><path class="trait" d="M430.7 326.8 L365.3 325.2"/></a>
+<a href="https://futeroute.fr/trajets/montpellier-perpignan.html" data-depart="Montpellier" data-arrivee="Perpignan" aria-label="Montpellier → Perpignan"><title>Montpellier → Perpignan</title><path class="zone-trait" d="M394.2 445 L357.4 495.1"/><path class="trait" d="M394.2 445 L357.4 495.1"/></a>
+<a href="https://futeroute.fr/trajets/nantes-la-rochelle.html" data-depart="Nantes" data-arrivee="La Rochelle" aria-label="Nantes → La Rochelle"><title>Nantes → La Rochelle</title><path class="zone-trait" d="M187.7 245.4 L202.3 304.6"/><path class="trait" d="M187.7 245.4 L202.3 304.6"/></a>
+<a href="https://futeroute.fr/trajets/strasbourg-nancy.html" data-depart="Strasbourg" data-arrivee="Nancy" aria-label="Strasbourg → Nancy"><title>Strasbourg → Nancy</title><path class="zone-trait" d="M542 172.2 L481.6 165.7"/><path class="trait" d="M542 172.2 L481.6 165.7"/></a>
+<a href="https://futeroute.fr/trajets/marseille-montpellier.html" data-depart="Marseille" data-arrivee="Montpellier" aria-label="Marseille → Montpellier"><title>Marseille → Montpellier</title><path class="zone-trait" d="M451.5 463.1 L394.2 445"/><path class="trait" d="M451.5 463.1 L394.2 445"/></a>
+<a href="https://futeroute.fr/trajets/paris-rouen.html" data-depart="Paris" data-arrivee="Rouen" aria-label="Paris → Rouen"><title>Paris → Rouen</title><path class="zone-trait" d="M336.2 156.3 L288.5 124.2"/><path class="trait" d="M336.2 156.3 L288.5 124.2"/></a>
+<a href="https://futeroute.fr/trajets/paris-amiens.html" data-depart="Paris" data-arrivee="Amiens" aria-label="Paris → Amiens"><title>Paris → Amiens</title><path class="zone-trait" d="M336.2 156.3 L333.8 99.1"/><path class="trait" d="M336.2 156.3 L333.8 99.1"/></a>
+<a href="https://futeroute.fr/trajets/paris-orleans.html" data-depart="Paris" data-arrivee="Orléans" aria-label="Paris → Orléans"><title>Paris → Orléans</title><path class="zone-trait" d="M336.2 156.3 L319.7 210.5"/><path class="trait" d="M336.2 156.3 L319.7 210.5"/></a>
+<a href="https://futeroute.fr/trajets/lyon-geneve.html" data-depart="Lyon" data-arrivee="Genève" aria-label="Lyon → Genève"><title>Lyon → Genève</title><path class="zone-trait" d="M430.7 326.8 L480.6 302.4"/><path class="trait" d="M430.7 326.8 L480.6 302.4"/></a>
+<a href="https://futeroute.fr/trajets/lyon-annecy.html" data-depart="Lyon" data-arrivee="Annecy" aria-label="Lyon → Annecy"><title>Lyon → Annecy</title><path class="zone-trait" d="M430.7 326.8 L479.8 318.9"/><path class="trait" d="M430.7 326.8 L479.8 318.9"/></a>
+<a href="https://futeroute.fr/trajets/nantes-rennes.html" data-depart="Nantes" data-arrivee="Rennes" aria-label="Nantes → Rennes"><title>Nantes → Rennes</title><path class="zone-trait" d="M187.7 245.4 L182.8 197.1"/><path class="trait" d="M187.7 245.4 L182.8 197.1"/></a>
+<a href="https://futeroute.fr/trajets/strasbourg-mulhouse.html" data-depart="Strasbourg" data-arrivee="Mulhouse" aria-label="Strasbourg → Mulhouse"><title>Strasbourg → Mulhouse</title><path class="zone-trait" d="M542 172.2 L525.4 217.1"/><path class="trait" d="M542 172.2 L525.4 217.1"/></a>
+<a href="https://futeroute.fr/trajets/lyon-grenoble.html" data-depart="Lyon" data-arrivee="Grenoble" aria-label="Lyon → Grenoble"><title>Lyon → Grenoble</title><path class="zone-trait" d="M430.7 326.8 L464.2 358.4"/><path class="trait" d="M430.7 326.8 L464.2 358.4"/></a>
+<a href="https://futeroute.fr/trajets/lyon-valence.html" data-depart="Lyon" data-arrivee="Valence" aria-label="Lyon → Valence"><title>Lyon → Valence</title><path class="zone-trait" d="M430.7 326.8 L433.8 372.7"/><path class="trait" d="M430.7 326.8 L433.8 372.7"/></a>
+<a href="https://futeroute.fr/trajets/marseille-avignon.html" data-depart="Marseille" data-arrivee="Avignon" aria-label="Marseille → Avignon"><title>Marseille → Avignon</title><path class="zone-trait" d="M451.5 463.1 L430.7 426.7"/><path class="trait" d="M451.5 463.1 L430.7 426.7"/></a>
+<a href="https://futeroute.fr/trajets/lyon-chambery.html" data-depart="Lyon" data-arrivee="Chambéry" aria-label="Lyon → Chambéry"><title>Lyon → Chambéry</title><path class="zone-trait" d="M430.7 326.8 L471.4 336.5"/><path class="trait" d="M430.7 326.8 L471.4 336.5"/></a>
+<a href="https://futeroute.fr/trajets/nantes-angers.html" data-depart="Nantes" data-arrivee="Angers" aria-label="Nantes → Angers"><title>Nantes → Angers</title><path class="zone-trait" d="M187.7 245.4 L225.6 232"/><path class="trait" d="M187.7 245.4 L225.6 232"/></a>
+<a href="https://futeroute.fr/trajets/lyon-saint-etienne.html" data-depart="Lyon" data-arrivee="Saint-Étienne" aria-label="Lyon → Saint-Étienne"><title>Lyon → Saint-Étienne</title><path class="zone-trait" d="M430.7 326.8 L412.9 345.2"/><path class="trait" d="M430.7 326.8 L412.9 345.2"/></a>
+<a href="https://futeroute.fr/trajets/marseille-toulon.html" data-depart="Marseille" data-arrivee="Toulon" aria-label="Marseille → Toulon"><title>Marseille → Toulon</title><path class="zone-trait" d="M451.5 463.1 L472.5 471"/><path class="trait" d="M451.5 463.1 L472.5 471"/></a>
+<a href="https://futeroute.fr/trajets/montpellier-nimes.html" data-depart="Montpellier" data-arrivee="Nîmes" aria-label="Montpellier → Nîmes"><title>Montpellier → Nîmes</title><path class="zone-trait" d="M394.2 445 L412 432.7"/><path class="trait" d="M394.2 445 L412 432.7"/></a>
+<a href="https://futeroute.fr/trajets/marseille-aix-en-provence.html" data-depart="Marseille" data-arrivee="Aix-en-Provence" aria-label="Marseille → Aix-en-Provence"><title>Marseille → Aix-en-Provence</title><path class="zone-trait" d="M451.5 463.1 L451.7 449"/><path class="trait" d="M451.5 463.1 L451.7 449"/></a>
+<a href="https://futeroute.fr/trajets/nice-cannes.html" data-depart="Nice" data-arrivee="Cannes" aria-label="Nice → Cannes"><title>Nice → Cannes</title><path class="zone-trait" d="M522.6 439.8 L513.6 448.5"/><path class="trait" d="M522.6 439.8 L513.6 448.5"/></a></g>
+          <path id="trait-actif" aria-hidden="true"/>
+          <g class="villes-carte" aria-hidden="true"><g data-ville="Paris" transform="translate(336.2 156.3)"><circle r="3.4"/><text x="8" y="-8" text-anchor="start">Paris</text></g>
+<g data-ville="Lyon" transform="translate(430.7 326.8)"><circle r="3.4"/><text x="-7" y="-8" text-anchor="end">Lyon</text></g>
+<g data-ville="Marseille" transform="translate(451.5 463.1)"><circle r="3.4"/><text x="-5" y="17" text-anchor="end">Marseille</text></g>
+<g data-ville="Bordeaux" transform="translate(224.8 376.1)"><circle r="3.4"/><text x="-7" y="-6" text-anchor="end">Bordeaux</text></g>
+<g data-ville="Nantes" transform="translate(187.7 245.4)"><circle r="3.4"/><text x="-8" y="-6" text-anchor="end">Nantes</text></g>
+<g data-ville="Lille" transform="translate(362.8 58.8)"><circle r="3.4"/><text x="7" y="-6" text-anchor="start">Lille</text></g>
+<g data-ville="Strasbourg" transform="translate(542 172.2)"><circle r="3.4"/><text x="-6" y="-8" text-anchor="end">Strasbourg</text></g>
+<g data-ville="Toulouse" transform="translate(301.4 445.5)"><circle r="3.4"/><text x="-5" y="17" text-anchor="end">Toulouse</text></g>
+<g data-ville="Rennes" transform="translate(182.8 197.1)"><circle r="3.4"/><text x="-7" y="-7" text-anchor="end">Rennes</text></g>
+<g data-ville="Nice" transform="translate(522.6 439.8)"><circle r="3.4"/><text x="8" y="-4" text-anchor="start">Nice</text></g>
+<g data-ville="Biarritz" transform="translate(187.9 452.6)"><circle r="2.2"/></g>
+<g data-ville="Caen" transform="translate(232.9 138.3)"><circle r="2.2"/></g>
+<g data-ville="Clermont-Ferrand" transform="translate(365.3 325.2)"><circle r="2.2"/></g>
+<g data-ville="Grenoble" transform="translate(464.2 358.4)"><circle r="2.2"/></g>
+<g data-ville="Montpellier" transform="translate(394.2 445)"><circle r="3.4"/><text x="-4" y="-9" text-anchor="end">Montpellier</text></g>
+<g data-ville="Annecy" transform="translate(479.8 318.9)"><circle r="2.2"/></g>
+<g data-ville="Dijon" transform="translate(438.2 240.2)"><circle r="2.2"/></g>
+<g data-ville="La Rochelle" transform="translate(202.3 304.6)"><circle r="2.2"/></g>
+<g data-ville="Genève" transform="translate(480.6 302.4)"><circle r="3.4"/><text x="7" y="-5" text-anchor="start">Genève</text></g>
+<g data-ville="Nancy" transform="translate(481.6 165.7)"><circle r="2.2"/></g>
+<g data-ville="Rouen" transform="translate(288.5 124.2)"><circle r="2.2"/></g>
+<g data-ville="Reims" transform="translate(401.1 134.6)"><circle r="2.2"/></g>
+<g data-ville="Orléans" transform="translate(319.7 210.5)"><circle r="2.2"/></g>
+<g data-ville="Tours" transform="translate(273.4 236.8)"><circle r="2.2"/></g>
+<g data-ville="Le Mans" transform="translate(254.4 204.5)"><circle r="2.2"/></g>
+<g data-ville="Metz" transform="translate(482.5 142.7)"><circle r="2.2"/></g>
+<g data-ville="Mulhouse" transform="translate(525.4 217.1)"><circle r="2.2"/></g>
+<g data-ville="Avignon" transform="translate(430.7 426.7)"><circle r="2.2"/></g>
+<g data-ville="Toulon" transform="translate(472.5 471)"><circle r="2.2"/></g>
+<g data-ville="Pau" transform="translate(233.9 460.8)"><circle r="2.2"/></g>
+<g data-ville="Brest" transform="translate(76 181)"><circle r="3.4"/><text x="-7" y="-7" text-anchor="end">Brest</text></g>
+<g data-ville="Angers" transform="translate(225.6 232)"><circle r="2.2"/></g>
+<g data-ville="Limoges" transform="translate(293.6 321.4)"><circle r="2.2"/></g>
+<g data-ville="Poitiers" transform="translate(261.1 281.3)"><circle r="2.2"/></g>
+<g data-ville="Besançon" transform="translate(475.5 244.2)"><circle r="2.2"/></g>
+<g data-ville="Chambéry" transform="translate(471.4 336.5)"><circle r="2.2"/></g>
+<g data-ville="Perpignan" transform="translate(357.4 495.1)"><circle r="2.2"/></g>
+<g data-ville="Amiens" transform="translate(333.8 99.1)"><circle r="2.2"/></g>
+<g data-ville="Le Havre" transform="translate(252 121.2)"><circle r="2.2"/></g>
+<g data-ville="Valence" transform="translate(433.8 372.7)"><circle r="2.2"/></g>
+<g data-ville="Saint-Étienne" transform="translate(412.9 345.2)"><circle r="2.2"/></g>
+<g data-ville="Aix-en-Provence" transform="translate(451.7 449)"><circle r="2.2"/></g>
+<g data-ville="Bayonne" transform="translate(191.5 451.9)"><circle r="2.2"/></g>
+<g data-ville="Nîmes" transform="translate(412 432.7)"><circle r="2.2"/></g>
+<g data-ville="Cannes" transform="translate(513.6 448.5)"><circle r="2.2"/></g></g>
+        </svg>
+        <figcaption><span id="legende-carte">Choisissez un trait pour ouvrir sa fiche.</span>
+          <small>Liaisons à vol d’oiseau · Fond <a href="https://www.naturalearthdata.com/">Natural Earth</a></small>
+        </figcaption>
+      </figure>
+      <div class="fiches-carte">
+        <h3 id="liste-trajets" tabindex="-1" aria-live="polite">79 trajets</h3>
+        <ul class="liste-carte"><li data-depart="Paris" data-arrivee="Lyon"><a href="https://futeroute.fr/trajets/paris-lyon.html">Paris → Lyon</a></li>
+<li data-depart="Paris" data-arrivee="Marseille"><a href="https://futeroute.fr/trajets/paris-marseille.html">Paris → Marseille</a></li>
+<li data-depart="Paris" data-arrivee="Bordeaux"><a href="https://futeroute.fr/trajets/paris-bordeaux.html">Paris → Bordeaux</a></li>
+<li data-depart="Paris" data-arrivee="Nantes"><a href="https://futeroute.fr/trajets/paris-nantes.html">Paris → Nantes</a></li>
+<li data-depart="Paris" data-arrivee="Lille"><a href="https://futeroute.fr/trajets/paris-lille.html">Paris → Lille</a></li>
+<li data-depart="Paris" data-arrivee="Strasbourg"><a href="https://futeroute.fr/trajets/paris-strasbourg.html">Paris → Strasbourg</a></li>
+<li data-depart="Paris" data-arrivee="Toulouse"><a href="https://futeroute.fr/trajets/paris-toulouse.html">Paris → Toulouse</a></li>
+<li data-depart="Paris" data-arrivee="Rennes"><a href="https://futeroute.fr/trajets/paris-rennes.html">Paris → Rennes</a></li>
+<li data-depart="Paris" data-arrivee="Nice"><a href="https://futeroute.fr/trajets/paris-nice.html">Paris → Nice</a></li>
+<li data-depart="Paris" data-arrivee="Biarritz"><a href="https://futeroute.fr/trajets/paris-biarritz.html">Paris → Biarritz</a></li>
+<li data-depart="Paris" data-arrivee="Caen"><a href="https://futeroute.fr/trajets/paris-caen.html">Paris → Caen</a></li>
+<li data-depart="Paris" data-arrivee="Clermont-Ferrand"><a href="https://futeroute.fr/trajets/paris-clermont-ferrand.html">Paris → Clermont-Ferrand</a></li>
+<li data-depart="Paris" data-arrivee="Grenoble"><a href="https://futeroute.fr/trajets/paris-grenoble.html">Paris → Grenoble</a></li>
+<li data-depart="Paris" data-arrivee="Montpellier"><a href="https://futeroute.fr/trajets/paris-montpellier.html">Paris → Montpellier</a></li>
+<li data-depart="Paris" data-arrivee="Annecy"><a href="https://futeroute.fr/trajets/paris-annecy.html">Paris → Annecy</a></li>
+<li data-depart="Paris" data-arrivee="Dijon"><a href="https://futeroute.fr/trajets/paris-dijon.html">Paris → Dijon</a></li>
+<li data-depart="Paris" data-arrivee="La Rochelle"><a href="https://futeroute.fr/trajets/paris-la-rochelle.html">Paris → La Rochelle</a></li>
+<li data-depart="Lyon" data-arrivee="Marseille"><a href="https://futeroute.fr/trajets/lyon-marseille.html">Lyon → Marseille</a></li>
+<li data-depart="Lyon" data-arrivee="Bordeaux"><a href="https://futeroute.fr/trajets/lyon-bordeaux.html">Lyon → Bordeaux</a></li>
+<li data-depart="Lyon" data-arrivee="Nice"><a href="https://futeroute.fr/trajets/lyon-nice.html">Lyon → Nice</a></li>
+<li data-depart="Lyon" data-arrivee="Strasbourg"><a href="https://futeroute.fr/trajets/lyon-strasbourg.html">Lyon → Strasbourg</a></li>
+<li data-depart="Lyon" data-arrivee="Toulouse"><a href="https://futeroute.fr/trajets/lyon-toulouse.html">Lyon → Toulouse</a></li>
+<li data-depart="Lyon" data-arrivee="Genève"><a href="https://futeroute.fr/trajets/lyon-geneve.html">Lyon → Genève</a></li>
+<li data-depart="Bordeaux" data-arrivee="Toulouse"><a href="https://futeroute.fr/trajets/bordeaux-toulouse.html">Bordeaux → Toulouse</a></li>
+<li data-depart="Nantes" data-arrivee="Bordeaux"><a href="https://futeroute.fr/trajets/nantes-bordeaux.html">Nantes → Bordeaux</a></li>
+<li data-depart="Nantes" data-arrivee="Rennes"><a href="https://futeroute.fr/trajets/nantes-rennes.html">Nantes → Rennes</a></li>
+<li data-depart="Marseille" data-arrivee="Nice"><a href="https://futeroute.fr/trajets/marseille-nice.html">Marseille → Nice</a></li>
+<li data-depart="Marseille" data-arrivee="Toulouse"><a href="https://futeroute.fr/trajets/marseille-toulouse.html">Marseille → Toulouse</a></li>
+<li data-depart="Lille" data-arrivee="Strasbourg"><a href="https://futeroute.fr/trajets/lille-strasbourg.html">Lille → Strasbourg</a></li>
+<li data-depart="Toulouse" data-arrivee="Montpellier"><a href="https://futeroute.fr/trajets/toulouse-montpellier.html">Toulouse → Montpellier</a></li>
+<li data-depart="Strasbourg" data-arrivee="Nancy"><a href="https://futeroute.fr/trajets/strasbourg-nancy.html">Strasbourg → Nancy</a></li>
+<li data-depart="Bordeaux" data-arrivee="Nice"><a href="https://futeroute.fr/trajets/bordeaux-nice.html">Bordeaux → Nice</a></li>
+<li data-depart="Paris" data-arrivee="Rouen"><a href="https://futeroute.fr/trajets/paris-rouen.html">Paris → Rouen</a></li>
+<li data-depart="Paris" data-arrivee="Reims"><a href="https://futeroute.fr/trajets/paris-reims.html">Paris → Reims</a></li>
+<li data-depart="Paris" data-arrivee="Orléans"><a href="https://futeroute.fr/trajets/paris-orleans.html">Paris → Orléans</a></li>
+<li data-depart="Paris" data-arrivee="Tours"><a href="https://futeroute.fr/trajets/paris-tours.html">Paris → Tours</a></li>
+<li data-depart="Paris" data-arrivee="Le Mans"><a href="https://futeroute.fr/trajets/paris-le-mans.html">Paris → Le Mans</a></li>
+<li data-depart="Paris" data-arrivee="Metz"><a href="https://futeroute.fr/trajets/paris-metz.html">Paris → Metz</a></li>
+<li data-depart="Paris" data-arrivee="Nancy"><a href="https://futeroute.fr/trajets/paris-nancy.html">Paris → Nancy</a></li>
+<li data-depart="Paris" data-arrivee="Mulhouse"><a href="https://futeroute.fr/trajets/paris-mulhouse.html">Paris → Mulhouse</a></li>
+<li data-depart="Paris" data-arrivee="Avignon"><a href="https://futeroute.fr/trajets/paris-avignon.html">Paris → Avignon</a></li>
+<li data-depart="Paris" data-arrivee="Toulon"><a href="https://futeroute.fr/trajets/paris-toulon.html">Paris → Toulon</a></li>
+<li data-depart="Paris" data-arrivee="Pau"><a href="https://futeroute.fr/trajets/paris-pau.html">Paris → Pau</a></li>
+<li data-depart="Paris" data-arrivee="Brest"><a href="https://futeroute.fr/trajets/paris-brest.html">Paris → Brest</a></li>
+<li data-depart="Paris" data-arrivee="Angers"><a href="https://futeroute.fr/trajets/paris-angers.html">Paris → Angers</a></li>
+<li data-depart="Paris" data-arrivee="Limoges"><a href="https://futeroute.fr/trajets/paris-limoges.html">Paris → Limoges</a></li>
+<li data-depart="Paris" data-arrivee="Poitiers"><a href="https://futeroute.fr/trajets/paris-poitiers.html">Paris → Poitiers</a></li>
+<li data-depart="Paris" data-arrivee="Besançon"><a href="https://futeroute.fr/trajets/paris-besancon.html">Paris → Besançon</a></li>
+<li data-depart="Paris" data-arrivee="Chambéry"><a href="https://futeroute.fr/trajets/paris-chambery.html">Paris → Chambéry</a></li>
+<li data-depart="Paris" data-arrivee="Perpignan"><a href="https://futeroute.fr/trajets/paris-perpignan.html">Paris → Perpignan</a></li>
+<li data-depart="Paris" data-arrivee="Amiens"><a href="https://futeroute.fr/trajets/paris-amiens.html">Paris → Amiens</a></li>
+<li data-depart="Paris" data-arrivee="Le Havre"><a href="https://futeroute.fr/trajets/paris-le-havre.html">Paris → Le Havre</a></li>
+<li data-depart="Lyon" data-arrivee="Grenoble"><a href="https://futeroute.fr/trajets/lyon-grenoble.html">Lyon → Grenoble</a></li>
+<li data-depart="Lyon" data-arrivee="Montpellier"><a href="https://futeroute.fr/trajets/lyon-montpellier.html">Lyon → Montpellier</a></li>
+<li data-depart="Lyon" data-arrivee="Dijon"><a href="https://futeroute.fr/trajets/lyon-dijon.html">Lyon → Dijon</a></li>
+<li data-depart="Lyon" data-arrivee="Clermont-Ferrand"><a href="https://futeroute.fr/trajets/lyon-clermont-ferrand.html">Lyon → Clermont-Ferrand</a></li>
+<li data-depart="Lyon" data-arrivee="Annecy"><a href="https://futeroute.fr/trajets/lyon-annecy.html">Lyon → Annecy</a></li>
+<li data-depart="Lyon" data-arrivee="Chambéry"><a href="https://futeroute.fr/trajets/lyon-chambery.html">Lyon → Chambéry</a></li>
+<li data-depart="Lyon" data-arrivee="Valence"><a href="https://futeroute.fr/trajets/lyon-valence.html">Lyon → Valence</a></li>
+<li data-depart="Lyon" data-arrivee="Saint-Étienne"><a href="https://futeroute.fr/trajets/lyon-saint-etienne.html">Lyon → Saint-Étienne</a></li>
+<li data-depart="Marseille" data-arrivee="Montpellier"><a href="https://futeroute.fr/trajets/marseille-montpellier.html">Marseille → Montpellier</a></li>
+<li data-depart="Marseille" data-arrivee="Avignon"><a href="https://futeroute.fr/trajets/marseille-avignon.html">Marseille → Avignon</a></li>
+<li data-depart="Marseille" data-arrivee="Aix-en-Provence"><a href="https://futeroute.fr/trajets/marseille-aix-en-provence.html">Marseille → Aix-en-Provence</a></li>
+<li data-depart="Marseille" data-arrivee="Toulon"><a href="https://futeroute.fr/trajets/marseille-toulon.html">Marseille → Toulon</a></li>
+<li data-depart="Bordeaux" data-arrivee="Bayonne"><a href="https://futeroute.fr/trajets/bordeaux-bayonne.html">Bordeaux → Bayonne</a></li>
+<li data-depart="Bordeaux" data-arrivee="Biarritz"><a href="https://futeroute.fr/trajets/bordeaux-biarritz.html">Bordeaux → Biarritz</a></li>
+<li data-depart="Bordeaux" data-arrivee="La Rochelle"><a href="https://futeroute.fr/trajets/bordeaux-la-rochelle.html">Bordeaux → La Rochelle</a></li>
+<li data-depart="Bordeaux" data-arrivee="Limoges"><a href="https://futeroute.fr/trajets/bordeaux-limoges.html">Bordeaux → Limoges</a></li>
+<li data-depart="Toulouse" data-arrivee="Perpignan"><a href="https://futeroute.fr/trajets/toulouse-perpignan.html">Toulouse → Perpignan</a></li>
+<li data-depart="Toulouse" data-arrivee="Pau"><a href="https://futeroute.fr/trajets/toulouse-pau.html">Toulouse → Pau</a></li>
+<li data-depart="Nantes" data-arrivee="Angers"><a href="https://futeroute.fr/trajets/nantes-angers.html">Nantes → Angers</a></li>
+<li data-depart="Nantes" data-arrivee="La Rochelle"><a href="https://futeroute.fr/trajets/nantes-la-rochelle.html">Nantes → La Rochelle</a></li>
+<li data-depart="Strasbourg" data-arrivee="Metz"><a href="https://futeroute.fr/trajets/strasbourg-metz.html">Strasbourg → Metz</a></li>
+<li data-depart="Strasbourg" data-arrivee="Mulhouse"><a href="https://futeroute.fr/trajets/strasbourg-mulhouse.html">Strasbourg → Mulhouse</a></li>
+<li data-depart="Rennes" data-arrivee="Brest"><a href="https://futeroute.fr/trajets/rennes-brest.html">Rennes → Brest</a></li>
+<li data-depart="Rennes" data-arrivee="Caen"><a href="https://futeroute.fr/trajets/rennes-caen.html">Rennes → Caen</a></li>
+<li data-depart="Montpellier" data-arrivee="Nîmes"><a href="https://futeroute.fr/trajets/montpellier-nimes.html">Montpellier → Nîmes</a></li>
+<li data-depart="Montpellier" data-arrivee="Perpignan"><a href="https://futeroute.fr/trajets/montpellier-perpignan.html">Montpellier → Perpignan</a></li>
+<li data-depart="Nice" data-arrivee="Cannes"><a href="https://futeroute.fr/trajets/nice-cannes.html">Nice → Cannes</a></li></ul>
+      </div>
+    </div>
+  </section>
   <footer><a href="https://futeroute.fr/">← Retour à Futéroute</a></footer>
 </div>
 </body>

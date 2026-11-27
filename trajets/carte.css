@@ -1,0 +1,65 @@
+.page-annuaire .page { max-width: 1060px; }
+.lien-comparatif { margin-top: 7px; font-size: .93rem; }
+.explorateur { padding: 0; border: 1px solid var(--separateur); }
+.explorateur [hidden] { display: none; }
+.barre-carte {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 14px 18px; border-bottom: 1px solid var(--separateur);
+}
+.barre-carte label { display: flex; gap: 8px; align-items: center; color: var(--secondaire); font-size: .84rem; }
+.barre-carte select {
+  min-height: 40px; max-width: 100%; padding: 6px 8px; border: 1px solid #bdccd8;
+  border-radius: 6px; background: #fff; color: var(--titre); font: inherit;
+}
+.barre-carte select:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px; }
+.annuaire-carte { display: grid; grid-template-columns: minmax(0, 2fr) minmax(225px, 1fr); }
+.atlas { position: relative; min-width: 0; margin: 0; }
+.carte-france { display: block; width: 100%; height: auto; background: #dcedf1; }
+.carte-france path { fill: none; }
+.liaisons a { cursor: pointer; }
+.zone-trait { stroke: transparent; stroke-width: 11px; vector-effect: non-scaling-stroke; pointer-events: stroke; }
+.trait { stroke: #3d7895; stroke-opacity: .64; stroke-width: 1.2; pointer-events: none; }
+#trait-actif, .liaisons a:hover .trait, .liaisons a:focus-visible .trait {
+  stroke: #ac460e; stroke-width: 3; pointer-events: none;
+}
+.liaisons a:focus-visible { outline: 2px solid #934415; }
+.villes-carte, #trait-actif { pointer-events: none; }
+.villes-carte circle { stroke: #fffdf4; stroke-width: 1; fill: #203f55; }
+.villes-carte text { font: 600 13px 'Segoe UI', Arial, sans-serif; fill: #203f55; paint-order: stroke; stroke: #fffdf4; stroke-width: 3px; stroke-linejoin: round; }
+.atlas figcaption {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+  gap: 3px 14px; padding: 10px 14px; border-top: 1px solid var(--separateur);
+  color: var(--titre); font-size: .85rem;
+}
+.atlas small { color: var(--secondaire); font-size: .73rem; }
+.fiches-carte {
+  contain: size; min-width: 0; min-height: 0; display: flex; flex-direction: column;
+  border-left: 1px solid var(--separateur);
+}
+.fiches-carte h3 { padding: 12px 16px; font-size: .95rem; border-bottom: 1px solid var(--separateur); }
+.liste-carte { flex: 1; height: 0; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+.liste-carte a {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px;
+  padding: 8px 16px; border-bottom: 1px solid var(--separateur); font-size: .91rem;
+  font-weight: 600; text-decoration: none;
+}
+.liste-carte a::after { content: '›'; font-size: 1.1rem; color: var(--secondaire); }
+.liste-carte a:is(:hover, :focus-visible) { background: #eef5fc; text-decoration: underline; outline-offset: -3px; }
+.saut-liste { position: absolute; left: 8px; top: 8px; padding: 6px 10px; z-index: 1; background: white; }
+.saut-liste:not(:focus) { clip-path: inset(50%); width: 1px; height: 1px; padding: 0; overflow: hidden; }
+@media (max-width: 720px) {
+  .annuaire-carte { display: block; }
+  .fiches-carte { contain: none; border: 0; border-top: 1px solid var(--separateur); }
+  .liste-carte { height: auto; overflow: visible; }
+  .saut-liste, .saut-liste:not(:focus) {
+    position: static; display: block; width: auto; height: auto; clip-path: none;
+    padding: 6px 12px; background: #f5f9fa; font-size: .82rem;
+  }
+  .villes-carte text { font-size: 16px; }
+}
+@media (max-width: 480px) {
+  .barre-carte { flex-wrap: wrap; gap: 5px; padding: 10px 12px; }
+  .barre-carte label { width: 100%; justify-content: space-between; }
+  .villes-carte text { font-size: 20px; }
+  .villes-carte g[data-ville="Montpellier"] text, .villes-carte g[data-ville="Genève"] text { display: none; }
+}

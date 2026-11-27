@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { chromium } = require('playwright');
+const { renderCarte } = require('./carte-trajets');
 
 const ROOT = path.join(__dirname, '..');
 const TRAJETS = JSON.parse(fs.readFileSync(path.join(ROOT, 'trajets/trajets.json'), 'utf8'));
@@ -232,22 +233,24 @@ function relatedLinks(t, all) {
 }
 
 function renderHeader(annuaire) {
+  const racine = annuaire ? SITE_URL : '';
+  const assets = annuaire ? '../' : '/';
   return `<header class="entete">
-  <a class="marque" href="/" aria-label="Futéroute – calculateur"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
+  <a class="marque" href="${racine}/" aria-label="Futéroute – calculateur"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
   <defs>
-    <image id="wordmark" href="/futeroute-logo.webp" width="1098" height="169"/>
+    <image id="wordmark" href="${assets}futeroute-logo.webp" width="1098" height="169"/>
     <clipPath id="wordmark-left"><path d="M0 0H360V107H324L341 121Q338 129 330 133L320 138V169H0Z"/></clipPath>
     <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
   </defs>
   <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
   <path transform="translate(6 0)" fill="#fcb00f" d="M324 109L341 121Q338 129 329 133L322 132L319 118Z"/>
   <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-19 0)"/>
-  <image href="/logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
+  <image href="${assets}logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
 </svg></a>
   <nav class="rubriques" aria-label="Navigation principale">
-    <a href="/">Calculateur</a>
-    <a href="/trajets/" aria-current="${annuaire ? 'page' : 'location'}">Trajets</a>
-    <a href="/accueil.html">À propos</a>
+    <a href="${racine}/">Calculateur</a>
+    <a href="${racine}/trajets/" aria-current="${annuaire ? 'page' : 'location'}">Trajets</a>
+    <a href="${racine}/accueil.html">À propos</a>
   </nav>
 </header>`;
 }
@@ -420,7 +423,6 @@ ${sansDetour.length ? `<h3>Moins cher sans détour</h3><ul>${sansDetour.map(t =>
 }
 
 function renderIndex(reussis) {
-  const items = reussis.map(t => `<li><a href="./${t.slug}.html">${t.depart} → ${t.arrivee}</a></li>`).join('\n');
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -431,15 +433,17 @@ function renderIndex(reussis) {
 <link rel="canonical" href="${SITE_URL}/trajets/">
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
-<link rel="stylesheet" href="/pages.css">
+<link rel="stylesheet" href="../pages.css">
+<link rel="stylesheet" href="./carte.css">
+<script src="./carte.js" defer></script>
 </head>
-<body>
+<body class="page-annuaire">
 <div class="page">
 ${renderHeader(true)}
   <div class="breadcrumb"><a href="${SITE_URL}/">Futéroute</a> › Trajets</div>
   <h1>Coût des trajets en voiture</h1>
-  <p class="card"><a href="./${PAGE_COMPARATIF}">Quels trajets sans péages économisent le plus par heure de détour ?</a></p>
-  <div class="card"><ul class="annuaire">${items}</ul></div>
+  <p class="lien-comparatif"><a href="${SITE_URL}/trajets/${PAGE_COMPARATIF}">Quels trajets sans péages économisent le plus par heure de détour ?</a></p>
+  ${renderCarte(reussis, `${SITE_URL}/trajets/`)}
   <footer><a href="${SITE_URL}/">← Retour à Futéroute</a></footer>
 </div>
 </body>
@@ -540,4 +544,4 @@ ${urls.map(u => `  <url><loc>${u}</loc><changefreq>weekly</changefreq></url>`).j
 }
 
 if (require.main === module) main();
-module.exports = { renderPage, renderComparatif, comparaisonPeages, publierPages };
+module.exports = { renderIndex, renderPage, renderComparatif, comparaisonPeages, publierPages };

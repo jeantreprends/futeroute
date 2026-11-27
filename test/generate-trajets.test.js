@@ -106,3 +106,18 @@ test('le recalcul de Lyon–Genève reprend le point suisse utilisé par la fich
   assert.equal(lien.searchParams.get('to'), geneve.arriveeGps);
   assert.match(html, /vignette suisse/);
 });
+
+test('la carte et la liste relient les mêmes fiches publiées, y compris Genève', () => {
+  const { renderIndex } = require('../scripts/generate-trajets');
+  const catalogue = require('../trajets/trajets.json');
+  const html = renderIndex(catalogue);
+  const carte = html.match(/<g class="liaisons">([\s\S]*?)<\/g>/)[1];
+  const liste = html.match(/<ul class="liste-carte">([\s\S]*?)<\/ul>/)[1];
+  const urls = bloc => [...bloc.matchAll(/<a href="([^"]+)"/g)].map(m => m[1]).sort();
+  const attendues = catalogue.map(t => `https://futeroute.fr/trajets/${t.slug}.html`).sort();
+  assert.deepEqual(urls(carte), attendues);
+  assert.deepEqual(urls(liste), attendues);
+  const nouvelle = renderIndex([{ depart: 'Paris', arrivee: 'Destination à situer', slug: 'nouvelle-fiche' }]);
+  assert.match(nouvelle, /<g class="liaisons"><\/g>/);
+  assert.match(nouvelle, /<li [^>]*><a href="[^"]+\/nouvelle-fiche.html"/);
+});
