@@ -710,19 +710,6 @@
     }
     .save-form-ok { background: #2e7d32; color: #fff; }
     .save-form-cancel { background: #eceff1; color: #607080; }
-    /* Masqué par défaut (aucune marge ni trait tant qu'il n'y a pas de
-       favori) ; renderTrajetChips() l'affiche en JS dès qu'il y en a au
-       moins un (voir le commentaire là-bas : l'ancien sélecteur
-       :has(:empty) était peu fiable sur iOS Safari). Même forme que la
-       ligne "Mes véhicules" (.veh-row) : étiquette à gauche, puces à droite. */
-    /* Ligne "Mes trajets" : entièrement masquée tant qu'aucun trajet n'est
-       enregistré (ni libellé, ni trait, ni marge). */
-    .trajet-row { display: flex; padding: 10px 0 6px; }
-    .trajet-row.vide { display: none; }
-    /* Dernier enfant de son bloc, la ligne perd son trait via
-       .param-row:last-child. On le rétablit dès qu'il y a au moins un trajet
-       enregistré, à l'identique de "Mes véhicules". */
-    .trajet-row:not(.vide) { border-top: 1.5px solid #cfd8e0; }
     /* "Enregistrer ce trajet" : à gauche, sur la même ligne que
        "Réinitialiser" (poussé à droite par sa marge automatique). */
     .trajet-save-btn { flex-shrink: 0; white-space: nowrap; }
@@ -1773,7 +1760,8 @@
     .reservoir-row { padding: 0 0 8px; }
     .reservoir-hint { color: #586e81; margin: 0 0 4px 25px; }
     .veh-row, .trajet-row:not(.vide) { border-top: 1px solid #dce5ed; }
-    .saved-chip { opacity: 1; background: #eef5fc; color: #205e96; border-radius: var(--rayon-commande); }
+    :root { --saved-text: #205e96; }
+    .saved-chip { opacity: 1; background: #eef5fc; color: var(--saved-text); border-radius: var(--rayon-commande); }
     .saved-chip.selected { background: #1769b4; color: white; }
     .saved-chip-x { color: #586e81; }
     .station-fields .carburant-row { padding-top: 0; }
@@ -1807,10 +1795,9 @@
       #modeStation .station-fields .param-label { width: 94px; margin-bottom: 0; }
     }
     .saved-menu { margin-top: 10px; }
-    .saved-menu > summary { cursor: pointer; color: #1766a3; font-size: 13px; font-weight: 650; padding: 8px 0; list-style: none; }
-    .saved-menu > summary::-webkit-details-marker { display:none; }
-    .saved-menu > summary::after { content:''; display:inline-block; width:6px; height:6px; border:solid currentColor; border-width:0 1.5px 1.5px 0; transform: rotate(45deg); margin:0 0 3px 9px; }
-    .saved-menu[open] > summary::after { transform:rotate(225deg); margin-bottom:0; }
+    .saved-menu h3 { margin: 0 0 6px; color: #111; font-size: 13px; font-weight: 650; }
+    .saved-empty { margin: 0; font-size: 12px; font-style: italic; color: #617283; }
+    #paramsCard .itinerary-controls .link-btn, #vehSaveBtn { color: var(--saved-text); }
     .itinerary-controls.trip-actions { margin: 6px 0; gap: 14px; }
     .saved-menu > .trajet-row, .saved-menu > .veh-row { border:0; }
     #paramsCard #reservoirHint[hidden] { display:none; }
@@ -2021,14 +2008,11 @@
         <button type="button" class="save-form-btn save-form-ok" onclick="confirmerTrajet()" aria-label="Enregistrer le trajet">✓</button>
         <button type="button" class="save-form-btn save-form-cancel" onclick="toggleTrajetForm(false)" aria-label="Annuler">✕</button>
       </div>
-      <details class="saved-menu">
-        <summary>Mes trajets</summary>
-        <div class="param-row trajet-row" id="trajetRow">
-          <div class="param-input">
-            <div class="saved-chips" id="trajetChips"></div>
-          </div>
-        </div>
-      </details>
+      <section class="saved-menu">
+        <h3>Mes trajets</h3>
+        <div class="saved-chips" id="trajetChips"></div>
+        <p class="saved-empty" id="trajetEmpty">Retrouvez vos trajets favoris ici.</p>
+      </section>
     </div>
 
     <!-- Réglages du véhicule -->
@@ -2129,14 +2113,11 @@
       <button type="button" class="save-form-btn save-form-ok" onclick="confirmerVehicule()" aria-label="Enregistrer le véhicule">✓</button>
       <button type="button" class="save-form-btn save-form-cancel" onclick="toggleVehForm(false)" aria-label="Annuler">✕</button>
     </div>
-    <details class="saved-menu">
-      <summary>Mes véhicules</summary>
-      <div class="param-row veh-row" style="display:none;">
-        <div class="param-input">
-          <div class="saved-chips" id="vehChips"></div>
-        </div>
-      </div>
-    </details>
+    <section class="saved-menu">
+        <h3>Mes véhicules</h3>
+        <div class="saved-chips" id="vehChips"></div>
+        <p class="saved-empty" id="vehEmpty">Retrouvez vos véhicules favoris ici.</p>
+      </section>
     </div>
   </div>
 
@@ -2928,8 +2909,7 @@ function renderVehChips() {
   if (!wrap) return;
   wrap.textContent = '';
   const vehs = loadActifs(VEHICULES_KEY);
-  // La ligne "Mes véhicules" n'apparaît que s'il y a au moins un véhicule.
-  document.querySelector('.veh-row').style.display = vehs.length ? 'flex' : 'none';
+  document.getElementById('vehEmpty').hidden = vehs.length > 0;
   vehs.forEach((v) => {
     const titre = `${CARB_LABELS_VEH[v.type] || v.type} · ${v.conso} ${v.type === 'electrique' ? 'kWh' : 'L'}/100 km` + (v.capacite && v.type !== 'electrique' ? ` · réservoir ${v.capacite} L` : '');
     wrap.appendChild(makeSavedChip('', v.nom, titre,
@@ -3005,15 +2985,7 @@ function renderTrajetChips() {
         renderTrajetChips();
       })));
   });
-  // La ligne reste affichée (elle porte "Enregistrer ce trajet") : c'est le
-  // libellé et les puces qu'on masque via .vide quand il n'y a aucun favori.
-  // Piloté en JS et non par une règle CSS `:has(.saved-chips:empty)` : sur
-  // iOS Safari, ce sélecteur ne se réévalue pas de façon fiable après l'ajout
-  // dynamique des puces, laissant le conteneur replié - les favoris
-  // existaient alors dans le DOM mais n'étaient pas peints (~1 chargement
-  // sur 4). Le pilotage en JS supprime cette dépendance capricieuse.
-  const trajetRow = document.getElementById('trajetRow');
-  if (trajetRow) trajetRow.classList.toggle('vide', trajets.length === 0);
+  document.getElementById('trajetEmpty').hidden = trajets.length > 0;
 }
 
 // Remet le trajet à zéro : départ, arrivée et étapes vidés, résultats
