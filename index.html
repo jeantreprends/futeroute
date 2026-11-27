@@ -691,10 +691,15 @@
     .saved-chip.selected .saved-chip-x { color: #cfe3fb; }
     .saved-chip.selected .saved-chip-x:hover { color: #fff; }
     .saved-chip .chip-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .saved-chip-grip { flex-shrink: 0; color: inherit; opacity: .75; cursor: grab; touch-action: none; user-select: none; }
+    .saved-chip[data-favori] { cursor: grab; touch-action: none; user-select: none; }
+    .saved-chip[data-favori] .saved-chip-x { cursor: pointer; }
     .saved-chip.dragging { opacity: .5; }
-    .saved-chip.drop-target { outline: 2px solid #1769b4; outline-offset: 2px; }
     .saved-chip-preview { position: fixed; z-index: 1000; pointer-events: none; margin: 0; }
+    .saved-chip-insertion {
+      position: fixed; z-index: 1001; pointer-events: none;
+      width: 2px; transform: translateX(-50%);
+      border-radius: 2px; background: #1769b4;
+    }
     .saved-chip-x { color: #90a4ae; font-weight: 700; padding: 0 2px; flex-shrink: 0; }
     .saved-chip-x:hover { color: #e53935; }
     .saved-chip-add {
@@ -2922,19 +2927,14 @@ function makeSavedChip(icone, texte, titre, onApply, onDelete) {
 
 function activerDeplacementFavori(chip, wrap, storeKey, cleFn, cle) {
   chip.dataset.favori = cle;
-  const grip = document.createElement('span');
-  grip.className = 'saved-chip-grip';
-  grip.textContent = '⠿';
-  grip.title = 'Glisser pour déplacer';
-  grip.setAttribute('aria-hidden', 'true');
-  chip.prepend(grip);
   chip.setAttribute('aria-keyshortcuts', 'Alt+ArrowLeft Alt+ArrowRight');
 
-  function deplacer(cible) {
-    if (!cible || cible === chip || chip.parentElement !== wrap || cible.parentElement !== wrap) return;
+  function deplacer(avant) {
+    if (chip.parentElement !== wrap || (avant && avant.parentElement !== wrap)) return;
     const actifs = loadActifs(storeKey);
     const index = actifs.findIndex(item => cleFn(item) === cle);
-    const destination = actifs.findIndex(item => cleFn(item) === cible.dataset.favori);
+    let destination = avant ? actifs.findIndex(item => cleFn(item) === avant.dataset.favori) : actifs.length;
+    if (destination > index) destination--;
     if (index < 0 || destination < 0 || index === destination) return;
     const [item] = actifs.splice(index, 1);
     actifs.splice(destination, 0, item);
@@ -2943,60 +2943,94 @@ function activerDeplacementFavori(chip, wrap, storeKey, cleFn, cle) {
     const ordonnes = actifs.map((item, ordre) => ({ ...item, ordre, ordreMaj }));
     saveStore(storeKey, [...ordonnes, ...bruts.filter(item => item.del)]);
     const focus = document.activeElement === chip;
-    wrap.insertBefore(chip, destination < index ? cible : cible.nextElementSibling);
+    wrap.insertBefore(chip, avant);
     if (focus) chip.focus({ preventScroll: true });
   }
 
   chip.addEventListener('keydown', e => {
     if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
     e.preventDefault();
-    deplacer(e.key === 'ArrowLeft' ? chip.previousElementSibling : chip.nextElementSibling);
+    if (e.key === 'ArrowLeft' && chip.previousElementSibling) deplacer(chip.previousElementSibling);
+    if (e.key === 'ArrowRight' && chip.nextElementSibling) deplacer(chip.nextElementSibling.nextElementSibling);
   });
-  grip.addEventListener('click', e => e.stopPropagation());
-  grip.addEventListener('pointerdown', e => {
+  let supprimerClic = false;
+  chip.addEventListener('click', e => {
+    if (supprimerClic && e.detail > 0) e.stopImmediatePropagation();
+  }, true);
+  chip.addEventListener('pointerdown', e => {
     if (!e.isPrimary || e.button !== 0) return;
-    e.preventDefault();
-    grip.setPointerCapture(e.pointerId);
-    chip.classList.add('dragging');
+    supprimerClic = false;
+    if (e.target.closest('.saved-chip-x')) return;
     const bounds = chip.getBoundingClientRect();
-    const preview = chip.cloneNode(true);
-    preview.classList.remove('dragging');
-    preview.classList.add('saved-chip-preview');
-    preview.setAttribute('aria-hidden', 'true');
-    preview.tabIndex = -1;
-    preview.style.width = bounds.width + 'px';
-    document.body.appendChild(preview);
+    let preview = null;
+    let trait = null;
+    let insertion = null;
 
-    let cible = null;
     function suivre(event) {
       if (event.pointerId !== e.pointerId) return;
+      if (!preview) {
+        if (Math.hypot(event.clientX - e.clientX, event.clientY - e.clientY) < 6 || chip.parentElement !== wrap) return;
+        supprimerClic = true;
+        chip.setPointerCapture(e.pointerId);
+        preview = chip.cloneNode(true);
+        preview.classList.add('saved-chip-preview');
+        preview.setAttribute('aria-hidden', 'true');
+        preview.tabIndex = -1;
+        preview.style.width = bounds.width + 'px';
+        trait = document.createElement('span');
+        trait.className = 'saved-chip-insertion';
+        trait.setAttribute('aria-hidden', 'true');
+        chip.classList.add('dragging');
+        document.body.append(preview, trait);
+      }
       preview.style.left = event.clientX - (e.clientX - bounds.left) + 'px';
       preview.style.top = event.clientY - (e.clientY - bounds.top) + 'px';
-      cible?.classList.remove('drop-target');
-      const survol = document.elementFromPoint(event.clientX, event.clientY)?.closest('.saved-chip');
-      cible = survol && survol !== chip && survol.parentElement === wrap ? survol : null;
-      cible?.classList.add('drop-target');
+      insertion = chip.parentElement === wrap ? trouverInsertionFavori(wrap, event.clientX, event.clientY) : null;
+      trait.hidden = !insertion || insertion.avant === chip || insertion.avant === chip.nextElementSibling;
+      if (trait.hidden) return;
+      trait.style.left = insertion.x + 'px';
+      trait.style.top = insertion.top + 'px';
+      trait.style.height = insertion.height + 'px';
     }
     function terminer(event) {
       if (event.pointerId !== e.pointerId) return;
-      if (event.type === 'pointerup') {
+      if (event.type === 'lostpointercapture' && event.target !== chip && event.target !== document) return;
+      if (event.type === 'pointerup' && preview) {
         suivre(event);
-        deplacer(cible);
+        if (insertion) deplacer(insertion.avant);
       }
-      cible?.classList.remove('drop-target');
       chip.classList.remove('dragging');
-      preview.remove();
+      preview?.remove();
+      trait?.remove();
       document.removeEventListener('pointermove', suivre);
       document.removeEventListener('pointerup', terminer);
       document.removeEventListener('pointercancel', terminer);
       document.removeEventListener('lostpointercapture', terminer);
     }
-    suivre(e);
     document.addEventListener('pointermove', suivre);
     document.addEventListener('pointerup', terminer);
     document.addEventListener('pointercancel', terminer);
     document.addEventListener('lostpointercapture', terminer);
   });
+}
+
+function trouverInsertionFavori(wrap, x, y) {
+  const zone = wrap.getBoundingClientRect();
+  if (x < zone.left - 6 || x > zone.right + 6 || y < zone.top - 6 || y > zone.bottom + 6) return null;
+  const puces = Array.from(wrap.children, puce => ({ puce, rect: puce.getBoundingClientRect() }));
+  // Sur plusieurs lignes, le pointeur choisit d'abord la ligne la plus proche.
+  const distance = ({ rect }) => Math.abs(y - (rect.top + rect.bottom) / 2);
+  const proche = puces.reduce((a, b) => distance(a) <= distance(b) ? a : b);
+  const ligne = puces.filter(({ rect }) => rect.top === proche.rect.top);
+  const index = ligne.findIndex(({ rect }) => x < (rect.left + rect.right) / 2);
+  const droite = index < 0 ? null : ligne[index];
+  const gauche = index < 0 ? ligne.at(-1) : ligne[index - 1];
+  const avant = droite ? droite.puce : gauche.puce.nextElementSibling;
+  let position;
+  if (droite && gauche) position = (gauche.rect.right + droite.rect.left) / 2;
+  else if (droite) position = droite.rect.left - 3;
+  else position = gauche.rect.right + 3;
+  return { avant, x: position, top: proche.rect.top + 2, height: proche.rect.height - 4 };
 }
 
 // -- Véhicules --
