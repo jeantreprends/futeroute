@@ -7,9 +7,6 @@
   <meta name="description" content="Combien coûte vraiment votre trajet en voiture ? Carburant au prix du jour, péages officiels, station la moins chère sur la route, et verdict : éviter les péages est-il rentable ? Gratuit, sans compte.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="96x96" href="favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -55,180 +52,29 @@
     ]
   }
   </script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #eef2f7;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      color: #263238;
-      -webkit-font-smoothing: antialiased;
-    }
-    .page { max-width: 430px; margin: 0 auto; padding: 0 20px 40px; }
-    .titre { font-family: 'Sora', 'Segoe UI', Arial, sans-serif; font-weight: 700; }
-    .rat { color: #e2971a; font-weight: 800; }
-
-    /* --- En-tête --- */
-    .topbar { display: flex; align-items: center; gap: 12px; padding: 22px 0 6px; }
-    .topbar img { width: 46px; height: 46px; border-radius: 12px; }
-    .topbar .nom { font-size: 24px; }
-    .topbar a { margin-left: auto; color: #1976d2; font-size: 12.5px; font-weight: 700; text-decoration: none; }
-    .topbar a:hover { text-decoration: underline; }
-
-    /* --- Héros : les trois questions --- */
-    .hero { padding: 22px 0 6px; }
-    .q {
-      font-family: 'Sora', sans-serif;
-      font-size: 20px; font-weight: 700; line-height: 1.32;
-      margin: 0 0 10px;
-    }
-    .q .hl-bleu { color: #1976d2; }
-    .q .hl-vert { color: #2e7d32; }
-    .q .hl-orange { color: #e2971a; }
-    .rep { font-size: 14px; color: #607080; line-height: 1.55; margin: 16px 0 18px; }
-    .rep b { color: #263238; }
-    .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: #eaf6ec; color: #2e7d32; border-radius: 999px;
-      padding: 5px 12px; font-size: 11.5px; font-weight: 700;
-    }
-    .badge.bleu { background: #e8f2ff; color: #1976d2; }
-    .cta {
-      display: block; width: 100%; text-align: center; text-decoration: none;
-      background: linear-gradient(180deg, #2196f3, #1976d2); color: #fff;
-      border: none; border-radius: 14px; padding: 15px;
-      font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer;
-      box-shadow: 0 6px 18px rgba(25,118,210,0.35);
-    }
-    .cta:active { transform: translateY(1px); }
-
-    /* --- Comment ça marche --- */
-    .section { margin-top: 34px; }
-    .section h2 {
-      font-family: 'Sora', sans-serif;
-      font-size: 17px; font-weight: 700; color: #263238; margin: 0 0 14px;
-    }
-    .steps { display: flex; flex-direction: column; gap: 10px; }
-    .step { display: flex; gap: 12px; align-items: flex-start; }
-    .num {
-      width: 26px; height: 26px; border-radius: 50%;
-      background: #1976d2; color: #fff; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 800; margin-top: 1px;
-    }
-    .step div { font-size: 13px; color: #455060; line-height: 1.5; }
-    .step b { color: #263238; }
-
-    /* --- Cartes fonctionnalités --- */
-    .feats { display: flex; flex-direction: column; gap: 10px; }
-    .feat {
-      background: #fff; border-radius: 16px; padding: 14px 16px;
-      box-shadow: 0 3px 10px rgba(15,23,41,0.05);
-      display: flex; gap: 12px; align-items: flex-start;
-    }
-    .feat .ico { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-    .feat b { display: block; font-size: 13.5px; color: #263238; margin-bottom: 3px; }
-    .feat p { margin: 0; font-size: 12.5px; color: #607080; line-height: 1.5; }
-
-    /* --- ADN --- */
-    .adn {
-      background: #fdf8ec; border: 1px solid #f0e2c2; border-radius: 16px;
-      padding: 16px 18px; margin-top: 34px;
-    }
-    .adn h2 { font-family: 'Sora', sans-serif; font-size: 16px; margin: 0 0 10px; }
-    .adn p { font-size: 13px; color: #6b5d3f; line-height: 1.6; margin: 0 0 10px; }
-    .adn p:last-child { margin-bottom: 0; }
-    .adn b { color: #263238; }
-
-    /* --- FAQ --- */
-    .faq details {
-      background: #fff; border-radius: 14px; padding: 12px 16px;
-      box-shadow: 0 3px 10px rgba(15,23,41,0.05); margin-bottom: 8px;
-    }
-    .faq summary {
-      font-size: 13.5px; font-weight: 700; color: #263238;
-      cursor: pointer; list-style: none; position: relative; padding-right: 22px;
-    }
-    .faq summary::-webkit-details-marker { display: none; }
-    .faq summary::after {
-      content: '+'; position: absolute; right: 2px; top: -2px;
-      font-size: 17px; color: #90a4ae; font-weight: 600;
-    }
-    .faq details[open] summary::after { content: '–'; }
-    .faq details p { font-size: 12.5px; color: #607080; line-height: 1.55; margin: 10px 0 2px; }
-
-    /* --- Fin de page --- */
-    .final { text-align: center; margin-top: 38px; }
-    .final .accroche { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 14px; }
-    footer {
-      margin-top: 30px; padding-top: 18px; border-top: 1px solid #dfe6ef;
-      font-size: 11.5px; color: #90a4ae; text-align: center; line-height: 1.7;
-    }
-    footer a { color: #1976d2; text-decoration: none; font-weight: 600; }
-    footer a:hover { text-decoration: underline; }
-
-    /* --- Desktop : la page s'élargit et passe en colonnes (le mobile
-       au-dessus reste la référence, inchangé). --- */
-    @media (min-width: 760px) {
-      .page { max-width: 1060px; padding: 0 40px 60px; }
-      .topbar { padding: 30px 0 10px; }
-      .topbar img { width: 54px; height: 54px; }
-      .topbar .nom { font-size: 28px; }
-      .topbar a { font-size: 13.5px; }
-
-      /* Héros en deux colonnes : questions à gauche, badges + bouton à droite. */
-      .hero {
-        display: grid; grid-template-columns: 1.35fr 1fr;
-        gap: 40px; align-items: center; padding: 44px 0 18px;
-      }
-      .q { font-size: 27px; margin-bottom: 14px; }
-      .rep { font-size: 15px; max-width: 520px; }
-      .hero-action {
-        background: #fff; border-radius: 20px; padding: 26px;
-        box-shadow: 0 8px 24px rgba(15,23,41,0.08);
-      }
-      .hero-action .badges { justify-content: center; margin-bottom: 20px; }
-      .cta { max-width: 340px; margin: 0 auto; }
-
-      .section { margin-top: 52px; }
-      .section h2 { font-size: 21px; margin-bottom: 20px; }
-
-      /* Étapes côte à côte. */
-      .steps { flex-direction: row; gap: 24px; }
-      .step { flex: 1; flex-direction: column; gap: 10px; }
-      .step div { font-size: 13.5px; }
-
-      /* Cartes fonctionnalités en grille de 3. */
-      .feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-      .feat { flex-direction: column; gap: 8px; padding: 18px; }
-
-      /* ADN : trois paragraphes en colonnes. */
-      .adn { margin-top: 52px; padding: 26px 30px; }
-      .adn h2 { font-size: 19px; margin-bottom: 16px; }
-      .adn-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-      .adn p { margin: 0; }
-
-      /* FAQ sur une colonne centrée, lisible. */
-      .faq-list { max-width: 720px; }
-      .faq details { padding: 14px 18px; }
-      .faq summary { font-size: 14.5px; }
-      .faq details p { font-size: 13px; }
-
-      .final { margin-top: 56px; }
-      .final .accroche { font-size: 22px; }
-      footer { margin-top: 48px; font-size: 12px; }
-    }
-  </style>
+  <link rel="stylesheet" href="/pages.css">
 </head>
-<body>
+<body class="presentation">
   <div class="page">
 
-    <div class="topbar">
-      <img src="logo trajet rat.png" alt="Logo Futéroute">
-      <div class="nom titre"><span class="rat">Futé</span>route</div>
-      <a href="./">Ouvrir l'appli →</a>
-    </div>
+<header class="entete">
+  <a class="marque" href="/" aria-label="Futéroute – calculateur"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
+  <defs>
+    <image id="wordmark" href="/futeroute-logo.webp" width="1098" height="169"/>
+    <clipPath id="wordmark-left"><path d="M0 0H360V107H324L341 121Q338 129 330 133L320 138V169H0Z"/></clipPath>
+    <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
+  </defs>
+  <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
+  <path transform="translate(6 0)" fill="#fcb00f" d="M324 109L341 121Q338 129 329 133L322 132L319 118Z"/>
+  <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-19 0)"/>
+  <image href="/logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
+</svg></a>
+  <nav class="rubriques" aria-label="Navigation principale">
+    <a href="/">Calculateur</a>
+    <a href="/trajets/">Trajets</a>
+    <a href="/accueil.html" aria-current="page">À propos</a>
+  </nav>
+</header>
 
     <div class="hero">
       <div class="hero-txt">

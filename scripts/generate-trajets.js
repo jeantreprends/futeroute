@@ -163,6 +163,27 @@ function relatedLinks(t, all) {
      o.depart === t.arrivee || o.arrivee === t.depart)).slice(0, 8);
 }
 
+function renderHeader(annuaire) {
+  return `<header class="entete">
+  <a class="marque" href="/" aria-label="Futéroute – calculateur"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1098 169" width="1098" height="169" role="img" aria-label="Futé Route">
+  <defs>
+    <image id="wordmark" href="/futeroute-logo.webp" width="1098" height="169"/>
+    <clipPath id="wordmark-left"><path d="M0 0H360V107H324L341 121Q338 129 330 133L320 138V169H0Z"/></clipPath>
+    <clipPath id="wordmark-right"><rect x="658" width="440" height="169"/></clipPath>
+  </defs>
+  <use href="#wordmark" clip-path="url(#wordmark-left)" transform="translate(6 0)"/>
+  <path transform="translate(6 0)" fill="#fcb00f" d="M324 109L341 121Q338 129 329 133L322 132L319 118Z"/>
+  <use href="#wordmark" clip-path="url(#wordmark-right)" transform="translate(-19 0)"/>
+  <image href="/logo%20rat%20seul.png" x="324" y="5" width="331" height="156" style="filter:drop-shadow(0 2px 2.5px rgba(18,42,70,.20))"/>
+</svg></a>
+  <nav class="rubriques" aria-label="Navigation principale">
+    <a href="/">Calculateur</a>
+    <a href="/trajets/" aria-current="${annuaire ? 'page' : 'location'}">Trajets</a>
+    <a href="/accueil.html">À propos</a>
+  </nav>
+</header>`;
+}
+
 function renderPage(t, r, all) {
   const title = `Trajet ${t.depart} → ${t.arrivee} : coût, péages, faut-il éviter l'autoroute ? | Futéroute`;
   const totalRapide = r.coutCarburant + (r.coutPeage || 0);
@@ -180,7 +201,7 @@ function renderPage(t, r, all) {
       q: `Vaut-il le coup d'éviter les péages entre ${t.depart} et ${t.arrivee} ?`,
       a: verdict ? verdict.texte : `Le prix des péages n'a pas pu être déterminé pour ce trajet ; recalculez-le dans l'outil pour un chiffrage à jour.`,
     },
-  ].map(f => `<div class="faq-item"><h3>${f.q}</h3><p>${f.a}</p></div>`).join('\n');
+  ].map(f => `<details class="faq-item"><summary>${f.q}</summary><p>${f.a}</p></details>`).join('\n');
 
   const faqSchema = {
     '@context': 'https://schema.org', '@type': 'FAQPage',
@@ -227,47 +248,24 @@ function renderPage(t, r, all) {
 <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
 <script type="application/ld+json">${JSON.stringify(faqSchema)}</script>
 <script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f6; color: #1a2433; padding: 24px 16px; line-height: 1.5; }
-  .page { max-width: 640px; margin: 0 auto; }
-  .breadcrumb { font-size: 12px; color: #90a4ae; margin-bottom: 14px; }
-  .breadcrumb a { color: #90a4ae; }
-  h1 { font-family: 'Sora', 'Segoe UI', Arial, sans-serif; font-size: 24px; margin-bottom: 6px; color: #0f1729; }
-  .maj { font-size: 12px; color: #a4b0bd; margin-bottom: 18px; }
-  .card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 14px; box-shadow: 0 4px 16px rgba(15,23,41,0.07); }
-  .chiffres { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-  .chip { flex: 1; min-width: 100px; background: #f5f8fb; border: 1px solid #dbe7f5; border-radius: 12px; padding: 10px; text-align: center; }
-  .chip-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #90a4ae; }
-  .chip-value { font-size: 16px; font-weight: 800; color: #1a2433; }
-  .total { font-size: 26px; font-weight: 800; color: #1976d2; margin: 12px 0 4px; }
-  .verdict { border-radius: 12px; padding: 14px; margin-top: 10px; font-size: 14px; }
-  .verdict.eco { background: #e8f5e9; color: #2e7d32; }
-  .verdict.non-eco { background: #fdf3e3; color: #8a5a00; }
-  .cta { display: block; text-align: center; background: #1976d2; color: #fff; text-decoration: none;
-    padding: 14px; border-radius: 12px; font-weight: 700; margin-top: 16px; }
-  .faq-item { margin-bottom: 14px; }
-  .faq-item h3 { font-size: 15px; margin-bottom: 4px; color: #0f1729; }
-  .faq-item p { font-size: 14px; color: #455060; }
-  .rel-title { font-size: 16px; margin-bottom: 10px; color: #0f1729; }
-  .related { list-style: none; columns: 2; }
-  .related li { margin-bottom: 8px; break-inside: avoid; }
-  .related a { color: #1976d2; text-decoration: none; font-weight: 600; font-size: 14px; }
-  .related a:hover { text-decoration: underline; }
-  .rel-all { margin-top: 10px; font-size: 13px; }
-  .rel-all a { color: #607080; }
-  .src-note { font-size: 11px; color: #a4b0bd; margin-top: 14px; }
-  footer { text-align: center; margin-top: 20px; font-size: 12px; }
-  footer a { color: #607080; }
-</style>
+<link rel="stylesheet" href="/pages.css">
 </head>
 <body>
 <div class="page">
+${renderHeader(false)}
   <div class="breadcrumb"><a href="${SITE_URL}/">Futéroute</a> › <a href="./">Trajets</a> › ${t.depart} → ${t.arrivee}</div>
   <h1>${t.depart} → ${t.arrivee} : coût du trajet en voiture</h1>
   <div class="maj">Chiffres mis à jour le ${dateMaj} · estimation, hors trafic</div>
 
   <div class="card">
+    <div class="bilan">
+      <div class="total">${fmtEur(totalRapide)} au total</div>
+      ${verdict ? `<div class="verdict ${verdict.rentable ? 'eco' : 'non-eco'}">${verdict.texte}</div>
+      <details class="rentabilite">
+        <summary>Qu’est-ce qu’on entend par « rentable » ?</summary>
+        <p>Le calculateur compare les péages évités au coût du carburant supplémentaire. Son repère est de 18 € économisés par heure de détour. La durée maximale du détour dépend de celle du trajet.</p>
+      </details>` : ''}
+    </div>
     <div class="chiffres">
       <div class="chip"><div class="chip-label">Distance</div><div class="chip-value">${fmtKm(r.distanceKm)}</div></div>
       <div class="chip"><div class="chip-label">Durée</div><div class="chip-value">${fmtDuree(r.dureeSec)}</div></div>
@@ -276,13 +274,12 @@ function renderPage(t, r, all) {
       <div class="chip"><div class="chip-label">Carburant (SP95)</div><div class="chip-value">${fmtEur(r.coutCarburant)}</div></div>
       <div class="chip"><div class="chip-label">Péages</div><div class="chip-value">${typeof r.coutPeage === 'number' ? fmtEur(r.coutPeage) : 'n.c.'}</div></div>
     </div>
-    <div class="total">${fmtEur(totalRapide)} au total</div>
-    ${verdict ? `<div class="verdict ${verdict.rentable ? 'eco' : 'non-eco'}">${verdict.rentable ? '💰' : '🛣️'} ${verdict.texte}</div>` : ''}
     <a class="cta" href="${appUrl}">Recalculer avec ma voiture (aller-retour, autre carburant, étapes…)</a>
     <div class="src-note">Carburant : moyenne France, prix du jour (data.gouv.fr). Péages : tarifs officiels des concessionnaires, classe 1 (voiture).</div>
   </div>
 
   <div class="card">
+    <h2 class="rel-title">Questions fréquentes</h2>
     ${faq}
   </div>
 ${relatedHtml}
@@ -305,27 +302,14 @@ function renderIndex(reussis) {
 <link rel="canonical" href="${SITE_URL}/trajets/">
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f6; color: #1a2433; padding: 24px 16px; }
-  .page { max-width: 640px; margin: 0 auto; }
-  .breadcrumb { font-size: 12px; color: #90a4ae; margin-bottom: 14px; }
-  .breadcrumb a { color: #90a4ae; }
-  h1 { font-size: 22px; margin-bottom: 16px; color: #0f1729; }
-  .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 16px rgba(15,23,41,0.07); }
-  ul { list-style: none; columns: 2; gap: 8px; }
-  li { margin-bottom: 10px; break-inside: avoid; }
-  a { color: #1976d2; text-decoration: none; font-weight: 600; font-size: 14px; }
-  a:hover { text-decoration: underline; }
-  footer { text-align: center; margin-top: 20px; font-size: 12px; }
-  footer a { color: #607080; }
-</style>
+<link rel="stylesheet" href="/pages.css">
 </head>
 <body>
 <div class="page">
+${renderHeader(true)}
   <div class="breadcrumb"><a href="${SITE_URL}/">Futéroute</a> › Trajets</div>
   <h1>Coût des trajets en voiture</h1>
-  <div class="card"><ul>${items}</ul></div>
+  <div class="card"><ul class="annuaire">${items}</ul></div>
   <footer><a href="${SITE_URL}/">← Retour à Futéroute</a></footer>
 </div>
 </body>
