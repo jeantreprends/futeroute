@@ -1845,11 +1845,6 @@
     #sectionResultats .cheapest-map-wrap, #sectionResultats .itmap-expand-btn,
     #sectionResultats .itmap-recenter-btn { border-radius: var(--rayon-commande); }
     #sectionResultats .nav-icon-btn { background: #eef5fc; color: #205e96; border-color: transparent; box-shadow: none; }
-    #sectionResultats .leg-advice {
-      background: transparent; border: none; border-top: 1px solid #dce5ed;
-      border-radius: 0; padding: 14px 0 0; margin-top: 16px;
-    }
-    #sectionResultats .leg-advice-title { color: #1e344c; font-size: 15px; }
     #sectionResultats .leg-advice-empty { color: #52677a; font-style: normal; }
     #sectionResultats .station-section-head { border-top: 1px solid #dce5ed; padding-top: 18px; margin-top: 20px; }
     #sectionResultats .cheapest-note { background: transparent; border: none; padding: 0; margin-top: 14px; }
@@ -1860,13 +1855,32 @@
       #sectionResultats .route-detail-row { flex-wrap: wrap; align-items: center; }
       #sectionResultats .route-detail-row .route-nav-inline { margin-left: auto; }
     }
-    .train-compare { margin: 14px 0; color: #205e96; }
-    .train-compare summary { cursor: pointer; width: fit-content; padding: 5px 0; font-weight: 600; }
-    .train-compare form { margin-top: 8px; color: #344d65; }
-    .train-dates { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
-    .train-dates label { display: grid; gap: 4px; }
+    .trip-questions { margin: 16px 0 8px; border-top: 1px solid #dce5ed; }
+    .trip-questions > details { margin: 0; padding: 0; background: transparent; border: 0; border-radius: 0; }
+    .trip-questions summary {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      min-height: 44px; list-style: none; cursor: pointer;
+      color: #1e344c; font-size: 15px; font-weight: 700;
+    }
+    .trip-questions summary::-webkit-details-marker { display: none; }
+    .trip-questions summary::after {
+      content: ''; width: 7px; height: 7px; margin-right: 4px;
+      border: solid #60788d; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+    }
+    .trip-questions details[open] > summary::after { transform: rotate(225deg); }
+    .trip-questions summary:hover, .train-search:hover { color: #1769c2; }
+    .trip-questions :is(summary,input,button):focus-visible { outline: 2px solid #1667b1; outline-offset: 2px; }
+    .trip-questions .leg-advice[open] { padding-bottom: 8px; }
+    #trainRoute { color: #52677a; font-size: 13px; margin: 0 0 12px; }
+    .train-dates { display: flex; flex-wrap: wrap; gap: 10px; }
+    .train-dates label { display: grid; gap: 5px; flex: 0 1 155px; min-width: 0; font-size: 12px; font-weight: 600; color: #536b80; }
     .train-dates label[hidden] { display: none; }
-    .train-dates input { width: auto; max-width: 100%; font: inherit; }
+    .train-dates input {
+      font: inherit; font-size: 16px; color: #1e344c; width: 100%; min-width: 0; min-height: 42px;
+      box-sizing: border-box; padding: 7px 9px; border: 1px solid #c9d8e8;
+      border-radius: var(--rayon-commande); background: #f6f9fe;
+    }
+    .train-search { min-height: 44px; border: 0; background: transparent; padding: 0; color: #205e96; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
   </style>
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2137,21 +2151,20 @@
       </div>
       <div id="coutDetailStandalone"></div>
     </div>
-    <details class="train-compare" id="trainCompare">
-      <summary>Et en train ?</summary>
-      <form id="trainForm">
-        <p id="trainRoute"></p>
-        <p><strong>Quand partez-vous ?</strong></p>
-        <div class="train-dates">
-          <label>Aller<input id="trainOut" type="date" required></label>
-          <label id="trainBackLabel" hidden>Retour<input id="trainBack" type="date" disabled required></label>
-          <button class="account-send" type="submit">Voir les trains sur SNCF Connect</button>
-        </div>
-      </form>
-    </details>
-    <!-- Préconisations par tronçon (trajets à étapes) : rempli en arrière-plan
-         par analyserTronconsSansPeage() après l'affichage des résultats. -->
-    <div class="leg-advice" id="legAdvice" style="display:none;"></div>
+    <div class="trip-questions">
+      <details class="leg-advice" id="legAdvice" style="display:none;" open></details>
+      <details id="trainCompare">
+        <summary>Et en train ?</summary>
+        <form id="trainForm">
+          <p id="trainRoute"></p>
+          <div class="train-dates">
+            <label>Date d’aller<input id="trainOut" type="date" required></label>
+            <label id="trainBackLabel" hidden>Date de retour<input id="trainBack" type="date" disabled required></label>
+          </div>
+          <button class="train-search" type="submit">Voir les trains sur SNCF Connect <span aria-hidden="true">↗</span></button>
+        </form>
+      </details>
+    </div>
     <div class="maps-wrap" style="display:flex;justify-content:center;">
       <a class="maps-link" id="vinciLink" href="#" target="_blank"
          style="width:220px !important;height:38px;display:none;align-items:center;justify-content:center;gap:8px;background:#eef7ee;color:#2e7d32;box-sizing:border-box;">
@@ -6454,7 +6467,7 @@ async function analyserTronconsSansPeage(coords, lieux, apiKey, conso) {
   if (!bloc || lieux.length < 3) { if (bloc) bloc.style.display = 'none'; return; }
 
   bloc.style.display = 'block';
-  bloc.innerHTML = '<div class="leg-advice-title">Éviter les péages, tronçon par tronçon ?</div>'
+  bloc.innerHTML = '<summary>Éviter les péages, tronçon par tronçon ?</summary>'
     + '<div class="leg-advice-loading">Analyse des tronçons en cours…</div>';
 
   const memeTrace = (a, b) => Math.abs(a.distanceKm - b.distanceKm) < 1 && Math.abs(a.dureeSec - b.dureeSec) < 90;
@@ -6502,14 +6515,14 @@ async function analyserTronconsSansPeage(coords, lieux, apiKey, conso) {
     // on le dit plutôt que de masquer tout le bloc (silence ambigu entre
     // "pas de péage sur ce trajet" et "péage(s) mais pas rentable à éviter").
     if (unPeageDetecte) {
-      bloc.innerHTML = '<div class="leg-advice-title">Éviter les péages, tronçon par tronçon ?</div>'
+      bloc.innerHTML = '<summary>Éviter les péages, tronçon par tronçon ?</summary>'
         + '<div class="leg-advice-empty">Éviter le(s) péage(s) ferait perdre plus de temps que d\'argent économisé sur ce trajet.</div>';
     } else {
       bloc.style.display = 'none';
     }
     return;
   }
-  bloc.innerHTML = '<div class="leg-advice-title">Éviter les péages, tronçon par tronçon ?</div>';
+  bloc.innerHTML = '<summary>Éviter les péages, tronçon par tronçon ?</summary>';
   rows.forEach(r => {
     const row = document.createElement('div');
     row.className = 'leg-advice-row';
@@ -6559,13 +6572,13 @@ function afficherRentabiliteSimple(routeRapide, routeZero, coutPeage, conso, dep
   const pasRentable = economie <= 0.5 || eurParH < SEUIL_RENTABLE_EUR_PAR_H || detourSec > detourMaxSec(routeRapide.dureeSec);
   if (pasRentable) {
     bloc.style.display = 'block';
-    bloc.innerHTML = '<div class="leg-advice-title">Éviter le péage ?</div>'
+    bloc.innerHTML = '<summary>Éviter les péages ?</summary>'
       + '<div class="leg-advice-empty">Éviter le péage ferait perdre plus de temps que d\'argent économisé sur ce trajet.</div>';
     return;
   }
 
   bloc.style.display = 'block';
-  bloc.innerHTML = '<div class="leg-advice-title">Éviter le péage ?</div>';
+  bloc.innerHTML = '<summary>Éviter les péages ?</summary>';
   const row = document.createElement('div');
   row.className = 'leg-advice-row';
   const mid = document.createElement('span');
