@@ -420,8 +420,7 @@
       border-color: #e2971a;
       color: #fff;
     }
-    /* Bloc lieu (onglet station) : "position actuelle" à gauche, "France entière" à droite. */
-    .lieu-controls { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .lieu-controls { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
     .station-reset { display: block; margin: 10px auto 0; }
     #stationPosStatus { white-space: normal; }
     #cheapestNoteStation { margin: 0; }
@@ -2226,7 +2225,7 @@
 
       <div class="station-fields">
         <div class="section">
-          <div class="param-row point-row">
+          <div class="param-row point-row has-geoloc">
             <div class="param-label">Lieu</div>
             <div class="param-input">
               <div class="autocomplete-wrap">
@@ -2234,14 +2233,14 @@
                 <button type="button" class="clear-address" aria-label="Effacer le lieu" onclick="effacerAdresse(this)">×</button>
                 <div class="autocomplete-list"></div>
               </div>
+              <button type="button" class="geoloc-btn" title="Utiliser ma position actuelle" aria-label="Utiliser ma position actuelle" onclick="utiliserPositionActuelle()"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8.94 3A8.99 8.99 0 0 0 13 3.06V1h-2v2.06A8.99 8.99 0 0 0 3.06 11H1v2h2.06A8.99 8.99 0 0 0 11 20.94V23h2v-2.06A8.99 8.99 0 0 0 20.94 13H23v-2h-2.06ZM12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg></button>
               <button type="button" class="fav-star" title="Enregistrer en favori" onclick="toggleFavPlace(document.getElementById('stationAdresse').value, this)">☆</button>
             </div>
           </div>
           <div class="lieu-controls">
-            <button type="button" class="link-btn" onclick="utiliserPositionActuelle()"> Utiliser ma position actuelle</button>
             <button type="button" class="link-btn" id="franceEntiereBtn" onclick="toggleFranceEntiere()">France entière 🇫🇷</button>
           </div>
-          <div class="prix-actuel" id="stationPosStatus"></div>
+          <div class="prix-actuel" id="stationPosStatus" role="status"></div>
         </div>
         <div class="section section-carburant">
           <div class="param-row carburant-row">
