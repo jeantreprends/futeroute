@@ -1868,7 +1868,7 @@
       border: solid #60788d; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
     }
     .trip-questions details[open] > summary::after { transform: rotate(225deg); }
-    .trip-questions summary:hover, .train-search:hover { color: #1769c2; }
+    .trip-questions summary:hover, .travel-links a:hover { color: #1769c2; }
     .trip-questions :is(summary,input,button):focus-visible { outline: 2px solid #1667b1; outline-offset: 2px; }
     .trip-questions .leg-advice[open] { padding-bottom: 8px; }
     #trainRoute { color: #52677a; font-size: 13px; margin: 0 0 12px; }
@@ -1880,7 +1880,12 @@
       box-sizing: border-box; padding: 7px 9px; border: 1px solid #c9d8e8;
       border-radius: var(--rayon-commande); background: #f6f9fe;
     }
-    .train-search { min-height: 44px; border: 0; background: transparent; padding: 0; color: #205e96; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .travel-links { display: grid; margin-top: 10px; }
+    .travel-links a { display: flex; gap: 8px; align-items: center; justify-content: space-between; min-height: 44px; color: #205e96; text-decoration: none; font-size: 14px; font-weight: 600; }
+    .travel-links a + a { border-top: 1px solid #e6edf4; }
+    .travel-links a span { font-weight: 400; color: #536b80; font-size: 13px; }
+    .travel-links a[aria-disabled="true"] { opacity: .65; }
+
   </style>
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2154,14 +2159,18 @@
     <div class="trip-questions">
       <details class="leg-advice" id="legAdvice" style="display:none;" open></details>
       <details id="trainCompare">
-        <summary>Et en train ?</summary>
+        <summary>Autres options de trajet</summary>
         <form id="trainForm">
           <p id="trainRoute"></p>
           <div class="train-dates">
             <label>Date d’aller<input id="trainOut" type="date" required></label>
             <label id="trainBackLabel" hidden>Date de retour<input id="trainBack" type="date" disabled required></label>
           </div>
-          <button class="train-search" type="submit">Voir les trains sur SNCF Connect <span aria-hidden="true">↗</span></button>
+          <div class="travel-links">
+            <a id="travelTrain" target="_blank" rel="noopener noreferrer">Train <span>SNCF Connect ↗</span></a>
+            <a id="travelCarpool" target="_blank" rel="noopener noreferrer">Covoiturage <span>BlaBlaCar ↗</span></a>
+            <a id="travelBus" target="_blank" rel="noopener noreferrer">Bus <span>BlaBlaCar Bus ↗</span></a>
+          </div>
         </form>
       </details>
     </div>
@@ -5976,6 +5985,7 @@ function syncTrainDates() {
   trainBack.min = trainOut.value >= today ? trainOut.value : today;
   trainBack.disabled = resultMode !== 'ar';
   document.getElementById('trainBackLabel').hidden = trainBack.disabled;
+  updateTravelLinks();
 }
 
 function prepareTrainCompare(depart, arrivee) {
@@ -5990,8 +6000,25 @@ trainCompare.addEventListener('toggle', () => { if (trainCompare.open) syncTrain
 trainOut.addEventListener('input', () => {
   trainBack.min = trainOut.value || trainOut.min;
 });
-document.getElementById('trainForm').addEventListener('submit', event => {
-  event.preventDefault();
+document.getElementById('trainForm').addEventListener('input', updateTravelLinks);
+document.getElementById('trainForm').addEventListener('submit', event => event.preventDefault());
+
+function updateTravelLinks() {
+  const setLink = (id, url) => {
+    const link = document.getElementById(id);
+    if (url) link.href = url;
+    else link.removeAttribute('href');
+    link.setAttribute('aria-disabled', String(!url));
+  };
+  const validOut = trainCities.length === 2 && trainOut.validity.valid;
+  for (const [id, type] of [['travelCarpool', 'CARPOOLING'], ['travelBus', 'BUS']]) {
+    const params = new URLSearchParams({ fn: trainCities[0], tn: trainCities[1], db: trainOut.value, transport_type: type });
+    setLink(id, validOut && 'https://www.blablacar.fr/search?' + params);
+  }
+  if (!validOut || (!trainBack.disabled && !trainBack.validity.valid)) {
+    setLink('travelTrain', null);
+    return;
+  }
   const dateFr = iso => {
     const [year, month, day] = iso.split('-').map(Number);
     const date = new Date(year, month - 1, day);
@@ -6004,8 +6031,8 @@ document.getElementById('trainForm').addEventListener('submit', event => {
   if (!trainBack.disabled) demande += ', retour le ' + dateFr(trainBack.value);
   demande += ', ' + nbPassagers + ' voyageur' + (nbPassagers > 1 ? 's' : '');
   const url = 'https://www.sncf-connect.com/home/search?userInput=' + encodeURIComponent(demande);
-  window.open(url, '_blank', 'noopener,noreferrer');
-});
+  setLink('travelTrain', url);
+}
 
 function setResultMode(mode) {
   resultMode = mode;
@@ -6107,6 +6134,7 @@ function buildNavInline(routeKey) {
 // veut pas le ressaisir à chaque calcul.
 function setNbPassagers(n) {
   nbPassagers = Math.min(NB_PASSAGERS_MAX, Math.max(1, n));
+  updateTravelLinks();
   try { localStorage.setItem(NB_PASSAGERS_KEY, String(nbPassagers)); } catch (e) {}
   // Réaffiche les résultats : seul le partage change, aucun recalcul d'API.
   if (lastResultData) renderResultMode();
