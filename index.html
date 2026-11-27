@@ -1861,7 +1861,17 @@
       min-height: 44px; list-style: none; cursor: pointer;
       color: #1e344c; font-size: 14px; font-weight: 700;
     }
-    .trip-questions:not(:has(> details[open])) > details > summary { min-height: 32px; }
+    #trainCompare > summary {
+      display: inline-flex; min-height: 38px; padding: 0 12px;
+      border-radius: var(--rayon-commande); background: #eef5fc; color: #205e96;
+    }
+    #trainCompare[open] > summary { margin-bottom: 10px; }
+    .route-row.has-toll-badge { position: relative; margin-top: 10px; }
+    .toll-badge { position: absolute; top: -11px; right: 12px; transform: rotate(-5deg);
+      background: #e8f5e9; border: 1px solid #a6cbaa; border-radius: 5px; padding: 2px 7px;
+      color: #276b32; font-size: 11px; line-height: 1.25; font-weight: 700; }
+    .toll-verdict, #sectionResultats .leg-advice { margin: 10px 0 0; padding: 0; border: 0;
+      background: transparent; color: #52677a; font-size: 13px; line-height: 1.45; }
     .trip-questions summary::-webkit-details-marker { display: none; }
     .trip-questions summary::after {
       content: ''; width: 7px; height: 7px; margin-right: 4px;
@@ -1870,7 +1880,6 @@
     .trip-questions details[open] > summary::after { transform: rotate(225deg); }
     .trip-questions summary:hover, .travel-links a:hover { color: #1769c2; }
     .trip-questions :is(summary,input,button):focus-visible { outline: 2px solid #1667b1; outline-offset: 2px; }
-    .trip-questions .leg-advice[open] { padding-bottom: 8px; }
     #trainRoute { color: #52677a; font-size: 13px; margin: 0 0 12px; }
     .train-dates { display: flex; flex-wrap: wrap; gap: 2px 18px; }
     .train-dates label {
@@ -2174,7 +2183,7 @@
       <div id="coutDetailStandalone"></div>
     </div>
     <div class="trip-questions">
-      <details class="leg-advice" id="legAdvice" style="display:none;"></details>
+      <div class="leg-advice" id="legAdvice" style="display:none;"></div>
       <details id="trainCompare">
         <summary>Autres options de trajet</summary>
         <form id="trainForm">
@@ -6295,6 +6304,9 @@ function renderRouteOptions() {
   const wrap = document.getElementById('routeOptions');
   const fallback = document.getElementById('routeNavRow');
   if (!wrap) return;
+  const legAdvice = document.getElementById('legAdvice');
+  // Conserve le résultat de l’analyse asynchrone lors du remplacement des fiches.
+  document.getElementById('trainCompare').before(legAdvice);
   wrap.textContent = '';
   const opts = routeOptionsData;
   const nbOptions = opts ? Object.keys(opts).length : 0;
@@ -6405,6 +6417,10 @@ function renderRouteOptions() {
       row.appendChild(buildPartageFrais(o, resultMode === 'ar'));
     }
 
+    if (key === 'zero') {
+      appendTollVerdict(row, ref, o, f);
+      row.appendChild(legAdvice);
+    }
     wrap.appendChild(row);
   }
 }
@@ -6497,7 +6513,9 @@ function buildRentabiliteInfo(mentionAllerSimple) {
     + SEUIL_RENTABLE_EUR_PAR_H + ' € par heure de détour (le péage évité, moins le carburant en plus à cause du détour). '
     + 'Le détour doit aussi rester raisonnable par rapport à la durée du trajet : jusqu\'à 50 % de temps en plus toléré sur un trajet court, seulement 25 % sur un trajet long.'
     + (mentionAllerSimple ? ' Valeurs en aller simple.' : '');
-  toggle.addEventListener('click', () => {
+  toggle.addEventListener('keydown', e => e.stopPropagation());
+  toggle.addEventListener('click', e => {
+    e.stopPropagation();
     texte.style.display = texte.style.display === 'none' ? 'block' : 'none';
   });
   wrap.appendChild(toggle);
@@ -6512,7 +6530,7 @@ async function analyserTronconsSansPeage(coords, lieux, apiKey, conso) {
   if (!bloc || lieux.length < 3) { if (bloc) bloc.style.display = 'none'; return; }
 
   bloc.style.display = 'block';
-  bloc.innerHTML = '<summary>Éviter les péages, tronçon par tronçon ?</summary>'
+  bloc.innerHTML = '<div class="leg-advice-title">Détail par tronçon</div>'
     + '<div class="leg-advice-loading">Analyse des tronçons en cours…</div>';
 
   const memeTrace = (a, b) => Math.abs(a.distanceKm - b.distanceKm) < 1 && Math.abs(a.dureeSec - b.dureeSec) < 90;
@@ -6560,14 +6578,14 @@ async function analyserTronconsSansPeage(coords, lieux, apiKey, conso) {
     // on le dit plutôt que de masquer tout le bloc (silence ambigu entre
     // "pas de péage sur ce trajet" et "péage(s) mais pas rentable à éviter").
     if (unPeageDetecte) {
-      bloc.innerHTML = '<summary>Éviter les péages, tronçon par tronçon ?</summary>'
+      bloc.innerHTML = '<div class="leg-advice-title">Détail par tronçon</div>'
         + '<div class="leg-advice-empty">Éviter le(s) péage(s) ferait perdre plus de temps que d\'argent économisé sur ce trajet.</div>';
     } else {
       bloc.style.display = 'none';
     }
     return;
   }
-  bloc.innerHTML = '<summary>Éviter les péages, tronçon par tronçon ?</summary>';
+  bloc.innerHTML = '<div class="leg-advice-title">Détail par tronçon</div>';
   rows.forEach(r => {
     const row = document.createElement('div');
     row.className = 'leg-advice-row';
@@ -6595,59 +6613,26 @@ async function analyserTronconsSansPeage(coords, lieux, apiKey, conso) {
   bloc.appendChild(buildRentabiliteInfo(true));
 }
 
-// --- Même verdict de rentabilité, pour un trajet simple (départ → arrivée
-// sans étape) : les deux itinéraires (rapide et zéro péage) et le prix du
-// péage sont déjà calculés dans calculer(), pas besoin de requête
-// supplémentaire ni de découpage par tronçon. ---
-function afficherRentabiliteSimple(routeRapide, routeZero, coutPeage, conso, depart, arrivee) {
-  const bloc = document.getElementById('legAdvice');
-  const memeTrace = (a, b) => Math.abs(a.distanceKm - b.distanceKm) < 1 && Math.abs(a.dureeSec - b.dureeSec) < 90;
-  if (!routeZero || memeTrace(routeZero, routeRapide) || typeof coutPeage !== 'number' || coutPeage <= 0) {
-    bloc.style.display = 'none';
-    return;
+function appendTollVerdict(row, rapide, zero, facteur) {
+  if (!(rapide.coutPeage > 0)) return;
+  const economie = rapide.coutPeage + rapide.coutA - zero.coutA;
+  const detour = Math.max(0, zero.dureeSec - rapide.dureeSec);
+  const rentable = economie > 0.5 && detour <= detourMaxSec(rapide.dureeSec)
+    && (detour < 60 || economie / (detour / 3600) >= SEUIL_RENTABLE_EUR_PAR_H);
+  const conseil = document.createElement('p');
+  conseil.className = 'toll-verdict';
+  if (rentable) {
+    const badge = document.createElement('span');
+    badge.className = 'toll-badge';
+    badge.textContent = 'Rentable';
+    row.classList.add('has-toll-badge');
+    row.appendChild(badge);
+    conseil.textContent = 'Éviter le péage vous fait économiser ' + fmtEur(economie * facteur)
+      + (detour < 60 ? ' quasiment sans détour.' : ' pour ' + formatDuree(detour * facteur) + ' de route en plus.');
+  } else {
+    conseil.textContent = "Éviter le péage vous ferait perdre plus de temps que d'argent économisé sur ce trajet.";
   }
-  const surcoutCarb = (routeZero.distanceKm - routeRapide.distanceKm) * conso / 100 * (prixCarburantUtilise() || 0);
-  const economie = coutPeage - surcoutCarb;
-  const detourSec = Math.max(0, routeZero.dureeSec - routeRapide.dureeSec);
-  const eurParH = detourSec >= 60 ? economie / (detourSec / 3600) : Infinity;
-  // Un péage existe mais n'est pas assez rentable à éviter (économie trop
-  // faible, ratio €/h trop bas, ou détour trop long dans l'absolu, voir
-  // détourMaxSec ci-dessus) : on le dit plutôt que de masquer tout le bloc,
-  // pour ne pas laisser croire qu'il n'y a simplement pas de péage.
-  const pasRentable = economie <= 0.5 || eurParH < SEUIL_RENTABLE_EUR_PAR_H || detourSec > detourMaxSec(routeRapide.dureeSec);
-  if (pasRentable) {
-    bloc.style.display = 'block';
-    bloc.innerHTML = '<summary>Éviter les péages ?</summary>'
-      + '<div class="leg-advice-empty">Éviter le péage vous ferait perdre plus de temps que d\'argent économisé sur ce trajet.</div>';
-    return;
-  }
-
-  bloc.style.display = 'block';
-  bloc.innerHTML = '<summary>Éviter les péages ?</summary>';
-  const row = document.createElement('div');
-  row.className = 'leg-advice-row';
-  const mid = document.createElement('span');
-  mid.className = 'leg-mid';
-  const noms = document.createElement('span');
-  noms.className = 'leg-noms';
-  noms.textContent = (depart || '').split(',')[0].trim() + ' → ' + (arrivee || '').split(',')[0].trim();
-  mid.appendChild(noms);
-  const detail = document.createElement('span');
-  detail.className = 'leg-detail';
-  const detourTxt = detourSec >= 60 ? '+' + formatDuree(detourSec) + ' pour ' : 'quasiment sans détour, ';
-  const strong = document.createElement('strong');
-  strong.textContent = fmtEur(economie) + ' économisés';
-  detail.appendChild(document.createTextNode('Sans péage : ' + detourTxt));
-  detail.appendChild(strong);
-  mid.appendChild(detail);
-  row.appendChild(mid);
-  const badge = document.createElement('span');
-  badge.className = 'leg-badge ok';
-  badge.textContent = 'Rentable';
-  row.appendChild(badge);
-  bloc.appendChild(row);
-
-  bloc.appendChild(buildRentabiliteInfo(false));
+  row.appendChild(conseil);
 }
 
 async function calculer() {
@@ -6766,6 +6751,12 @@ async function calculer() {
       zero.coutPeage = 0;
       zero.mapsUrl = mapsBase + '&avoid=tolls';
       if (zero.coutA < totalRapide - 0.5) options.zero = zero;
+      else if (lieux.length === 2) {
+        const advice = document.getElementById('legAdvice');
+        advice.replaceChildren();
+        appendTollVerdict(advice, rapide, zero, 1);
+        advice.style.display = 'block';
+      }
     }
 
     routeOptionsData = options;
@@ -6816,11 +6807,8 @@ async function calculer() {
     // itinéraires étant déjà calculés ci-dessus (pas de requête en plus).
     if (multiEtapes) {
       analyserTronconsSansPeage(coords, lieux, apiKey, conso);
-    } else {
-      afficherRentabiliteSimple(routeRapide, routeZero, rapide.coutPeage, conso, depart, arrivee);
     }
 
-    document.getElementById('legAdvice').open = false;
     prepareTrainCompare(depart, arrivee);
     document.getElementById('sectionResultats').style.display = 'block';
     document.querySelector('.page').classList.add('has-results');
