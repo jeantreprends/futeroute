@@ -112,7 +112,8 @@
   {
     "slug": "lyon-geneve",
     "depart": "Lyon",
-    "arrivee": "Genève"
+    "arrivee": "Genève",
+    "arriveeGps": "46.2017559, 6.1466014"
   },
   {
     "slug": "bordeaux-toulouse",

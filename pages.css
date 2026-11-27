@@ -89,17 +89,34 @@ details p { color: var(--secondaire); margin: 0 0 14px; }
 .breadcrumb, .maj, .src-note { font-size: .8rem; color: var(--secondaire); }
 .breadcrumb { margin-bottom: 12px; }
 .maj { margin-top: 5px; }
-.chiffres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.chiffres + .chiffres { margin-top: 8px; }
-.chip { padding: 9px 12px; border: 1px solid #d5e0eb; border-radius: var(--rayon-commande); }
-.chip-label { font-size: .8rem; color: var(--secondaire); }
-.chip-value, .total { font-variant-numeric: tabular-nums; color: var(--titre); font-weight: 700; }
-.chip-value { font-size: 1.05rem; }
-.total { font-size: clamp(1.5rem, 4vw, 1.85rem); color: var(--bleu); }
-.bilan { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--separateur); }
-.verdict { padding: 8px 12px; margin-top: 10px; border-left: 3px solid; border-radius: 0 8px 8px 0; font-size: .9rem; }
-.verdict.eco { background: #eff7f0; color: #276b32; }
-.verdict.non-eco { background: #fff8e9; color: #755116; }
+.decision { border-top: 4px solid var(--bleu); }
+.decision > p, .lecture > p, .lecture > h3 { margin-top: 12px; }
+.mesures {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--separateur); border: 1px solid var(--separateur);
+  border-radius: var(--rayon-commande); overflow: hidden; margin: 16px 0 0;
+}
+.mesures div { display: flex; flex-direction: column; justify-content: space-between; background: #f4f8fc; padding: 12px; }
+.mesures dt { font-size: .85rem; color: var(--secondaire); }
+.mesures dd { margin: 4px 0 0; color: var(--titre); font-weight: 700; font-size: 1.15rem; }
+.mesures, .table-trajet, .classement { font-variant-numeric: tabular-nums; }
+.table-trajet, .classement { width: 100%; border-collapse: collapse; margin-top: 12px; }
+caption { text-align: left; color: var(--secondaire); font-size: .9rem; padding-bottom: 8px; }
+th, td { padding: 8px; border-bottom: 1px solid var(--separateur); text-align: right; }
+th:first-child { text-align: left; }
+thead { background: #eef5fc; color: var(--titre); }
+.table-trajet tbody tr:last-child, .classement td:last-child { font-weight: 700; color: var(--titre); }
+.src-note h3 { font-size: .95rem; }
+.src-note p { margin-top: 5px; }
+@media (max-width: 520px) {
+  .mesures { grid-template-columns: 1fr; }
+  .mesures div { flex-direction: row; align-items: baseline; gap: 12px; padding: 7px 10px; }
+  .mesures dd { margin: 0; text-align: right; }
+  .table-trajet, .classement { font-size: .83rem; }
+  th, td { padding: 7px 3px; }
+  .classement { table-layout: fixed; overflow-wrap: anywhere; }
+  .classement th:first-child { width: 32%; }
+}
 .card .cta { margin-top: 16px; }
 .src-note { margin-top: 12px; }
 .related, .annuaire {
