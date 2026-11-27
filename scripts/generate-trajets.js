@@ -31,7 +31,9 @@ function fmtEur(n) {
   return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 }
 function fmtDuree(sec) {
-  const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60);
+  if (sec > 0 && sec < 60) return 'moins de 1 min';
+  const minutes = Math.round(sec / 60);
+  const h = Math.floor(minutes / 60), m = minutes % 60;
   return h > 0 ? `${h} h ${m > 0 ? m + ' min' : ''}`.trim() : `${m} min`;
 }
 function fmtKm(n) {
@@ -102,7 +104,7 @@ async function calculerTrajet(browser, depart, arrivee) {
           && errorEl.textContent.trim().length > 0;
         return dataReady || calculationFailed;
       },
-      { timeout: CALCUL_TIMEOUT_MS },
+      null, { timeout: CALCUL_TIMEOUT_MS },
     );
 
     const result = await page.evaluate(() => {
@@ -115,7 +117,7 @@ async function calculerTrajet(browser, depart, arrivee) {
         return { error: errorEl && errorEl.textContent.trim() || 'Calcul interrompu sans résultat.' };
       }
       const r = routeOptionsData.rapide;
-      const z = routeOptionsData.zero || null;
+      const z = r.alternativeSansPeage;
       return {
         data: {
           distanceKm: r.distA,
@@ -143,13 +145,80 @@ async function calculerTrajet(browser, depart, arrivee) {
   }
 }
 
-function verdictSansPeages(rapide, zero, totalRapide) {
-  if (!zero || totalRapide === null || rapide.coutPeage === 0) return null;
-  const totalZero = zero.coutCarburant;
-  const dE = totalRapide - totalZero;
-  const dT = zero.dureeSec - rapide.dureeSec;
-  if (dE <= 0.5) return { rentable: false, texte: `Éviter les péages ne fait pas économiser sur ce trajet (${fmtEur(Math.abs(dE))} de différence, pour ${fmtDuree(Math.abs(dT))} de plus) : autant prendre l'autoroute.` };
-  return { rentable: true, dE, dT, texte: `Éviter les péages fait économiser ${fmtEur(dE)}, au prix de ${fmtDuree(dT)} de trajet en plus.` };
+const PAGE_COMPARATIF = 'comparatif-sans-peages.html';
+
+function comparaisonPeages(r) {
+  const centimes = montant => Math.round(montant * 100);
+  const connu = n => Number.isFinite(n) && n >= 0;
+  const totalRapide = connu(r.coutPeage) && connu(r.coutCarburant)
+    ? (centimes(r.coutCarburant) + centimes(r.coutPeage)) / 100 : null;
+  // Quand le rapide est gratuit, on peut le garder pour rouler sans péages.
+  const sans = r.coutPeage === 0 ? r : r.zero;
+  const totalSans = sans && connu(sans.coutCarburant) ? centimes(sans.coutCarburant) / 100 : null;
+  const gain = totalRapide !== null && totalSans !== null
+    ? (centimes(totalRapide) - centimes(totalSans)) / 100 : null;
+  const detour = sans && connu(sans.dureeSec) && connu(r.dureeSec) ? sans.dureeSec - r.dureeSec : null;
+  const taux = gain !== null && detour > 0 ? gain * 3600 / detour : null;
+
+  let texte;
+  if (r.coutPeage === 0) texte = 'Le trajet le plus rapide est déjà sans péage. Vous pouvez le garder au même coût et avec la même durée.';
+  else if (totalRapide === null) texte = 'Le tarif des péages est inconnu. L’économie éventuelle reste à chiffrer.';
+  else if (gain === null) texte = 'Le coût de l’itinéraire sans péage n’est pas disponible pour cette comparaison.';
+  else {
+    const budget = gain > 0 ? `Éviter les péages fait économiser ${fmtEur(gain)}`
+      : gain < 0 ? `L’itinéraire sans péages coûte ${fmtEur(-gain)} de plus` : 'Les deux itinéraires coûtent le même prix';
+    const temps = detour === null ? 'La durée du détour est inconnue.'
+      : detour > 0 ? `Comptez ${fmtDuree(detour)} de route en plus.`
+      : detour < 0 ? `Vous arrivez ${fmtDuree(-detour)} plus tôt.` : 'La durée est identique.';
+    texte = `${budget}. ${temps}`;
+  }
+  return { sans, totalRapide, totalSans, gain, detour, taux, texte };
+}
+
+function montant(n) {
+  return Number.isFinite(n) ? fmtEur(n) : 'Indisponible';
+}
+function dureeDetour(sec) {
+  if (sec === null) return 'Indisponible';
+  if (sec < 0) return `${fmtDuree(-sec)} de moins`;
+  return fmtDuree(sec);
+}
+function tauxHoraire(n) {
+  return fmtEur(n) + '/h';
+}
+
+const SOURCE_CARBURANT = '<a href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/">prix des carburants du ministère de l’Économie</a>';
+const SOURCE_ROUTE = '<a href="https://openrouteservice.org/">OpenRouteService</a> sur les données © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const SOURCE_VINCI = '<a href="https://www.vinci-autoroutes.com/fr/mon-trajet/">VINCI Autoroutes</a>';
+const SOURCE_MICHELIN = '<a href="https://www.viamichelin.fr/itineraires">ViaMichelin</a>';
+
+function sourcePeage(r) {
+  if (r.peageSource === 'vinci') return `Tarif de classe 1 fourni par ${SOURCE_VINCI}.`;
+  if (r.peageSource === 'viamichelin') return `Tarif de classe 1 fourni par ${SOURCE_MICHELIN}.`;
+  if (r.coutPeage === 0) return 'Le calculateur identifie un trajet rapide sans péage.';
+  if (!(Number.isFinite(r.coutPeage) && r.coutPeage >= 0)) return 'Aucun tarif de péage confirmé pour le trajet rapide.';
+  return `Le fournisseur du tarif de classe 1 n’est pas précisé dans ce relevé. Vérification possible sur ${SOURCE_VINCI} ou ${SOURCE_MICHELIN}.`;
+}
+
+function tableauTrajet(r, c) {
+  const { sans } = c;
+  const km = n => Number.isFinite(n) ? fmtKm(n) : 'Indisponible';
+  const duree = n => Number.isFinite(n) ? fmtDuree(n) : 'Indisponible';
+  const lignes = [
+    ['Distance', km(r.distanceKm), km(sans?.distanceKm)],
+    ['Durée', duree(r.dureeSec), duree(sans?.dureeSec)],
+    ['Carburant', montant(r.coutCarburant), montant(sans?.coutCarburant)],
+    ['Péages', c.totalRapide === null ? 'Tarif inconnu' : montant(r.coutPeage), sans ? fmtEur(0) : 'Indisponible'],
+    ['Total', montant(c.totalRapide), montant(c.totalSans)],
+  ];
+  return `<table class="table-trajet"><caption>Coût et durée pour un aller simple</caption>
+    <thead><tr><th scope="col">Parcours</th><th scope="col">${r.coutPeage > 0 ? 'Avec péages' : 'Rapide'}</th><th scope="col">Sans péages</th></tr></thead>
+    <tbody>${lignes.map(([nom, rapide, alternatif]) => `<tr><th scope="row">${nom}</th><td>${rapide}</td><td>${alternatif}</td></tr>`).join('\n')}</tbody>
+  </table>`;
+}
+
+function dateReleve() {
+  return new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' });
 }
 
 // Liens internes : autres trajets partageant une ville (départ ou arrivée)
@@ -183,31 +252,26 @@ function renderHeader(annuaire) {
 </header>`;
 }
 
-function renderPage(t, r, all) {
-  const title = `Trajet ${t.depart} → ${t.arrivee} : coût, péages, faut-il éviter l'autoroute ? | Futéroute`;
-  const peageConnu = Number.isFinite(r.coutPeage) && r.coutPeage >= 0;
-  const totalRapide = peageConnu ? r.coutCarburant + r.coutPeage : null;
+function renderPage(t, r, all, dateMaj = dateReleve()) {
+  const title = `${t.depart} → ${t.arrivee} en voiture : coût avec et sans péages | Futéroute`;
+  const c = comparaisonPeages(r);
+  const peageConnu = c.totalRapide !== null;
   const carburant = fmtEur(r.coutCarburant);
-  const prixAffiche = peageConnu ? fmtEur(totalRapide) : `${carburant} de carburant`;
-  const verdict = verdictSansPeages(r, r.zero, totalRapide);
-  const dateMaj = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-  const appUrl = `${SITE_URL}/index.html?from=${encodeURIComponent(t.depart)}&to=${encodeURIComponent(t.arrivee)}`;
-
-  let comparaison = 'Le tarif des péages est inconnu. Impossible de chiffrer l’économie éventuelle.';
-  if (verdict) comparaison = verdict.texte;
-  else if (r.coutPeage === 0) comparaison = 'Le trajet le plus rapide est déjà sans péage.';
-  else if (peageConnu) comparaison = 'Le coût de l’itinéraire sans péage n’est pas disponible pour cette comparaison.';
+  const prixLitre = r.distanceKm > 0 ? r.coutCarburant / (r.distanceKm * 6.6 / 100) : null;
+  const prixAffiche = peageConnu ? fmtEur(c.totalRapide) : `${carburant} de carburant`;
+  const appUrl = `/?from=${encodeURIComponent(t.depart)}&amp;to=${encodeURIComponent(t.arriveeGps || t.arrivee)}`;
+  const description = `${t.depart} → ${t.arrivee} : ${prixAffiche}${peageConnu ? ' pour le trajet rapide' : ' (hors péages, tarif inconnu)'}. ${c.texte}${c.taux !== null ? ' Soit ' + tauxHoraire(c.taux) + ' de détour.' : ''}`;
   const trajet = `pour ${fmtKm(r.distanceKm)}, soit ${fmtDuree(r.dureeSec)} de route.`;
   const questions = [
     {
       q: `Combien coûte le trajet ${t.depart} - ${t.arrivee} en voiture ?`,
       a: peageConnu
-        ? `Comptez environ ${prixAffiche} (carburant + péages, base SP95 à 6,6 L/100 km) ${trajet} Les péages représentent ${fmtEur(r.coutPeage)} de ce total.`
-        : `Comptez environ ${prixAffiche} (SP95 à 6,6 L/100 km) ${trajet} Le tarif des péages est inconnu.`,
+        ? `Comptez environ ${prixAffiche} (carburant + péages, base SP95-E10 à 6,6 L/100 km) ${trajet} Les péages représentent ${fmtEur(r.coutPeage)} de ce total.`
+        : `Comptez environ ${prixAffiche} (SP95-E10 à 6,6 L/100 km) ${trajet} Le tarif des péages est inconnu.`,
     },
     {
       q: `Vaut-il le coup d'éviter les péages entre ${t.depart} et ${t.arrivee} ?`,
-      a: comparaison,
+      a: c.texte,
     },
   ];
   const faq = questions.map(f => `<details class="faq-item"><summary>${f.q}</summary><p>${f.a}</p></details>`).join('\n');
@@ -245,7 +309,7 @@ function renderPage(t, r, all) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title}</title>
-<meta name="description" content="${t.depart} → ${t.arrivee} : ${prixAffiche}${peageConnu ? ' (carburant + péages)' : ' (hors péages, tarif inconnu)'}, ${fmtKm(r.distanceKm)}, ${fmtDuree(r.dureeSec)}.${verdict ? ' ' + verdict.texte : ''} Chiffres mis à jour le ${dateMaj}.">
+<meta name="description" content="${description}">
 <link rel="canonical" href="${SITE_URL}/trajets/${t.slug}.html">
 <meta property="og:title" content="${t.depart} → ${t.arrivee} : ${prixAffiche}${peageConnu ? '' : ' (hors péages)'}">
 <meta property="og:type" content="article">
@@ -263,22 +327,28 @@ ${renderHeader(false)}
   <h1>${t.depart} → ${t.arrivee} : coût du trajet en voiture</h1>
   <div class="maj">Chiffres mis à jour le ${dateMaj} · estimation, hors trafic</div>
 
-  <div class="card">
-    <div class="bilan">
-      <div class="total">${prixAffiche}${peageConnu ? ' au total' : ' (hors péages)'}</div>
-      ${verdict ? `<div class="verdict ${verdict.rentable ? 'eco' : 'non-eco'}">${verdict.texte}</div>` : ''}
+  <section class="card decision">
+    <h2>Est-ce rentable d’éviter les péages ?</h2>
+    <p>${c.texte}</p>
+${t.slug === 'lyon-geneve' && r.peageSource === 'vinci' ? '<p class="src-note">Le montant VINCI couvre les péages français. Si vous devez acheter la vignette suisse pour cet itinéraire, ajoutez son prix au budget. <a href="https://www.bazg.admin.ch/fr/faq-vignette-et-achat-d-e-vignette">Conditions de la douane suisse</a>.</p>' : ''}
+    <dl class="mesures">
+      <div><dt>${c.gain < 0 ? 'Surcoût net' : 'Économie nette'}</dt><dd>${c.gain === null ? 'Indisponible' : fmtEur(Math.abs(c.gain))}</dd></div>
+      <div><dt>Temps de route en plus</dt><dd>${dureeDetour(c.detour)}</dd></div>
+      <div><dt>Économie par heure de détour</dt><dd>${c.taux !== null ? tauxHoraire(c.taux) : c.detour !== null && c.detour <= 0 ? 'Aucun détour' : 'Indisponible'}</dd></div>
+    </dl>
+    <a class="cta" href="${appUrl}">Recalculer ${t.depart} → ${t.arrivee} avec ma voiture</a>
+  </section>
+
+  <section class="card">
+    <h2>Avec ou sans péages</h2>
+    ${tableauTrajet(r, c)}
+    <div class="src-note"><h3>Sources et hypothèses</h3>
+      <p>Voiture de classe 1, SP95-E10 à 6,6 L/100 km. Le coût du carburant utilise la moyenne nationale du relevé du ${dateMaj}, issue des ${SOURCE_CARBURANT}${prixLitre === null ? '' : `, soit ${prixLitre.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} €/L`}.</p>
+      <p>Distances et durées hors trafic calculées par ${SOURCE_ROUTE}. ${sourcePeage(r)}</p>
+${t.arriveeGps ? `<p>Le point d’arrivée retenu pour ${t.arrivee} est <a href="https://www.openstreetmap.org/search?query=${encodeURIComponent(t.arriveeGps)}">repéré sur la carte</a>.</p>` : ''}
     </div>
-    <div class="chiffres">
-      <div class="chip"><div class="chip-label">Distance</div><div class="chip-value">${fmtKm(r.distanceKm)}</div></div>
-      <div class="chip"><div class="chip-label">Durée</div><div class="chip-value">${fmtDuree(r.dureeSec)}</div></div>
-    </div>
-    <div class="chiffres">
-      <div class="chip"><div class="chip-label">Carburant (SP95)</div><div class="chip-value">${carburant}</div></div>
-      <div class="chip"><div class="chip-label">Péages</div><div class="chip-value">${peageConnu ? fmtEur(r.coutPeage) : 'Tarif inconnu'}</div></div>
-    </div>
-    <a class="cta" href="${appUrl}">Recalculer avec ma voiture (aller-retour, autre carburant, étapes…)</a>
-    <div class="src-note">Carburant : moyenne France, prix du jour (data.gouv.fr). Péages : tarifs officiels des concessionnaires, classe 1 (voiture).</div>
-  </div>
+    <p class="rel-all"><a href="./${PAGE_COMPARATIF}">Sur quels trajets une heure de détour économise-t-elle le plus ?</a></p>
+  </section>
 
   <div class="card">
     <h2 class="rel-title">Questions fréquentes</h2>
@@ -287,6 +357,63 @@ ${renderHeader(false)}
 ${relatedHtml}
   <footer><a href="${SITE_URL}/">← Retour à Futéroute</a></footer>
 </div>
+</body>
+</html>
+`;
+}
+
+function renderComparatif(reussis, dateMaj) {
+  const mesures = reussis.map(t => ({ ...t, ...comparaisonPeages(t.r) }));
+  const avecGain = mesures.filter(t => t.gain > 0 && t.detour !== null);
+  const classement = avecGain.filter(t => t.detour > 0)
+    .sort((a, b) => b.taux - a.taux || b.gain - a.gain || a.slug.localeCompare(b.slug));
+  const sansDetour = avecGain.filter(t => t.detour <= 0).sort((a, b) => b.gain - a.gain);
+  const top = classement.slice(0, 10);
+  const lien = t => `<a href="./${t.slug}.html">${t.depart} → ${t.arrivee}</a>`;
+  const meilleur = top[0];
+  const parGain = [...avecGain].sort((a, b) => b.gain - a.gain || a.detour - b.detour);
+  const court = parGain.find(t => t.detour <= 1800);
+  const gainMax = parGain[0];
+  const titre = 'Sur quels trajets éviter les péages rapporte-t-il le plus par heure de détour ?';
+  const tableau = top.length ? `<table class="classement"><caption>Les ${top.length} meilleurs rapports entre économie et temps de détour</caption>
+    <thead><tr><th scope="col">Trajet</th><th scope="col">Économie nette</th><th scope="col">Détour</th><th scope="col">Économie par heure</th></tr></thead>
+    <tbody>${top.map((t, i) => `<tr><th scope="row">${i + 1}. ${lien(t)}</th><td>${fmtEur(t.gain)}</td><td>${fmtDuree(t.detour)}</td><td>${tauxHoraire(t.taux)}</td></tr>`).join('\n')}</tbody>
+  </table>` : '<p>Aucun trajet de ce relevé ne combine une économie nette et du temps de route en plus.</p>';
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éviter les péages : les meilleurs trajets par heure de détour | Futéroute</title>
+<meta name="description" content="Quels trajets sans péages économisent le plus par heure de route supplémentaire ? Comparez les euros, les minutes et les coûts détaillés du relevé Futéroute.">
+<link rel="canonical" href="${SITE_URL}/trajets/${PAGE_COMPARATIF}">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="/pages.css">
+</head>
+<body>
+<main class="page">
+${renderHeader(false)}
+  <div class="breadcrumb"><a href="/">Futéroute</a> › <a href="./">Trajets</a> › Comparatif sans péages</div>
+  <h1>${titre}</h1>
+  <p class="maj">Relevé du ${dateMaj} · ${reussis.length} trajets étudiés · aller simple, hors trafic</p>
+  <section class="card lecture">
+    <h2>Où le détour rapporte le plus</h2>
+${meilleur ? `<p>Sur ${lien(meilleur)}, vous économisez <strong>${fmtEur(meilleur.gain)}</strong> en roulant ${fmtDuree(meilleur.detour)} de plus. Cela représente <strong>${tauxHoraire(meilleur.taux)}</strong> de détour, le meilleur rapport parmi les ${classement.length} trajets classables de ce relevé.</p>` : ''}
+    ${tableau}
+${court ? `<p><strong>Si vous avez une demi-heure de marge.</strong> Dans la limite de 30 minutes supplémentaires, ${lien(court)} offre la plus grande économie, avec ${fmtEur(court.gain)} ${court.detour > 0 ? 'pour ' + fmtDuree(court.detour) + ' de plus' : 'sans temps de route supplémentaire'}.</p>` : ''}
+${gainMax && gainMax !== court && gainMax.detour > 0 ? `<p><strong>Si le budget passe en premier.</strong> Sur ${lien(gainMax)}, éviter les péages économise ${fmtEur(gainMax.gain)}, le montant le plus élevé du relevé. Il faut prévoir ${fmtDuree(gainMax.detour)} de route en plus.</p>` : ''}
+${sansDetour.length ? `<h3>Moins cher sans détour</h3><ul>${sansDetour.map(t => `<li>${lien(t)} économise ${fmtEur(t.gain)} ${t.detour < 0 ? 'et fait gagner ' + fmtDuree(-t.detour) : 'à durée égale'}.</li>`).join('')}</ul>` : ''}
+    <a class="cta" href="/">Comparer les deux itinéraires avec ma voiture</a>
+  </section>
+  <section class="card lecture">
+    <h2>Comment le classement est calculé</h2>
+    <p>Pour chaque trajet, Futéroute soustrait le coût du parcours sans péages de celui du parcours rapide. Les deux totaux incluent le carburant consommé, avec la même hypothèse de 6,6 L/100 km de SP95-E10. Les péages sont ceux d’une voiture de classe 1.</p>
+    <p>L’économie nette est divisée par les heures de route supplémentaires, avant l’arrondi des durées affichées. Le tableau présente jusqu’à dix trajets par ordre décroissant d’euros par heure. À taux égal, la plus grande économie passe en premier.</p>
+    <p>Seuls les trajets recalculés avec deux coûts connus, une économie positive et un détour de durée positive entrent dans le classement horaire. Chaque fiche détaille les deux itinéraires et leurs sources.</p>
+    <p>Les durées proviennent de ${SOURCE_ROUTE}. Le SP95-E10 reprend les ${SOURCE_CARBURANT}. Pour les péages, le calculateur interroge ${SOURCE_VINCI}, puis ${SOURCE_MICHELIN} si nécessaire.</p>
+    <p><a href="./">Consulter toutes les fiches trajet</a></p>
+  </section>
+</main>
 </body>
 </html>
 `;
@@ -311,6 +438,7 @@ function renderIndex(reussis) {
 ${renderHeader(true)}
   <div class="breadcrumb"><a href="${SITE_URL}/">Futéroute</a> › Trajets</div>
   <h1>Coût des trajets en voiture</h1>
+  <p class="card"><a href="./${PAGE_COMPARATIF}">Quels trajets sans péages économisent le plus par heure de détour ?</a></p>
   <div class="card"><ul class="annuaire">${items}</ul></div>
   <footer><a href="${SITE_URL}/">← Retour à Futéroute</a></footer>
 </div>
@@ -346,7 +474,7 @@ async function main() {
         const t = pending[i];
         process.stdout.write(`Calcul ${t.depart} → ${t.arrivee}… `);
         try {
-          const r = await calculerTrajet(browser, t.depart, t.arrivee);
+          const r = await calculerTrajet(browser, t.depart, t.arriveeGps || t.arrivee);
           resultsBySlug.set(t.slug, { ...t, r });
           lastErrorsBySlug.delete(t.slug);
           console.log('ok');
@@ -387,13 +515,20 @@ async function main() {
   const publiables = TRAJETS.filter(t =>
     resultsBySlug.has(t.slug) || fs.existsSync(path.join(outDir, `${t.slug}.html`)));
 
+  publierPages(reussis, publiables);
+  console.log(`\n${reussis.length}/${TRAJETS.length} trajets recalculés ; ${publiables.length}/${TRAJETS.length} pages publiées. sitemap.xml mis à jour.`);
+}
+
+function publierPages(reussis, publiables, racine = ROOT, dateMaj = dateReleve()) {
+  const outDir = path.join(racine, 'trajets');
   for (const t of reussis) {
-    fs.writeFileSync(path.join(outDir, `${t.slug}.html`), renderPage(t, t.r, publiables));
+    fs.writeFileSync(path.join(outDir, `${t.slug}.html`), renderPage(t, t.r, publiables, dateMaj));
   }
   fs.writeFileSync(path.join(outDir, 'index.html'), renderIndex(publiables));
+  fs.writeFileSync(path.join(outDir, PAGE_COMPARATIF), renderComparatif(reussis, dateMaj));
 
   const urls = publiables.map(t => `${SITE_URL}/trajets/${t.slug}.html`);
-  urls.push(`${SITE_URL}/trajets/`);
+  urls.push(`${SITE_URL}/trajets/`, `${SITE_URL}/trajets/${PAGE_COMPARATIF}`);
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -401,9 +536,8 @@ async function main() {
 ${urls.map(u => `  <url><loc>${u}</loc><changefreq>weekly</changefreq></url>`).join('\n')}
 </urlset>
 `;
-  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemap);
-  console.log(`\n${reussis.length}/${TRAJETS.length} trajets recalculés ; ${publiables.length}/${TRAJETS.length} pages publiées. sitemap.xml mis à jour.`);
+  fs.writeFileSync(path.join(racine, 'sitemap.xml'), sitemap);
 }
 
 if (require.main === module) main();
-module.exports = { renderPage };
+module.exports = { renderPage, renderComparatif, comparaisonPeages, publierPages };

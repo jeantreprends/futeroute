@@ -2278,6 +2278,7 @@
   <div class="page-footer">
     <a href="accueil.html">À propos</a>
     · <a href="trajets/">Coût des trajets les plus recherchés</a>
+    · <a href="trajets/comparatif-sans-peages.html">Où le détour sans péages rapporte le plus</a>
     · <button type="button" onclick="toggleSources()">Sources &amp; méthode</button>
     <div class="card sources-card" id="sourcesCard">
       <h3>D'où viennent les chiffres</h3>
@@ -6867,10 +6868,13 @@ async function calculer() {
     // rapide est inconnu : dans ce cas on n'affiche que le trajet rapide
     // (comportement d'avant). Le zéro péage n'est gardé que s'il fait
     // vraiment gagner de l'argent, et si son tracé diffère réellement.
+    // La fiche statique compare aussi les alternatives qui économisent peu ou coûtent plus cher.
+    // On conserve leurs mesures même quand le sélecteur interactif masque cette option.
+    const zero = routeZero ? mkOption(routeZero) : null;
+    rapide.alternativeSansPeage = zero;
     const options = { rapide };
     const totalRapide = rapide.coutA + (rapide.coutPeage || 0);
     if (typeof rapide.coutPeage === 'number' && rapide.coutPeage > 0 && routeZero && !memeTrace(routeZero, routeRapide)) {
-      const zero = mkOption(routeZero);
       zero.coutPeage = 0;
       zero.mapsUrl = mapsBase + '&avoid=tolls';
       if (zero.coutA < totalRapide - 0.5) options.zero = zero;
