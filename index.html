@@ -2255,6 +2255,7 @@
 // tester chacun même quand un précédent répond normalement. Capturé tout de
 // suite : chargerRechercheDepuisLien() nettoie l'URL (retire tous les
 // paramètres) dès le chargement de la page.
+const demoTrain = new URLSearchParams(location.search).get('demo') === 'train';
 const DEBUG_FORCE_PEAGE = new URLSearchParams(location.search).get('peage'); // 'vinci' | 'viamichelin' | null
 const DEBUG_FORCE_VINCI = DEBUG_FORCE_PEAGE === 'vinci';
 const DEBUG_FORCE_VIAMICHELIN = DEBUG_FORCE_PEAGE === 'viamichelin';
@@ -5992,7 +5993,7 @@ document.getElementById('trainForm').addEventListener('submit', event => {
 });
 
 // Accès direct à la recette, y compris lorsque les API routières sont indisponibles.
-if (new URLSearchParams(location.search).get('demo') === 'train') {
+if (demoTrain) {
   const results = document.getElementById('sectionResultats');
   document.querySelector('.header').after(results);
   document.getElementById('modeCout').style.setProperty('display', 'none', 'important');
