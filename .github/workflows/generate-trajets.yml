@@ -9,6 +9,11 @@ name: Générer les pages trajet (SEO)
 # publier une liste/sitemap amputés.
 on:
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/generate-trajets.yml'
+      - 'scripts/generate-trajets.js'
   schedule:
     - cron: '0 6 * * *'
 
@@ -38,17 +43,38 @@ jobs:
       - name: Installe Chromium pour Playwright
         run: npx playwright install --with-deps chromium
 
-      - name: Génère les pages trajet
-        run: npm run generate:trajets
-
-      - name: Publie les pages mises à jour (commit direct sur main)
+      - name: Génère et publie les pages trajet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add trajets sitemap.xml
-          if git diff --cached --quiet; then
-            echo "Aucun changement à publier."
-          else
+          ref="refs/heads/$GITHUB_REF_NAME"
+
+          for tentative in 1 2 3; do
+            git fetch --no-tags origin "$ref"
+            base=$(git rev-parse FETCH_HEAD)
+            if ! git diff --quiet HEAD "$base" -- package.json package-lock.json; then
+              git switch --detach "$base"
+              npm ci
+              npx playwright install --with-deps chromium
+            else
+              git switch --detach "$base"
+            fi
+            npm run generate:trajets
+            git add trajets sitemap.xml
+            if git diff --cached --quiet; then
+              echo "Les pages sont à jour."
+              exit 0
+            fi
             git commit -m "Régénère les pages trajet (chiffres à jour)"
-            git push
-          fi
+            if git push origin "HEAD:$ref"; then
+              exit 0
+            fi
+            git fetch --no-tags origin "$ref"
+            if [ "$(git rev-parse FETCH_HEAD)" = "$base" ]; then
+              echo "::error::Publication refusée alors que la branche distante est inchangée."
+              exit 1
+            fi
+            echo "La branche a changé pendant le calcul (tentative $tentative/3)."
+          done
+          echo "::error::La branche a changé pendant chacune des trois tentatives."
+          exit 1
