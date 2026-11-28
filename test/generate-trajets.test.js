@@ -106,3 +106,33 @@ test('le recalcul de Lyon–Genève reprend le point suisse utilisé par la fich
   assert.equal(lien.searchParams.get('to'), geneve.arriveeGps);
   assert.match(html, /vignette suisse/);
 });
+
+test('la liste des fiches et les tracés routiers couvrent le catalogue publié', () => {
+  const fs = require('node:fs');
+  const vm = require('node:vm');
+  const { renderIndex } = require('../scripts/generate-trajets');
+  const catalogue = require('../trajets/trajets.json');
+  const traces = require('../trajets/traces-routiers.json');
+  const decode = vm.runInNewContext(fs.readFileSync(require.resolve('../polyline.js'), 'utf8') + '\ndecodePolyline');
+  const html = renderIndex(catalogue);
+  for (const t of catalogue) {
+    assert.ok(html.includes(`data-trajet="${t.slug}" href="https://futeroute.fr/trajets/${t.slug}.html"`));
+    const points = decode(traces[t.slug], 5);
+    assert.ok(points.length > 2);
+    assert.ok(points.every(([lat, lon]) => lat > 40 && lat < 52 && lon > -6 && lon < 10));
+  }
+  assert.match(html, /id="vue-carte"[^>]* hidden/);
+});
+
+test('une génération partielle actualise les tracés et conserve ceux des fiches antérieures', t => {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { publierTraces } = require('../scripts/carte-trajets');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'futeroute-carte-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const fichier = path.join(dir, 'traces-routiers.json');
+  fs.writeFileSync(fichier, JSON.stringify({ paris: 'ancien', nice: 'conservé', lyon: 'retiré' }));
+  publierTraces([{ slug: 'paris', r: { polyline: 'nouveau' } }], [{ slug:'nice' }, { slug:'paris' }], dir);
+  assert.deepEqual(JSON.parse(fs.readFileSync(fichier)), { nice:'conservé', paris:'nouveau' });
+});
