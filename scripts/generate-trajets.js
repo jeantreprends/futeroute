@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { chromium } = require('playwright');
-const { renderCarte } = require('./carte-trajets');
+const { renderAnnuaire, publierTraces } = require('./carte-trajets');
 
 const ROOT = path.join(__dirname, '..');
 const TRAJETS = JSON.parse(fs.readFileSync(path.join(ROOT, 'trajets/trajets.json'), 'utf8'));
@@ -48,7 +48,7 @@ function startServer() {
     if (req.url === '/' || req.url.startsWith('/?')) filePath = path.join(ROOT, 'index.html');
     fs.readFile(filePath, (err, data) => {
       if (err) { res.writeHead(404); res.end(); return; }
-      res.writeHead(200, { 'Content-Type': filePath.endsWith('.html') ? 'text/html' : 'application/octet-stream' });
+      res.writeHead(200, { 'Content-Type': filePath.endsWith('.js') ? 'text/javascript' : filePath.endsWith('.html') ? 'text/html' : 'application/octet-stream' });
       res.end(data);
     });
   });
@@ -121,6 +121,7 @@ async function calculerTrajet(browser, depart, arrivee) {
       const z = r.alternativeSansPeage;
       return {
         data: {
+          polyline: r.polyline,
           distanceKm: r.distA,
           dureeSec: r.dureeSec,
           coutCarburant: r.coutA,
@@ -435,6 +436,7 @@ function renderIndex(reussis) {
 <link rel="icon" type="image/png" sizes="96x96" href="../favicon.png">
 <link rel="stylesheet" href="../pages.css">
 <link rel="stylesheet" href="./carte.css">
+<script src="../polyline.js" defer></script>
 <script src="./carte.js" defer></script>
 </head>
 <body class="page-annuaire">
@@ -442,8 +444,8 @@ function renderIndex(reussis) {
 ${renderHeader(true)}
   <div class="breadcrumb"><a href="${SITE_URL}/">Futéroute</a> › Trajets</div>
   <h1>Coût des trajets en voiture</h1>
+  ${renderAnnuaire(reussis, `${SITE_URL}/trajets/`)}
   <p class="lien-comparatif"><a href="${SITE_URL}/trajets/${PAGE_COMPARATIF}">Quels trajets sans péages économisent le plus par heure de détour ?</a></p>
-  ${renderCarte(reussis, `${SITE_URL}/trajets/`)}
   <footer><a href="${SITE_URL}/">← Retour à Futéroute</a></footer>
 </div>
 </body>
@@ -528,6 +530,7 @@ function publierPages(reussis, publiables, racine = ROOT, dateMaj = dateReleve()
   for (const t of reussis) {
     fs.writeFileSync(path.join(outDir, `${t.slug}.html`), renderPage(t, t.r, publiables, dateMaj));
   }
+  publierTraces(reussis, publiables, outDir);
   fs.writeFileSync(path.join(outDir, 'index.html'), renderIndex(publiables));
   fs.writeFileSync(path.join(outDir, PAGE_COMPARATIF), renderComparatif(reussis, dateMaj));
 
